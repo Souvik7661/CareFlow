@@ -6,10 +6,12 @@ import {
   MapPin, 
   Download, 
   User as UserIcon, 
-  FileText, 
   ArrowRight,
   Sparkles,
-  QrCode
+  QrCode,
+  Ticket,
+  Activity,
+  Home
 } from 'lucide-react';
 
 interface AppointmentConfirmationProps {
@@ -17,21 +19,44 @@ interface AppointmentConfirmationProps {
   onGoToCheckIn: () => void;
   onGoToMyAppointments: () => void;
   onGoToDashboard: () => void;
+  onGoToLiveQueue?: () => void;
 }
 
 export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = ({
   appointment,
   onGoToCheckIn,
   onGoToMyAppointments,
-  onGoToDashboard
+  onGoToDashboard,
+  onGoToLiveQueue
 }) => {
   const [calendarDownloaded, setCalendarDownloaded] = useState(false);
 
+  // Resilient Field Fallback Accessors
+  let defaultPatName = 'Valued Patient';
+  try {
+    const savedUser = localStorage.getItem('careflow_current_user');
+    if (savedUser) {
+      const u = JSON.parse(savedUser);
+      if (u.fullName) defaultPatName = u.fullName;
+    }
+  } catch (e) {}
+
+  const apptId = appointment?.appointmentId || appointment?.appointment_id || 'APT-2026-88129';
+  const patName = appointment?.patientName || appointment?.patient_name || defaultPatName;
+  const docName = appointment?.doctorName || appointment?.doctor_name || 'Dr. Ananya Sharma';
+  const deptName = appointment?.departmentName || appointment?.department_name || 'Cardiology';
+  const roomNumber = appointment?.roomNo || appointment?.room_no || 'Room 204';
+  const roomWing = appointment?.wing || appointment?.room_wing || appointment?.roomWing || 'Block A • OPD Wing';
+  const apptDate = appointment?.appointmentDate || appointment?.appointment_date || new Date().toISOString().split('T')[0];
+  const apptTime = appointment?.appointmentTime || appointment?.appointment_time || '10:00 AM';
+  const tokenNum = appointment?.tokenNumber || appointment?.token_number || 'CF-204';
+
   // Generate standard iCalendar (.ics) content
   const handleDownloadCalendar = () => {
-    const title = `Hospital Appointment: ${appointment.doctorName} (${appointment.departmentName})`;
-    const description = `CareFlow AI Appointment ID: ${appointment.appointmentId}. Please check in upon arrival at ${appointment.roomNo}.`;
-    const location = `CareFlow Apex Hospital - ${appointment.roomNo}, ${appointment.wing || 'Block A'}`;
+    const title = `Hospital Appointment: ${docName} (${deptName})`;
+    const description = `CareFlow AI Appointment ID: ${apptId}. Room: ${roomNumber} (${roomWing}). Token: #${tokenNum}. Please check in upon arrival.`;
+    const location = `CareFlow Apex Hospital - ${roomNumber}, ${roomWing}`;
+    const cleanDate = (apptDate || '').replace(/-/g, '');
     
     const icsData = [
       'BEGIN:VCALENDAR',
@@ -41,8 +66,8 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       `SUMMARY:${title}`,
       `DESCRIPTION:${description}`,
       `LOCATION:${location}`,
-      `DTSTART:${appointment.appointmentDate.replace(/-/g, '')}T090000Z`,
-      `DTEND:${appointment.appointmentDate.replace(/-/g, '')}T093000Z`,
+      `DTSTART:${cleanDate || '20260904'}T090000Z`,
+      `DTEND:${cleanDate || '20260904'}T093000Z`,
       'STATUS:CONFIRMED',
       'END:VEVENT',
       'END:VCALENDAR'
@@ -51,7 +76,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.setAttribute('download', `${appointment.appointmentId}_CareFlow.ics`);
+    link.setAttribute('download', `${apptId}_CareFlow.ics`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -59,105 +84,132 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   };
 
   return (
-    <div style={{ maxWidth: '680px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '680px', margin: '0 auto', paddingBottom: '40px' }}>
       {/* Success Card */}
-      <div className="card" style={{ textAlign: 'center', padding: '40px 32px' }}>
+      <div className="card" style={{ textAlign: 'center', padding: '36px 28px', borderRadius: '26px' }}>
         {/* Animated Check icon */}
         <div style={{
           width: '72px',
           height: '72px',
-          borderRadius: 'var(--radius-full)',
+          borderRadius: '50%',
           background: 'var(--success-bg)',
           color: 'var(--success)',
           border: '2px solid var(--success-border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          margin: '0 auto 20px auto',
-          boxShadow: '0 0 25px rgba(5, 150, 105, 0.2)'
+          margin: '0 auto 16px auto',
+          boxShadow: '0 0 25px rgba(5, 150, 105, 0.25)'
         }}>
           <CheckCircle size={38} />
         </div>
 
-        <h1 style={{ fontSize: '2.2rem', marginBottom: '6px', color: 'var(--text-primary)' }}>
+        <h1 style={{ fontSize: '2.1rem', marginBottom: '6px', color: 'var(--text-primary)', fontWeight: 800 }}>
           Appointment Confirmed
         </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginBottom: '28px' }}>
-          Your consultation has been successfully scheduled in the hospital database.
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.96rem', marginBottom: '24px' }}>
+          Your consultation has been successfully scheduled and recorded in the hospital database.
         </p>
 
         {/* Voucher Pass Card */}
         <div style={{
           background: 'var(--bg-main)',
           border: '1.5px dashed var(--border-color)',
-          borderRadius: 'var(--radius-lg)',
+          borderRadius: '20px',
           padding: '24px',
           textAlign: 'left',
-          marginBottom: '28px'
+          marginBottom: '24px',
+          boxShadow: 'var(--shadow-sm)'
         }}>
+          {/* Header Strip with Reference ID and Token Badge */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px', marginBottom: '16px' }}>
             <div>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
-                Appointment Reference ID
+              <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>
+                APPOINTMENT REFERENCE ID
               </span>
-              <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '0.04em' }}>
-                {appointment.appointmentId}
+              <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.35rem', fontWeight: 900, color: 'var(--primary)', letterSpacing: '0.04em', marginTop: '2px' }}>
+                {apptId}
               </div>
             </div>
 
-            <div style={{
-              background: '#ffffff',
-              border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius-md)',
-              padding: '6px 10px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              color: 'var(--text-secondary)'
-            }}>
-              <QrCode size={18} color="var(--primary)" />
-              <span>Digital Pass</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{
+                background: 'linear-gradient(135deg, var(--primary), #0f766e)',
+                color: '#ffffff',
+                borderRadius: '12px',
+                padding: '6px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '0.84rem',
+                fontWeight: 800,
+                boxShadow: '0 4px 12px rgba(13, 148, 136, 0.3)'
+              }}>
+                <Ticket size={16} />
+                <span>TOKEN #{tokenNum}</span>
+              </div>
+
+              <div style={{
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '10px',
+                padding: '6px 10px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontSize: '0.76rem',
+                fontWeight: 700,
+                color: 'var(--text-secondary)'
+              }}>
+                <QrCode size={16} color="var(--primary)" />
+                <span>Pass</span>
+              </div>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          {/* Details Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
             <div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Patient Name</span>
-              <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{appointment.patientName}</div>
-            </div>
-
-            <div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Attending Specialist</span>
-              <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{appointment.doctorName}</div>
-            </div>
-
-            <div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Department</span>
-              <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{appointment.departmentName}</div>
-            </div>
-
-            <div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Consultation Room</span>
-              <div style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--primary)' }}>
-                {appointment.roomNo} ({appointment.wing || 'Main Wing'})
+              <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Patient Name</span>
+              <div style={{ fontWeight: 800, fontSize: '0.98rem', color: 'var(--text-primary)', marginTop: '2px' }}>
+                {patName}
               </div>
             </div>
 
             <div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Scheduled Date</span>
-              <div style={{ fontWeight: 600, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Calendar size={15} color="var(--text-muted)" />
-                <span>{appointment.appointmentDate}</span>
+              <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Attending Specialist</span>
+              <div style={{ fontWeight: 800, fontSize: '0.98rem', color: 'var(--text-primary)', marginTop: '2px' }}>
+                {docName}
               </div>
             </div>
 
             <div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Slot Time</span>
-              <div style={{ fontWeight: 600, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Clock size={15} color="var(--text-muted)" />
-                <span>{appointment.appointmentTime}</span>
+              <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Department</span>
+              <div style={{ fontWeight: 800, fontSize: '0.98rem', color: 'var(--text-primary)', marginTop: '2px' }}>
+                {deptName}
+              </div>
+            </div>
+
+            <div>
+              <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Consultation Room</span>
+              <div style={{ fontWeight: 800, fontSize: '0.98rem', color: 'var(--primary)', marginTop: '2px' }}>
+                {roomNumber} <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 600 }}>({roomWing})</span>
+              </div>
+            </div>
+
+            <div>
+              <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Scheduled Date</span>
+              <div style={{ fontWeight: 800, fontSize: '0.96rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                <Calendar size={15} color="var(--primary)" />
+                <span>{apptDate}</span>
+              </div>
+            </div>
+
+            <div>
+              <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Slot Time</span>
+              <div style={{ fontWeight: 800, fontSize: '0.96rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                <Clock size={15} color="var(--primary)" />
+                <span>{apptTime}</span>
               </div>
             </div>
           </div>
@@ -166,22 +218,22 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
         {/* Arrival Check-In Callout */}
         <div style={{
           background: 'var(--primary-light)',
-          border: '1px solid var(--primary-border)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '20px',
-          marginBottom: '28px',
+          border: '1.5px solid var(--primary-border)',
+          borderRadius: '20px',
+          padding: '22px',
+          marginBottom: '24px',
           textAlign: 'center'
         }}>
-          <h3 style={{ fontSize: '1.1rem', color: 'var(--primary)', marginBottom: '4px' }}>
+          <h3 style={{ fontSize: '1.15rem', color: 'var(--primary)', fontWeight: 800, marginBottom: '6px' }}>
             Please check in when you arrive at the hospital
           </h3>
-          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', maxWidth: '480px', margin: '0 auto 16px auto' }}>
-            Check-in assigns your real-time queue token (e.g. C-027) and begins dynamic wait-time optimization.
+          <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', maxWidth: '480px', margin: '0 auto 16px auto', lineHeight: 1.45 }}>
+            Check-in activates your real-time queue position with Dr. AI and notifies the attending doctor's room.
           </p>
 
           <button 
-            className="btn btn-primary"
-            style={{ padding: '12px 24px' }}
+            className="btn btn-primary btn-lg"
+            style={{ padding: '12px 28px', borderRadius: '9999px', fontSize: '0.95rem', fontWeight: 800 }}
             onClick={onGoToCheckIn}
           >
             <span>Proceed to Hospital Check-In</span>
@@ -189,29 +241,44 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
           </button>
         </div>
 
-        {/* Calendar & Navigation Options */}
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {onGoToLiveQueue && (
+            <button 
+              className="btn btn-primary"
+              style={{ fontSize: '0.84rem', borderRadius: '9999px', padding: '8px 18px' }}
+              onClick={onGoToLiveQueue}
+            >
+              <Activity size={15} />
+              <span>View Live Queue Status</span>
+            </button>
+          )}
+
           <button 
             className="btn btn-outline"
+            style={{ fontSize: '0.84rem', borderRadius: '9999px', padding: '8px 18px' }}
             onClick={handleDownloadCalendar}
           >
-            <Download size={16} />
+            <Download size={15} />
             <span>{calendarDownloaded ? 'Downloaded (.ics)' : 'Add to Calendar'}</span>
           </button>
 
           <button 
             className="btn btn-outline"
+            style={{ fontSize: '0.84rem', borderRadius: '9999px', padding: '8px 18px' }}
             onClick={onGoToMyAppointments}
           >
-            <Calendar size={16} />
+            <Calendar size={15} />
             <span>View All Appointments</span>
           </button>
 
           <button 
             className="btn btn-outline"
+            style={{ fontSize: '0.84rem', borderRadius: '9999px', padding: '8px 18px' }}
             onClick={onGoToDashboard}
           >
-            <span>Return to Dashboard</span>
+            <Home size={15} />
+            <span>Back to Home &amp; Quick Actions</span>
           </button>
         </div>
       </div>

@@ -15,19 +15,29 @@ import {
 
 interface CheckInScreenProps {
   user: User;
+  initialAppointmentId?: string | null;
+  onBack?: () => void;
   onCheckInSuccess: () => void;
 }
 
 export const CheckInScreen: React.FC<CheckInScreenProps> = ({
   user,
+  initialAppointmentId,
+  onBack,
   onCheckInSuccess
 }) => {
   const [method, setMethod] = useState<'appointment' | 'phone'>('appointment');
-  const [appointmentId, setAppointmentId] = useState('');
+  const [appointmentId, setAppointmentId] = useState(initialAppointmentId || '');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [checkInResult, setCheckInResult] = useState<any | null>(null);
+
+  React.useEffect(() => {
+    if (initialAppointmentId) {
+      setAppointmentId(initialAppointmentId);
+    }
+  }, [initialAppointmentId]);
 
   const handleCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +51,17 @@ export const CheckInScreen: React.FC<CheckInScreenProps> = ({
 
       const res = await api.checkIn(payload);
       setCheckInResult(res);
+
+      try {
+        const savedStr = localStorage.getItem('careflow_latest_appointment');
+        if (savedStr) {
+          const appt = JSON.parse(savedStr);
+          appt.tokenNumber = res.tokenNumber || appt.tokenNumber;
+          appt.token_number = res.tokenNumber || appt.token_number;
+          appt.status = 'CHECKED_IN';
+          localStorage.setItem('careflow_latest_appointment', JSON.stringify(appt));
+        }
+      } catch (e) {}
     } catch (err: any) {
       setError(err.message || 'Check-in verification failed.');
     } finally {
@@ -49,14 +70,24 @@ export const CheckInScreen: React.FC<CheckInScreenProps> = ({
   };
 
   return (
-    <div style={{ maxWidth: '640px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '640px', margin: '0 auto', paddingBottom: '40px' }}>
+      {onBack && (
+        <button 
+          className="btn btn-outline btn-sm" 
+          onClick={onBack}
+          style={{ borderRadius: '9999px', padding: '6px 16px', marginBottom: '16px' }}
+        >
+          &larr; Back to Services
+        </button>
+      )}
+
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: '28px' }}>
         <div className="hero-pill" style={{ marginBottom: '10px' }}>
           <UserCheck size={15} />
           <span>Hospital Arrival Verification</span>
         </div>
-        <h1 style={{ fontSize: '2.2rem', marginBottom: '6px' }}>Manual Hospital Check-In</h1>
+        <h1 style={{ fontSize: '2.2rem', marginBottom: '6px', color: 'var(--text-primary)' }}>Manual Hospital Check-In</h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
           Please verify your arrival when you are inside the hospital clinic to enter the active queue.
         </p>

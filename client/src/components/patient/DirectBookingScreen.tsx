@@ -68,8 +68,10 @@ export const DirectBookingScreen: React.FC<DirectBookingScreenProps> = ({
     setIsSubmitting(true);
     try {
       const patientId = currentUser?.patientId || 'PAT-2026-88129';
+      const patientName = currentUser?.fullName || 'Alex Carter';
       const res = await api.bookAppointment({
         patientId,
+        patientName,
         doctorId: selectedDoctor.doctorId,
         departmentId: selectedDoctor.departmentId,
         appointmentDate: selectedDate,
@@ -77,7 +79,43 @@ export const DirectBookingScreen: React.FC<DirectBookingScreenProps> = ({
         reason: `${consultationType === 'teleconsult' ? '[Video Teleconsult] ' : ''}${reason}`
       });
 
-      onBookingSuccess(res.appointment);
+      const fullAppointment = {
+        ...res.appointment,
+        appointmentId: res.appointment?.appointmentId || res.appointment?.appointment_id || `APT-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+        appointment_id: res.appointment?.appointmentId || res.appointment?.appointment_id || `APT-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+        patientId,
+        patient_id: patientId,
+        patientName,
+        patient_name: patientName,
+        doctorId: selectedDoctor.doctorId,
+        doctor_id: selectedDoctor.doctorId,
+        doctorName: selectedDoctor.name,
+        doctor_name: selectedDoctor.name,
+        departmentId: selectedDoctor.departmentId,
+        department_id: selectedDoctor.departmentId,
+        departmentName: selectedDoctor.departmentName || selectedDoctor.department_name || 'Specialty Care',
+        department_name: selectedDoctor.departmentName || selectedDoctor.department_name || 'Specialty Care',
+        roomNo: selectedDoctor.roomNo || selectedDoctor.room_no || 'Room 204',
+        room_no: selectedDoctor.roomNo || selectedDoctor.room_no || 'Room 204',
+        wing: selectedDoctor.room_wing || 'Block A • Wing 1',
+        room_wing: selectedDoctor.room_wing || 'Block A • Wing 1',
+        appointmentDate: selectedDate,
+        appointment_date: selectedDate,
+        appointmentTime: selectedSlot,
+        appointment_time: selectedSlot,
+        tokenNumber: res.appointment?.tokenNumber || res.appointment?.token_number || `CF-${Math.floor(200 + Math.random() * 80)}`,
+        token_number: res.appointment?.tokenNumber || res.appointment?.token_number || `CF-${Math.floor(200 + Math.random() * 80)}`,
+        status: 'CONFIRMED',
+        estimatedWaitTime: 8,
+        queuePosition: 2,
+        consultationFee: selectedDoctor.consultation_fee || 700
+      };
+
+      try {
+        localStorage.setItem('careflow_latest_appointment', JSON.stringify(fullAppointment));
+      } catch (e) {}
+
+      onBookingSuccess(fullAppointment);
     } catch (err: any) {
       alert('Booking failed: ' + (err.message || 'Unknown error'));
     } finally {

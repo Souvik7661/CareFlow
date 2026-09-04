@@ -574,40 +574,122 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}): T 
   // 10. Appointment Booking
   if (endpoint === '/appointments/book') {
     const randNum = Math.floor(200 + Math.random() * 80);
-    const doc = DEFAULT_DOCTORS.find(d => d.doctorId === body.doctorId) || DEFAULT_DOCTORS[0];
+    const doc = DEFAULT_DOCTORS.find(d => d.doctorId === body.doctorId || d.doctor_id === body.doctorId) || DEFAULT_DOCTORS[0];
+    const patientName = body.patientName || 'Alex Carter';
+    const patientId = body.patientId || 'PAT-2026-88129';
+    const apptId = `APT-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+    const token = `CF-${randNum}`;
+
     const appt = {
-      appointment_id: `APT-${Date.now()}`,
-      patient_id: body.patientId || 'PAT-2026-88129',
+      appointmentId: apptId,
+      appointment_id: apptId,
+      patientId: patientId,
+      patient_id: patientId,
+      patientName: patientName,
+      patient_name: patientName,
+      doctorId: doc.doctorId,
       doctor_id: doc.doctorId,
+      doctorName: doc.name,
       doctor_name: doc.name,
-      department_name: doc.department_name,
-      room_no: doc.roomNo,
+      departmentId: doc.departmentId,
+      department_id: doc.departmentId,
+      departmentName: doc.department_name || doc.departmentName || 'Cardiology',
+      department_name: doc.department_name || doc.departmentName || 'Cardiology',
+      specialization: doc.specialization,
+      roomNo: doc.roomNo || doc.room_no || 'Room 204',
+      room_no: doc.roomNo || doc.room_no || 'Room 204',
+      wing: doc.room_wing || doc.roomWing || 'Block A • Wing 1',
+      room_wing: doc.room_wing || doc.roomWing || 'Block A • Wing 1',
+      appointmentDate: body.appointmentDate || new Date().toISOString().split('T')[0],
       appointment_date: body.appointmentDate || new Date().toISOString().split('T')[0],
-      appointment_time: body.appointmentTime || '10:30 AM',
-      token_number: `CF-${randNum}`,
-      status: 'CONFIRMED',
+      appointmentTime: body.appointmentTime || '10:00 AM',
+      appointment_time: body.appointmentTime || '10:00 AM',
+      tokenNumber: token,
+      token_number: token,
+      status: 'IN_QUEUE',
+      estimatedWaitTime: 8,
       estimated_wait_time: 8,
-      queue_position: 2
+      queuePosition: 2,
+      queue_position: 2,
+      reason: body.reason || 'General Health Consultation'
     };
+
+    try {
+      localStorage.setItem('careflow_latest_appointment', JSON.stringify(appt));
+    } catch (e) {}
+
     return {
       message: 'Appointment confirmed successfully',
       appointment: appt
     } as any;
   }
 
+  // 10.1 Patient's Own Appointments
+  if (endpoint.startsWith('/appointments/my')) {
+    let savedAppt: any = null;
+    try {
+      const savedStr = localStorage.getItem('careflow_latest_appointment');
+      if (savedStr) savedAppt = JSON.parse(savedStr);
+    } catch (e) {}
+
+    const defaultApt = savedAppt || {
+      appointmentId: 'APT-2026-88129',
+      appointment_id: 'APT-2026-88129',
+      patientId: 'PAT-2026-88129',
+      patient_id: 'PAT-2026-88129',
+      patientName: 'Alex Carter',
+      patient_name: 'Alex Carter',
+      doctorId: 'DOC-CARD-01',
+      doctor_id: 'DOC-CARD-01',
+      doctorName: 'Dr. Ananya Sharma',
+      doctor_name: 'Dr. Ananya Sharma',
+      specialization: 'Cardiologist',
+      departmentName: 'Cardiology',
+      department_name: 'Cardiology',
+      roomNo: 'Room 204',
+      room_no: 'Room 204',
+      wing: 'Block A • Wing 1',
+      room_wing: 'Block A • Wing 1',
+      appointmentDate: new Date().toISOString().split('T')[0],
+      appointment_date: new Date().toISOString().split('T')[0],
+      appointmentTime: '10:00 AM',
+      appointment_time: '10:00 AM',
+      tokenNumber: 'CF-204',
+      token_number: 'CF-204',
+      status: 'IN_QUEUE',
+      estimatedWaitTime: 8,
+      estimated_wait_time: 8,
+      queuePosition: 2,
+      queue_position: 2,
+      reason: 'General Health Consultation'
+    };
+
+    return {
+      appointments: [defaultApt]
+    } as any;
+  }
+
   // 11. Live Queue Status
   if (endpoint.startsWith('/queue/patient/')) {
+    let savedAppt: any = null;
+    try {
+      const savedStr = localStorage.getItem('careflow_latest_appointment');
+      if (savedStr) savedAppt = JSON.parse(savedStr);
+    } catch (e) {}
+
     return {
       currentTokenNumber: 'CF-201',
-      patientTokenNumber: 'CF-204',
-      queuePosition: 3,
+      patientTokenNumber: savedAppt?.tokenNumber || savedAppt?.token_number || 'CF-204',
+      queuePosition: 2,
       estimatedWaitTimeMinutes: 8,
       estimatedConsultationTime: '10:45 AM',
       doctorStatus: 'IN_SESSION',
-      currentDoctorName: 'Dr. Ananya Sharma',
-      roomNo: 'Room 204',
-      departmentName: 'Cardiology',
-      patientsAhead: 2
+      doctorName: savedAppt?.doctorName || savedAppt?.doctor_name || 'Dr. Ananya Sharma',
+      currentDoctorName: savedAppt?.doctorName || savedAppt?.doctor_name || 'Dr. Ananya Sharma',
+      specialization: savedAppt?.specialization || 'Cardiologist',
+      roomNo: savedAppt?.roomNo || savedAppt?.room_no || 'Room 204',
+      departmentName: savedAppt?.departmentName || savedAppt?.department_name || 'Cardiology',
+      patientsAhead: 1
     } as any;
   }
 
@@ -861,6 +943,7 @@ export const api = {
 
   bookAppointment: (payload: {
     patientId: string;
+    patientName?: string;
     doctorId: string;
     departmentId?: string;
     appointmentDate: string;

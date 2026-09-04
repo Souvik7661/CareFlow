@@ -9,7 +9,14 @@ import {
   MessageSquare, 
   Heart, 
   Clock, 
-  ShieldCheck 
+  ShieldCheck,
+  UserCheck,
+  Activity,
+  Building2,
+  Tv,
+  Ambulance,
+  CalendarPlus,
+  Ticket
 } from 'lucide-react';
 import { FashionLogo } from '../common/FashionLogo';
 
@@ -17,12 +24,14 @@ interface WelcomeServiceHubProps {
   user: User;
   onSelectService: (service: 'doctors' | 'book-appointment' | 'support') => void;
   onOpenTokenWindow: () => void;
+  onNavigate?: (view: string) => void;
 }
 
 export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
   user,
   onSelectService,
-  onOpenTokenWindow
+  onOpenTokenWindow,
+  onNavigate
 }) => {
   const [hoveredService, setHoveredService] = useState<'doctors' | 'book-appointment' | 'support' | null>(null);
   const [robotGreeting, setRobotGreeting] = useState<string | null>(null);
@@ -492,6 +501,248 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
         <span className="badge badge-primary" style={{ padding: '6px 14px', fontSize: '0.78rem' }}>
           View Token &rarr;
         </span>
+      </div>
+
+      {/* Direct Quick Actions Self-Service Grid */}
+      <div style={{ width: '100%', marginTop: '6px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Quick Hospital Actions
+          </span>
+          <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+            Instant self-service tools
+          </span>
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+          gap: '12px'
+        }}>
+          {/* Action 1: Self Check-In */}
+          <button
+            type="button"
+            className="card"
+            style={{
+              padding: '16px 14px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              borderRadius: '18px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              transition: 'all 0.2s',
+              boxShadow: 'var(--shadow-sm)'
+            }}
+            onClick={() => onNavigate && onNavigate('checkin')}
+          >
+            <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <UserCheck size={20} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>Hospital Check-In</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Arrival verification</div>
+            </div>
+          </button>
+
+          {/* Action 2: Live Queue Monitor */}
+          <button
+            type="button"
+            className="card"
+            style={{
+              padding: '16px 14px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              borderRadius: '18px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              transition: 'all 0.2s',
+              boxShadow: 'var(--shadow-sm)'
+            }}
+            onClick={() => onNavigate && onNavigate('live-queue')}
+          >
+            <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'var(--secondary-light)', color: 'var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Activity size={20} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>Live Queue Status</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Wait times &amp; turns</div>
+            </div>
+          </button>
+
+          {/* Action 3: AI Symptoms Analyzer */}
+          <button
+            type="button"
+            className="card"
+            style={{
+              padding: '16px 14px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              borderRadius: '18px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              transition: 'all 0.2s',
+              boxShadow: 'var(--shadow-sm)'
+            }}
+            onClick={() => onNavigate && onNavigate('find-doctor')}
+          >
+            <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Stethoscope size={20} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>AI Triage &amp; Match</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Analyze symptoms</div>
+            </div>
+          </button>
+
+          {/* Action 4: Hospital Network */}
+          <button
+            type="button"
+            className="card"
+            style={{
+              padding: '16px 14px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              borderRadius: '18px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              transition: 'all 0.2s',
+              boxShadow: 'var(--shadow-sm)'
+            }}
+            onClick={() => onNavigate && onNavigate('hospitals-map')}
+          >
+            <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(234, 179, 8, 0.15)', color: '#ca8a04', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Building2 size={20} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>Hospital Network</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Nearby ICU &amp; OPD</div>
+            </div>
+          </button>
+
+          {/* Action 5: My Consultations */}
+          <button
+            type="button"
+            className="card"
+            style={{
+              padding: '16px 14px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              borderRadius: '18px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              transition: 'all 0.2s',
+              boxShadow: 'var(--shadow-sm)'
+            }}
+            onClick={() => onNavigate && onNavigate('my-appointments')}
+          >
+            <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.15)', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Calendar size={20} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>My Consultations</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Passes &amp; history</div>
+            </div>
+          </button>
+
+          {/* Action 6: Direct Book Slot */}
+          <button
+            type="button"
+            className="card"
+            style={{
+              padding: '16px 14px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              borderRadius: '18px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              transition: 'all 0.2s',
+              boxShadow: 'var(--shadow-sm)'
+            }}
+            onClick={() => onNavigate && onNavigate('direct-booking')}
+          >
+            <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CalendarPlus size={20} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>Direct Book Slot</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Choose doctor &amp; date</div>
+            </div>
+          </button>
+
+          {/* Action 7: Emergency Ambulance */}
+          <button
+            type="button"
+            className="card"
+            style={{
+              padding: '16px 14px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              borderRadius: '18px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              transition: 'all 0.2s',
+              boxShadow: 'var(--shadow-sm)'
+            }}
+            onClick={() => onNavigate && onNavigate('ambulance')}
+          >
+            <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'var(--danger-bg)', color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Ambulance size={20} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>Emergency Ambulance</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>GPS dispatch &amp; 108</div>
+            </div>
+          </button>
+
+          {/* Action 8: Waiting Room TV */}
+          <button
+            type="button"
+            className="card"
+            style={{
+              padding: '16px 14px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              borderRadius: '18px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              transition: 'all 0.2s',
+              boxShadow: 'var(--shadow-sm)'
+            }}
+            onClick={() => onNavigate && onNavigate('waiting-tv')}
+          >
+            <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.15)', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Tv size={20} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>Lobby Display</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Public waiting TV</div>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
   );

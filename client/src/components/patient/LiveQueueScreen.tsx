@@ -16,11 +16,13 @@ import {
 
 interface LiveQueueScreenProps {
   user: User;
+  onBack?: () => void;
   onGoToCheckIn: () => void;
 }
 
 export const LiveQueueScreen: React.FC<LiveQueueScreenProps> = ({
   user,
+  onBack,
   onGoToCheckIn
 }) => {
   const [queueStatus, setQueueStatus] = useState<LiveQueueStatus | null>(null);
@@ -71,14 +73,16 @@ export const LiveQueueScreen: React.FC<LiveQueueScreenProps> = ({
 
   if (loading) {
     return (
-      <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+      <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
         <Activity size={32} className="pulse-indicator" style={{ marginBottom: '12px' }} />
         <div>Connecting to AI Queue Optimization Engine...</div>
       </div>
     );
   }
 
-  if (!queueStatus?.hasActiveQueue) {
+  const hasQueue = queueStatus?.hasActiveQueue ?? (!!queueStatus?.tokenNumber);
+
+  if (!hasQueue || !queueStatus) {
     return (
       <div className="card" style={{ maxWidth: '600px', margin: '40px auto', textAlign: 'center', padding: '40px' }}>
         <Clock size={48} color="var(--text-light)" style={{ marginBottom: '16px' }} />
@@ -86,19 +90,35 @@ export const LiveQueueScreen: React.FC<LiveQueueScreenProps> = ({
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '24px' }}>
           You are currently not checked into the hospital queue. If you have an appointment today, please check in to receive your queue token.
         </p>
-        <button className="btn btn-primary" onClick={onGoToCheckIn}>
-          Go to Hospital Check-In
-        </button>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          {onBack && (
+            <button className="btn btn-outline" onClick={onBack}>
+              Back to Services
+            </button>
+          )}
+          <button className="btn btn-primary" onClick={onGoToCheckIn}>
+            Go to Hospital Check-In
+          </button>
+        </div>
       </div>
     );
   }
 
-  const isCalled = queueStatus.status === 'CALLED';
-  const isInConsultation = queueStatus.status === 'IN_CONSULTATION';
-  const isAlmostThere = queueStatus.patientsAhead === 1;
+  const isCalled = queueStatus?.status === 'CALLED';
+  const isInConsultation = queueStatus?.status === 'IN_CONSULTATION';
+  const isAlmostThere = (queueStatus?.patientsAhead ?? 0) <= 1;
 
   return (
-    <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '40px' }}>
+      {onBack && (
+        <button 
+          className="btn btn-outline btn-sm" 
+          onClick={onBack}
+          style={{ width: 'fit-content', borderRadius: '9999px', padding: '6px 16px' }}
+        >
+          &larr; Back to Services
+        </button>
+      )}
       {/* Dynamic Proximity Alert Callout */}
       {isCalled && (
         <div style={{
@@ -232,8 +252,8 @@ export const LiveQueueScreen: React.FC<LiveQueueScreenProps> = ({
             </div>
             <div>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Attending Doctor</span>
-              <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{queueStatus.doctorName}</div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{queueStatus.specialization}</span>
+              <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{queueStatus.doctorName || (queueStatus as any).currentDoctorName || 'Dr. Ananya Sharma'}</div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{queueStatus.specialization || 'Cardiologist'}</span>
             </div>
           </div>
 
@@ -243,8 +263,8 @@ export const LiveQueueScreen: React.FC<LiveQueueScreenProps> = ({
             </div>
             <div>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Clinic Room &amp; Wing</span>
-              <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--primary)' }}>{queueStatus.roomNo}</div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{queueStatus.departmentName}</span>
+              <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--primary)' }}>{queueStatus.roomNo || 'Room 204'}</div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{queueStatus.departmentName || 'Cardiology'}</span>
             </div>
           </div>
         </div>

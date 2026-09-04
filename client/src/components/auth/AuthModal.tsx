@@ -97,7 +97,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       padding: '20px'
     }}>
       <div style={{
-        background: '#ffffff',
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)',
+        border: '1px solid var(--border-color)',
         borderRadius: 'var(--radius-xl)',
         maxWidth: mode === 'register' ? '640px' : '440px',
         width: '100%',

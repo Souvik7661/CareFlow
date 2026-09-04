@@ -198,22 +198,23 @@ export const App: React.FC = () => {
 
       {/* Main View Area */}
       <main className="main-content">
-        {/* Welcome Hub with AI Animated Doctor & 3 Service Options */}
-        {(currentView === 'welcome-hub' || currentView === 'landing') && (
+        {/* Welcome Hub with AI Animated Doctor & Direct Quick Actions */}
+        {(currentView === 'welcome-hub' || currentView === 'landing' || currentView === 'dashboard') && (
           <WelcomeServiceHub 
-            user={currentUser || { userId: 'USR-PAT-01', patientId: 'PAT-2026-00101', fullName: 'Alex Carter', email: 'alex.carter@careflow.com', role: 'PATIENT' }}
+            user={currentUser || { userId: 'USR-PAT-01', patientId: 'PAT-2026-00101', fullName: 'Valued Patient', email: 'patient@careflow.com', role: 'PATIENT' }}
             onSelectService={(srv) => setRedirectingService(srv)}
             onOpenTokenWindow={() => setCurrentView('token-window')}
+            onNavigate={(v) => setCurrentView(v)}
           />
         )}
 
         {/* Patient Token & Assigned Doctor Window (Opened on Logo Click) */}
         {currentView === 'token-window' && (
           <PatientTokenWindow 
-            user={currentUser || { userId: 'USR-PAT-01', patientId: 'PAT-2026-00101', fullName: 'Alex Carter', email: 'alex.carter@careflow.com', role: 'PATIENT' }}
+            user={currentUser || { userId: 'USR-PAT-01', patientId: 'PAT-2026-00101', fullName: 'Valued Patient', email: 'patient@careflow.com', role: 'PATIENT' }}
             onBack={() => setCurrentView('welcome-hub')}
             onGoToLiveQueue={() => setCurrentView('live-queue')}
-            onBookNew={() => setCurrentView('find-doctor')}
+            onBookNew={() => setCurrentView('direct-booking')}
           />
         )}
 
@@ -250,22 +251,62 @@ export const App: React.FC = () => {
           <DoctorProfileScreen 
             doctor={selectedDoctorForProfile}
             user={currentUser}
-            onBack={() => setCurrentView('find-doctors')}
+            onBack={() => setCurrentView('doctor-list')}
             onBookSlot={async (slot) => {
               try {
                 const todayStr = new Date().toISOString().split('T')[0];
+                const patientId = currentUser.patientId || 'PAT-2026-88129';
+                const patientName = currentUser.fullName || 'Valued Patient';
+                const doctorName = selectedDoctorForProfile.name || 'Dr. Ananya Sharma';
+                const departmentName = selectedDoctorForProfile.departmentName || selectedDoctorForProfile.department_name || 'Cardiology';
+                const roomNo = selectedDoctorForProfile.roomNo || selectedDoctorForProfile.room_no || 'Room 204';
+                const roomWing = selectedDoctorForProfile.roomWing || selectedDoctorForProfile.room_wing || selectedDoctorForProfile.wing || 'Block A • OPD Wing';
+
                 const res = await api.bookAppointment({
-                  patientId: currentUser.patientId || 'PAT-DEMO',
-                  doctorId: selectedDoctorForProfile.doctorId || selectedDoctorForProfile.doctor_id,
-                  departmentId: selectedDoctorForProfile.departmentId || selectedDoctorForProfile.department_id || 'DEP-GAST',
+                  patientId,
+                  patientName,
+                  doctorId: selectedDoctorForProfile.doctorId || selectedDoctorForProfile.doctor_id || 'DOC-CARD-01',
+                  departmentId: selectedDoctorForProfile.departmentId || selectedDoctorForProfile.department_id || 'DEP-CARD',
                   appointmentDate: todayStr,
                   appointmentTime: slot,
-                  reason: `Consultation with ${selectedDoctorForProfile.name}`
+                  reason: `Consultation with ${doctorName}`
                 });
-                setLatestAppointment(res.appointment);
+
+                const fullAppt = {
+                  ...res.appointment,
+                  appointmentId: res.appointment?.appointmentId || res.appointment?.appointment_id || `APT-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+                  appointment_id: res.appointment?.appointmentId || res.appointment?.appointment_id || `APT-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+                  patientId,
+                  patient_id: patientId,
+                  patientName,
+                  patient_name: patientName,
+                  doctorId: selectedDoctorForProfile.doctorId || selectedDoctorForProfile.doctor_id,
+                  doctor_id: selectedDoctorForProfile.doctorId || selectedDoctorForProfile.doctor_id,
+                  doctorName,
+                  doctor_name: doctorName,
+                  departmentName,
+                  department_name: departmentName,
+                  roomNo,
+                  room_no: roomNo,
+                  wing: roomWing,
+                  room_wing: roomWing,
+                  appointmentDate: todayStr,
+                  appointment_date: todayStr,
+                  appointmentTime: slot,
+                  appointment_time: slot,
+                  tokenNumber: res.appointment?.tokenNumber || res.appointment?.token_number || `CF-${Math.floor(200 + Math.random() * 80)}`,
+                  token_number: res.appointment?.tokenNumber || res.appointment?.token_number || `CF-${Math.floor(200 + Math.random() * 80)}`,
+                  status: 'CONFIRMED'
+                };
+
+                try {
+                  localStorage.setItem('careflow_latest_appointment', JSON.stringify(fullAppt));
+                } catch (e) {}
+
+                setLatestAppointment(fullAppt);
                 setCurrentView('confirmation');
               } catch (err: any) {
-                alert('Booking failed: ' + err.message);
+                alert('Booking failed: ' + (err.message || 'Unknown error'));
               }
             }}
             onOpenTeleconsult={() => setIsTeleconsultOpen(true)}
@@ -276,7 +317,7 @@ export const App: React.FC = () => {
         {/* Nearest Hospitals Map (Screen 6 of Blueprint) */}
         {currentView === 'hospitals-map' && (
           <NearestHospitalMap 
-            onBack={() => setCurrentView(currentUser ? 'dashboard' : 'landing')}
+            onBack={() => setCurrentView('welcome-hub')}
             onOpenAmbulance={(hospId) => {
               setSelectedHospitalForAmbulance(hospId);
               setCurrentView('ambulance');
@@ -288,15 +329,7 @@ export const App: React.FC = () => {
         {currentView === 'ambulance' && (
           <AmbulanceServiceScreen 
             defaultHospitalId={selectedHospitalForAmbulance}
-            onBack={() => setCurrentView(currentUser ? 'dashboard' : 'landing')}
-          />
-        )}
-
-        {/* Patient Dashboard */}
-        {currentView === 'dashboard' && currentUser && (
-          <PatientDashboard 
-            user={currentUser}
-            onNavigate={setCurrentView}
+            onBack={() => setCurrentView('welcome-hub')}
           />
         )}
 
@@ -309,7 +342,7 @@ export const App: React.FC = () => {
               setSelectedDoctorForProfile(rec.recommendedDoctor);
               setCurrentView('recommendation');
             }}
-            onCancel={() => setCurrentView('dashboard')}
+            onCancel={() => setCurrentView('welcome-hub')}
           />
         )}
 
@@ -332,11 +365,12 @@ export const App: React.FC = () => {
           <AppointmentConfirmation 
             appointment={latestAppointment}
             onGoToCheckIn={() => {
-              setPrefilledCheckInId(latestAppointment.appointmentId);
+              setPrefilledCheckInId(latestAppointment.appointmentId || latestAppointment.appointment_id);
               setCurrentView('checkin');
             }}
             onGoToMyAppointments={() => setCurrentView('my-appointments')}
-            onGoToDashboard={() => setCurrentView('dashboard')}
+            onGoToLiveQueue={() => setCurrentView('live-queue')}
+            onGoToDashboard={() => setCurrentView('welcome-hub')}
           />
         )}
 
@@ -344,6 +378,8 @@ export const App: React.FC = () => {
         {currentView === 'checkin' && currentUser && (
           <CheckInScreen 
             user={currentUser}
+            initialAppointmentId={prefilledCheckInId}
+            onBack={() => setCurrentView('welcome-hub')}
             onCheckInSuccess={() => setCurrentView('live-queue')}
           />
         )}
@@ -352,6 +388,7 @@ export const App: React.FC = () => {
         {currentView === 'live-queue' && currentUser && (
           <LiveQueueScreen 
             user={currentUser}
+            onBack={() => setCurrentView('welcome-hub')}
             onGoToCheckIn={() => setCurrentView('checkin')}
           />
         )}
@@ -360,7 +397,7 @@ export const App: React.FC = () => {
         {currentView === 'my-appointments' && currentUser && (
           <MyAppointments 
             user={currentUser}
-            onBookNew={() => setCurrentView('disease-catalog')}
+            onBookNew={() => setCurrentView('direct-booking')}
             onGoToCheckIn={(aptId) => {
               if (aptId) setPrefilledCheckInId(aptId);
               setCurrentView('checkin');
@@ -372,7 +409,7 @@ export const App: React.FC = () => {
         {/* Health Status (Screen 5 of Blueprint) */}
         {currentView === 'health-status' && (
           <HealthStatusScreen 
-            onBack={() => setCurrentView('dashboard')}
+            onBack={() => setCurrentView('welcome-hub')}
             onNavigate={setCurrentView}
           />
         )}
@@ -381,7 +418,7 @@ export const App: React.FC = () => {
         {currentView === 'medical-history' && currentUser && (
           <MedicalHistory 
             user={currentUser}
-            onBack={() => setCurrentView('dashboard')}
+            onBack={() => setCurrentView('welcome-hub')}
           />
         )}
 
@@ -415,12 +452,8 @@ export const App: React.FC = () => {
         isOpen={authModal.isOpen}
         initialMode={authModal.mode}
         onClose={() => setAuthModal({ isOpen: false, mode: 'login' })}
-        onSuccess={(user) => {
-          setCurrentUser(user);
-          if (user.role === 'DOCTOR') setCurrentView('doctor-dashboard');
-          else if (user.role === 'RECEPTIONIST') setCurrentView('reception-dashboard');
-          else if (user.role === 'ADMIN') setCurrentView('admin-dashboard');
-          else setCurrentView('dashboard');
+        onSuccess={(user, token) => {
+          handleAuthSuccess(user, token);
         }}
       />
 
