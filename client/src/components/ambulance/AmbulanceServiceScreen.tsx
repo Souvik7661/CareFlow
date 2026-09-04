@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AmbulanceInfo, Hospital } from '../../types';
 import { api } from '../../services/api';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { GoogleMapEngine, GoogleMapMarker, GoogleMapRoute } from '../maps/GoogleMapEngine';
 import { 
   ArrowLeft, 
   MapPin, 
@@ -35,9 +34,6 @@ export const AmbulanceServiceScreen: React.FC<AmbulanceServiceScreenProps> = ({
   const [loading, setLoading] = useState(false);
   const [countdownSeconds, setCountdownSeconds] = useState(8 * 60); // 8 minutes countdown
 
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
-
   // Default patient coordinates (Central Kolkata)
   const pickupLat = 22.5680;
   const pickupLng = 88.3610;
@@ -65,90 +61,6 @@ export const AmbulanceServiceScreen: React.FC<AmbulanceServiceScreenProps> = ({
     }, 1000);
     return () => clearInterval(interval);
   }, [activeAmbulance]);
-
-  // Leaflet map setup showing pickup, hospital, and connecting route
-  useEffect(() => {
-    if (!mapContainerRef.current) return;
-
-    const hospLat = selectedHospital?.latitude || 22.5726;
-    const hospLng = selectedHospital?.longitude || 88.3639;
-
-    if (!mapInstanceRef.current) {
-      const map = L.map(mapContainerRef.current, {
-        center: [(pickupLat + hospLat) / 2, (pickupLng + hospLng) / 2],
-        zoom: 14,
-        zoomControl: false
-      });
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
-      }).addTo(map);
-
-      mapInstanceRef.current = map;
-    }
-
-    const map = mapInstanceRef.current;
-
-    // Clear old layers
-    map.eachLayer(layer => {
-      if (!(layer instanceof L.TileLayer)) {
-        map.removeLayer(layer);
-      }
-    });
-
-    // 1. Pickup Marker (Green)
-    const pickupIcon = L.divIcon({
-      className: 'custom-pickup-marker',
-      html: `<div style="background:#10b981; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.3);">📍</div>`,
-      iconSize: [28, 28],
-      iconAnchor: [14, 14]
-    });
-    L.marker([pickupLat, pickupLng], { icon: pickupIcon })
-      .addTo(map)
-      .bindPopup('<strong>Your Pickup Location</strong><br>MG Road');
-
-    // 2. Hospital Marker (Red Cross)
-    const hospIcon = L.divIcon({
-      className: 'custom-hosp-marker',
-      html: `<div style="background:#dc2626; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:16px; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.4);">🏥</div>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15]
-    });
-    L.marker([hospLat, hospLng], { icon: hospIcon })
-      .addTo(map)
-      .bindPopup(`<strong>${selectedHospital?.name || 'City Hospital'}</strong>`);
-
-    // 3. Route Polyline
-    const routePoints: [number, number][] = [
-      [pickupLat, pickupLng],
-      [pickupLat + 0.002, pickupLng + 0.001],
-      [hospLat - 0.001, hospLng - 0.002],
-      [hospLat, hospLng]
-    ];
-    const polyline = L.polyline(routePoints, {
-      color: '#0284c7',
-      weight: 5,
-      opacity: 0.8,
-      dashArray: activeAmbulance ? '10, 10' : undefined
-    }).addTo(map);
-
-    // 4. If active, place moving ambulance icon
-    if (activeAmbulance) {
-      const midLat = (pickupLat + hospLat) / 2;
-      const midLng = (pickupLng + hospLng) / 2;
-      const ambIcon = L.divIcon({
-        className: 'custom-ambulance-marker',
-        html: `<div style="background:#ef4444; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; border:3px solid #fff; box-shadow:0 0 12px rgba(239,68,68,0.8); animation:pulse 1.5s infinite;">🚑</div>`,
-        iconSize: [34, 34],
-        iconAnchor: [17, 17]
-      });
-      L.marker([midLat, midLng], { icon: ambIcon })
-        .addTo(map)
-        .bindPopup(`<strong>Ambulance En Route</strong><br>Driver: ${activeAmbulance.driverName}`);
-    }
-
-    map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
-  }, [selectedHospital, activeAmbulance]);
 
   const handleRequestAmbulance = async () => {
     setLoading(true);
@@ -179,6 +91,49 @@ export const AmbulanceServiceScreen: React.FC<AmbulanceServiceScreenProps> = ({
     const m = Math.floor(secs / 60);
     const s = secs % 60;
     return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  const hospLat = selectedHospital?.latitude || 22.5726;
+  const hospLng = selectedHospital?.longitude || 88.3639;
+
+  const ambulanceMarkers: GoogleMapMarker[] = [
+    {
+      id: 'pickup-location',
+      lat: pickupLat,
+      lng: pickupLng,
+      title: 'Your Pickup Location',
+      type: 'user',
+      info: pickupAddress
+    },
+    {
+      id: selectedHospital?.hospital_id || 'hosp-dest',
+      lat: hospLat,
+      lng: hospLng,
+      title: selectedHospital?.name || 'Destination Hospital',
+      type: 'hospital',
+      info: selectedHospital?.address || 'Hospital Emergency Center'
+    }
+  ];
+
+  if (activeAmbulance) {
+    ambulanceMarkers.push({
+      id: 'active-ambulance',
+      lat: (pickupLat + hospLat) / 2,
+      lng: (pickupLng + hospLng) / 2,
+      title: `Ambulance ${activeAmbulance.vehicleNumber || 'WB-01-AMB-108'}`,
+      type: 'ambulance',
+      info: `Driver: ${activeAmbulance.driverName || 'Rajesh Kumar'} • En Route via Green Corridor`
+    });
+  }
+
+  const ambulanceRoute: GoogleMapRoute = {
+    origin: { lat: pickupLat, lng: pickupLng, label: pickupAddress },
+    destination: { lat: hospLat, lng: hospLng, label: selectedHospital?.name || 'Hospital' },
+    ambulanceLocation: activeAmbulance ? {
+      lat: (pickupLat + hospLat) / 2,
+      lng: (pickupLng + hospLng) / 2,
+      speedKmH: 48
+    } : undefined
   };
 
   return (
@@ -249,7 +204,7 @@ export const AmbulanceServiceScreen: React.FC<AmbulanceServiceScreenProps> = ({
             Estimated Arrival
           </span>
           <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-            via Fastest Route
+            via Google Maps Fastest Corridor (Traffic Monitored)
           </div>
         </div>
 
@@ -260,18 +215,16 @@ export const AmbulanceServiceScreen: React.FC<AmbulanceServiceScreenProps> = ({
         </div>
       </div>
 
-      {/* Live Route Map matching Screen 7 */}
-      <div 
-        ref={mapContainerRef}
-        style={{
-          width: '100%',
-          height: '200px',
-          borderRadius: 'var(--radius-xl)',
-          overflow: 'hidden',
-          border: '1px solid var(--border-color)',
-          boxShadow: 'var(--shadow-md)',
-          zIndex: 1
-        }}
+      {/* Live Google Maps Route, Real-Time Traffic & Turn-by-Turn GPS Navigation */}
+      <GoogleMapEngine
+        center={{ lat: (pickupLat + hospLat) / 2, lng: (pickupLng + hospLng) / 2 }}
+        zoom={14}
+        markers={ambulanceMarkers}
+        route={ambulanceRoute}
+        height="260px"
+        showTrafficToggle={true}
+        showNavigationButton={true}
+        title="Ambulance Live Route Google Maps"
       />
 
       {/* Ambulance Type Selector matching Screen 7 */}

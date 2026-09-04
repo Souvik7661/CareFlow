@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Hospital } from '../../types';
 import { api } from '../../services/api';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { GoogleMapEngine, GoogleMapMarker } from '../maps/GoogleMapEngine';
 import { 
   ArrowLeft, 
   MapPin, 
@@ -32,10 +31,6 @@ export const NearestHospitalMap: React.FC<NearestHospitalMapProps> = ({
   const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
-  const markersRef = useRef<L.Marker[]>([]);
-
   // Default patient coordinates (Central Kolkata: MG Road area)
   const userLat = 22.5680;
   const userLng = 88.3610;
@@ -53,87 +48,35 @@ export const NearestHospitalMap: React.FC<NearestHospitalMapProps> = ({
       .finally(() => setLoading(false));
   }, []);
 
-  // Initialize and update Leaflet interactive map
-  useEffect(() => {
-    if (!mapContainerRef.current || hospitals.length === 0) return;
-
-    if (!mapInstanceRef.current) {
-      // Create Leaflet Map
-      const map = L.map(mapContainerRef.current, {
-        center: [userLat, userLng],
-        zoom: 13,
-        zoomControl: true
-      });
-
-      // Add OpenStreetMap tile layer
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(map);
-
-      // User location marker
-      const userIcon = L.divIcon({
-        className: 'custom-user-marker',
-        html: `<div style="background:#0284c7; width:16px; height:16px; border-radius:50%; border:3px solid #ffffff; box-shadow:0 0 10px rgba(2,132,199,0.7);"></div>`,
-        iconSize: [16, 16],
-        iconAnchor: [8, 8]
-      });
-      L.marker([userLat, userLng], { icon: userIcon })
-        .addTo(map)
-        .bindPopup('<strong>Your Current Location</strong><br>MG Road, Central');
-
-      mapInstanceRef.current = map;
-    }
-
-    const map = mapInstanceRef.current;
-
-    // Clear old markers
-    markersRef.current.forEach(m => m.remove());
-    markersRef.current = [];
-
-    // Hospital pins
-    hospitals.forEach(h => {
-      const isSelected = selectedHospital?.hospital_id === h.hospital_id;
-      const markerHtml = `
-        <div style="background:${isSelected ? '#dc2626' : '#0d9488'}; color:#fff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.3); font-weight:800; font-size:14px;">
-          +
-        </div>
-      `;
-
-      const hospIcon = L.divIcon({
-        className: 'custom-hosp-marker',
-        html: markerHtml,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
-      });
-
-      const marker = L.marker([h.latitude, h.longitude], { icon: hospIcon })
-        .addTo(map)
-        .bindPopup(`
-          <div style="font-family:sans-serif; padding:4px;">
-            <strong style="font-size:14px;">${h.name}</strong><br>
-            <span style="color:#64748b; font-size:12px;">${h.address}</span><br>
-            <span style="color:#0d9488; font-weight:bold; font-size:12px;">★ ${h.rating} &bull; ${h.distance_km} km</span>
-          </div>
-        `);
-
-      marker.on('click', () => {
-        setSelectedHospital(h);
-      });
-
-      markersRef.current.push(marker);
-    });
-
-    if (selectedHospital) {
-      map.setView([selectedHospital.latitude, selectedHospital.longitude], 14, { animate: true });
-    }
-  }, [hospitals, selectedHospital]);
-
   const handleSelect = (h: Hospital) => {
     setSelectedHospital(h);
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.setView([h.latitude, h.longitude], 14, { animate: true });
+    if (onSelectHospital) {
+      onSelectHospital(h);
     }
   };
+
+  const mapMarkers: GoogleMapMarker[] = [
+    {
+      id: 'user-current-location',
+      lat: userLat,
+      lng: userLng,
+      title: 'Your Current Location',
+      type: 'user',
+      info: 'Central Station / MG Road'
+    },
+    ...hospitals.map(h => ({
+      id: h.hospital_id,
+      lat: h.latitude,
+      lng: h.longitude,
+      title: h.name,
+      type: 'hospital' as const,
+      info: `${h.address} • ${h.distance_km} km`,
+      rating: h.rating,
+      distanceKm: h.distance_km,
+      isSelected: selectedHospital?.hospital_id === h.hospital_id,
+      onClick: () => handleSelect(h)
+    }))
+  ];
 
   return (
     <div style={{ maxWidth: '680px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -158,26 +101,32 @@ export const NearestHospitalMap: React.FC<NearestHospitalMapProps> = ({
       </div>
 
       {/* Subtitle */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
         <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-          Hospitals Near You (GPS Verified)
+          Hospitals Near You (Google Maps GPS)
         </span>
-        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-          Live OpenStreetMap &bull; Google Maps Ready
+        <span style={{ fontSize: '0.78rem', color: '#0d9488', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }} />
+          Live Google Traffic &amp; Navigation Ready
         </span>
       </div>
 
-      {/* Interactive Map View matching Screen 6 */}
-      <div 
-        ref={mapContainerRef}
-        style={{
-          width: '100%',
-          height: '240px',
-          borderRadius: 'var(--radius-xl)',
-          overflow: 'hidden',
-          border: '1px solid var(--border-color)',
-          boxShadow: 'var(--shadow-md)',
-          zIndex: 1
+      {/* Google Maps Interactive View with Live Traffic Layer & Turn-by-Turn Navigation */}
+      <GoogleMapEngine
+        center={selectedHospital ? { lat: selectedHospital.latitude, lng: selectedHospital.longitude } : { lat: userLat, lng: userLng }}
+        zoom={13}
+        markers={mapMarkers}
+        height="260px"
+        showTrafficToggle={true}
+        showNavigationButton={true}
+        title="Nearest Hospital Google Maps"
+        route={selectedHospital ? {
+          origin: { lat: userLat, lng: userLng, label: 'Your Location' },
+          destination: { lat: selectedHospital.latitude, lng: selectedHospital.longitude, label: selectedHospital.name }
+        } : undefined}
+        onSelectMarker={(id) => {
+          const found = hospitals.find(h => h.hospital_id === id);
+          if (found) handleSelect(found);
         }}
       />
 
