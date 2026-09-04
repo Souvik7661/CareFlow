@@ -18,6 +18,7 @@ import { MedicalHistory } from './components/patient/MedicalHistory';
 // Blueprint New Components
 import { DiseaseCatalogGrid } from './components/catalog/DiseaseCatalogGrid';
 import { DoctorListScreen } from './components/patient/DoctorListScreen';
+import { DirectBookingScreen } from './components/patient/DirectBookingScreen';
 import { DoctorProfileScreen } from './components/patient/DoctorProfileScreen';
 import { NearestHospitalMap } from './components/hospital/NearestHospitalMap';
 import { AmbulanceServiceScreen } from './components/ambulance/AmbulanceServiceScreen';
@@ -54,6 +55,7 @@ export const App: React.FC = () => {
 
   // Blueprint state
   const [selectedDoctorForProfile, setSelectedDoctorForProfile] = useState<any | null>(null);
+  const [bookingDoctorId, setBookingDoctorId] = useState<string | undefined>(undefined);
   const [selectedHospitalForAmbulance, setSelectedHospitalForAmbulance] = useState<string>('HOSP-01');
   const [isTeleconsultOpen, setIsTeleconsultOpen] = useState(false);
 
@@ -142,7 +144,8 @@ export const App: React.FC = () => {
     if (service === 'doctors') {
       setCurrentView('doctor-list');
     } else if (service === 'book-appointment') {
-      setCurrentView('doctor-list');
+      setBookingDoctorId(undefined);
+      setCurrentView('direct-booking');
     } else if (service === 'support') {
       setCurrentView('ambulance');
     }
@@ -221,7 +224,24 @@ export const App: React.FC = () => {
               setSelectedDoctorForProfile(doc);
               setCurrentView('doctor-profile');
             }}
+            onBookDoctor={(doc) => {
+              setBookingDoctorId(doc.doctor_id || (doc as any).doctorId);
+              setCurrentView('direct-booking');
+            }}
             onBack={() => setCurrentView('welcome-hub')}
+          />
+        )}
+
+        {/* Dedicated Appointment Booking Screen (Direct booking flow) */}
+        {currentView === 'direct-booking' && (
+          <DirectBookingScreen 
+            currentUser={currentUser}
+            initialDoctorId={bookingDoctorId}
+            onBack={() => setCurrentView('welcome-hub')}
+            onBookingSuccess={(appt) => {
+              setLatestAppointment(appt);
+              setCurrentView('confirmation');
+            }}
           />
         )}
 
