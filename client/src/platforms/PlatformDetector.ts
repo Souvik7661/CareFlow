@@ -187,13 +187,13 @@ class PlatformEngine {
         icon: '🤖',
         badge: 'Android Material You',
         shortcutLabel: 'Back button & Touch haptics enabled',
-        fileTitle: 'careflow-android.html',
+        fileTitle: 'CareFlow.apk (Android Package)',
         features: [
           'Material 3 rounded elevation & touch ripples',
           'Dynamic status bar color synchronization',
           'Hardware back-button popstate listener',
           'Native Vibration API multi-pattern haptics',
-          'Android PWA Web Manifest (APK ready)'
+          'Android Package installer (.apk ready)'
         ]
       },
       ios: {
@@ -201,12 +201,12 @@ class PlatformEngine {
         icon: '📱',
         badge: 'Apple iOS Cupertino',
         shortcutLabel: 'Dynamic Island & Safe Areas active',
-        fileTitle: 'careflow-ios.html',
+        fileTitle: 'CareFlow-Apple-iOS.mobileconfig / .ipa',
         features: [
           'Apple Safe Area insets (Dynamic Island / Notch)',
           'Cupertino frosted glass navigation tabs',
           'Rubber-band scroll momentum & tap-zoom lock',
-          'iOS WebClip configuration profile support',
+          'Apple iOS WebClip & Profile package (.mobileconfig)',
           'Full-screen standalone display mode'
         ]
       },
@@ -215,12 +215,12 @@ class PlatformEngine {
         icon: '🪟',
         badge: 'Windows Fluent UI',
         shortcutLabel: 'Ctrl+K Search • Ctrl+B Booking',
-        fileTitle: 'careflow-windows.bat & HTML',
+        fileTitle: 'CareFlow-Windows.exe',
         features: [
           'Windows 11 Fluent Design & Mica acrylic glass',
           'Custom sleek Windows scrollbars (thin track & thumb)',
           'Ctrl+K spotlight search & Ctrl+B booking shortcuts',
-          'One-click Windows Batch launcher (.bat)',
+          'Native Windows Executable installer (.exe)',
           'Windows Live Tile & Start Menu browserconfig'
         ]
       },
@@ -229,12 +229,12 @@ class PlatformEngine {
         icon: '🍎',
         badge: 'macOS Frosted Vibrancy',
         shortcutLabel: 'Cmd+K Search • Cmd+B Booking',
-        fileTitle: 'careflow-mac.command & HTML',
+        fileTitle: 'CareFlow-Mac.dmg',
         features: [
           'Apple SF Pro typography hierarchy',
           'Ultra-deep frosted glass vibrancy (blur 28px)',
           'Cmd+K Spotlight search & Cmd shortcuts',
-          'Native macOS terminal launcher script (.command)',
+          'Native Apple macOS Disk Image package (.dmg)',
           'Apple traffic light window control clearance'
         ]
       }

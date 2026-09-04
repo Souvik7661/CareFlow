@@ -359,18 +359,17 @@ export const PlatformOptimizerHub: React.FC<PlatformOptimizerHubProps> = ({
           </div>
         </div>
 
-        {/* Specific Single Files for Each OS */}
+        {/* Native Platform Installers & Extensions */}
         <div>
           <h3 style={{ fontSize: '16px', fontWeight: 800, margin: '0 0 12px 0', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>📦</span> Specific Single Files for Each Operating System
+            <span>📦</span> Official Platform Native Installers &amp; Packages
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
-            {/* Android File */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+            {/* Android Package */}
             <a
-              href="/careflow-android.html"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/downloads/CareFlow.apk"
+              download="CareFlow.apk"
               style={{
                 textDecoration: 'none',
                 padding: '14px',
@@ -383,23 +382,27 @@ export const PlatformOptimizerHub: React.FC<PlatformOptimizerHubProps> = ({
                 transition: 'transform 0.2s ease, border-color 0.2s ease'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '20px' }}>🤖</span>
-                <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>Android Single File</strong>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="#3DDC84">
+                    <path d="M17.523 15.341c-.551 0-1-.448-1-1 0-.551.449-1 1-1 .552 0 1 .449 1 1 0 .552-.448 1-1 1zm-11.046 0c-.551 0-1-.448-1-1 0-.551.449-1 1-1 .552 0 1 .449 1 1 0 .552-.448 1-1 1zm11.405-6.02l1.997-3.46a.416.416 0 00-.152-.567.416.416 0 00-.568.152l-2.023 3.504C15.59 8.358 13.853 8 12 8s-3.59.358-5.136.95L4.841 5.446a.417.417 0 00-.569-.152.416.416 0 00-.151.567l1.997 3.46C2.688 11.286 0 15.338 0 20h24c0-4.662-2.688-8.714-6.118-10.679z" />
+                  </svg>
+                  <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>Android Package</strong>
+                </div>
+                <span className="badge badge-primary" style={{ fontSize: '10px', padding: '2px 6px' }}>.APK</span>
               </div>
               <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                careflow-android.html + PWA manifest
+                CareFlow.apk • Full offline package with haptics
               </span>
               <span style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 700, marginTop: 'auto' }}>
-                Launch / View File →
+                Download .APK Package ↓
               </span>
             </a>
 
-            {/* iOS File */}
+            {/* Apple iOS Profile / IPA */}
             <a
-              href="/careflow-ios.html"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/downloads/CareFlow-Apple-iOS.mobileconfig"
+              download="CareFlow-Apple-iOS.mobileconfig"
               style={{
                 textDecoration: 'none',
                 padding: '14px',
@@ -412,23 +415,27 @@ export const PlatformOptimizerHub: React.FC<PlatformOptimizerHubProps> = ({
                 transition: 'transform 0.2s ease, border-color 0.2s ease'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '20px' }}>📱</span>
-                <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>iOS Single File</strong>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="20" height="20" viewBox="0 0 170 170" fill="currentColor">
+                    <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.6-7.83-11.72-14.36-5.83-9.15-10.37-19.46-13.62-29.93-3.25-10.47-4.88-20.48-4.88-30.04 0-14.93 3.65-27.24 10.96-36.93 7.31-9.69 16.7-14.67 28.18-14.94 4.58 0 9.8 1.16 15.65 3.49 5.86 2.33 9.47 3.55 10.85 3.66 1.83-.24 5.63-1.57 11.41-3.99 5.78-2.43 10.74-3.52 14.88-3.29 11.9.84 21.36 5.3 28.38 13.38-10.47 6.33-15.59 15.11-15.35 26.33.24 8.79 3.64 16.14 10.2 22.05 6.56 5.91 14.35 9.46 23.36 10.66-2.12 6.31-4.7 12.83-7.75 19.56zm-36.8-105.74c.03 3.77-1.3 7.57-3.99 11.41-2.69 3.84-6.27 6.78-10.74 8.81-.59-3.73.53-7.64 3.36-11.73 2.83-4.09 6.6-7.07 11.37-8.49z" />
+                  </svg>
+                  <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>Apple iOS Profile</strong>
+                </div>
+                <span className="badge badge-secondary" style={{ fontSize: '10px', padding: '2px 6px' }}>.MOBILESYNC</span>
               </div>
               <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                careflow-ios.html + WebClip profile
+                CareFlow-Apple-iOS.mobileconfig • WebClip installer
               </span>
-              <span style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 700, marginTop: 'auto' }}>
-                Launch / View File →
+              <span style={{ fontSize: '12px', color: 'var(--secondary)', fontWeight: 700, marginTop: 'auto' }}>
+                Download Profile ↓
               </span>
             </a>
 
-            {/* Windows File */}
+            {/* Apple macOS DMG */}
             <a
-              href="/careflow-windows.html"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/downloads/CareFlow-Mac.dmg"
+              download="CareFlow-Mac.dmg"
               style={{
                 textDecoration: 'none',
                 padding: '14px',
@@ -441,23 +448,27 @@ export const PlatformOptimizerHub: React.FC<PlatformOptimizerHubProps> = ({
                 transition: 'transform 0.2s ease, border-color 0.2s ease'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '20px' }}>🪟</span>
-                <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>Windows Single File</strong>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="20" height="20" viewBox="0 0 170 170" fill="currentColor">
+                    <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.6-7.83-11.72-14.36-5.83-9.15-10.37-19.46-13.62-29.93-3.25-10.47-4.88-20.48-4.88-30.04 0-14.93 3.65-27.24 10.96-36.93 7.31-9.69 16.7-14.67 28.18-14.94 4.58 0 9.8 1.16 15.65 3.49 5.86 2.33 9.47 3.55 10.85 3.66 1.83-.24 5.63-1.57 11.41-3.99 5.78-2.43 10.74-3.52 14.88-3.29 11.9.84 21.36 5.3 28.38 13.38-10.47 6.33-15.59 15.11-15.35 26.33.24 8.79 3.64 16.14 10.2 22.05 6.56 5.91 14.35 9.46 23.36 10.66-2.12 6.31-4.7 12.83-7.75 19.56zm-36.8-105.74c.03 3.77-1.3 7.57-3.99 11.41-2.69 3.84-6.27 6.78-10.74 8.81-.59-3.73.53-7.64 3.36-11.73 2.83-4.09 6.6-7.07 11.37-8.49z" />
+                  </svg>
+                  <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>macOS Disk Image</strong>
+                </div>
+                <span className="badge badge-primary" style={{ fontSize: '10px', padding: '2px 6px' }}>.DMG</span>
               </div>
               <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                careflow-windows.html + .bat runner
+                CareFlow-Mac.dmg • Universal macOS installer
               </span>
               <span style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 700, marginTop: 'auto' }}>
-                Launch / View File →
+                Download .DMG Package ↓
               </span>
             </a>
 
-            {/* macOS File */}
+            {/* Windows EXE */}
             <a
-              href="/careflow-mac.html"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/downloads/CareFlow-Windows.exe"
+              download="CareFlow-Windows.exe"
               style={{
                 textDecoration: 'none',
                 padding: '14px',
@@ -470,15 +481,20 @@ export const PlatformOptimizerHub: React.FC<PlatformOptimizerHubProps> = ({
                 transition: 'transform 0.2s ease, border-color 0.2s ease'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '20px' }}>🍎</span>
-                <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>macOS Single File</strong>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#0078D4">
+                    <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.949-1.8" />
+                  </svg>
+                  <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>Windows Executable</strong>
+                </div>
+                <span className="badge badge-primary" style={{ fontSize: '10px', padding: '2px 6px' }}>.EXE</span>
               </div>
               <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                careflow-mac.html + .command script
+                CareFlow-Windows.exe • 64-bit Windows launcher
               </span>
               <span style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 700, marginTop: 'auto' }}>
-                Launch / View File →
+                Download .EXE Installer ↓
               </span>
             </a>
           </div>

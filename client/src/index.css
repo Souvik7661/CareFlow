@@ -345,6 +345,13 @@
   padding: 0;
 }
 
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
 body {
   font-family: var(--font-body);
   background: 
@@ -391,6 +398,10 @@ a {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .main-content {
@@ -399,6 +410,14 @@ a {
   width: 100%;
   margin: 0 auto;
   padding: 24px 20px 60px 20px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+@media (max-width: 640px) {
+  .main-content {
+    padding: 12px 10px 48px 10px;
+  }
 }
 
 /* Top Role Switcher Bar */
@@ -475,16 +494,69 @@ a {
   top: 0;
   z-index: 900;
   box-shadow: var(--shadow-sm);
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
 }
 
 .header-inner {
   max-width: 1240px;
+  width: 100%;
   margin: 0 auto;
   padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .header-inner {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  
+  .header-btn-register,
+  .header-btn-lobby,
+  .header-btn-doctors,
+  .header-btn-support {
+    display: none !important;
+  }
+  
+  .header-btn-login {
+    padding: 6px 12px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .header-btn-services {
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .header-btn-token {
+    padding: 6px 10px !important;
+    font-size: 0.78rem !important;
+  }
+  
+  .cf-fashion-logo.header-fashion-logo .cf-logo-mark {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .cf-fashion-logo.header-fashion-logo .cf-crest-shield {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .cf-fashion-logo.header-fashion-logo img {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  .cf-fashion-logo.header-fashion-logo .cf-brand-title {
+    font-size: 1.15rem !important;
+  }
+  .cf-fashion-logo.header-fashion-logo .cf-brand-badge {
+    display: none !important;
+  }
 }
 
 .brand-logo {
@@ -2163,6 +2235,240 @@ body {
 
 [data-os="mac"] .btn:hover {
   transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   MOBILE & RESPONSIVE TELEMETRY HUB ENHANCEMENTS
+   Fixes narrow viewport squeezing, horizontal panning, and card layout
+   ========================================================================== */
+
+.cf-welcome-hub-container {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  animation: welcome-fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 10px 16px 40px 16px;
+  overflow-x: hidden;
+}
+
+.cf-welcome-heading {
+  font-size: clamp(1.5rem, 5.5vw, 2.3rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  text-align: center;
+  word-break: normal;
+}
+
+/* 3 Core Services Grid */
+.cf-services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cf-service-card {
+  padding: 22px 16px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cf-service-icon-box {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+
+/* Quick Actions 2-Column Mobile Grid */
+.cf-quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cf-quick-action-btn {
+  padding: 16px 14px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.cf-quick-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.cf-active-token-banner {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 20px;
+  border-radius: 20px;
+  background: var(--primary-light);
+  border: 1px solid var(--primary-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* Platform Native Apps Drawer/Grid */
+.cf-platform-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cf-platform-app-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border-radius: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: all 0.2s;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.cf-platform-app-btn:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Tablet & Mobile Breakpoints */
+@media (max-width: 768px) {
+  .cf-welcome-hub-container {
+    padding: 8px 12px 36px 12px;
+    gap: 16px;
+  }
+
+  /* 3 Services convert to stacked horizontal cards on mobile */
+  .cf-services-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .cf-service-card {
+    flex-direction: row !important;
+    text-align: left !important;
+    align-items: center !important;
+    padding: 16px 18px !important;
+    gap: 16px;
+    border-radius: 20px !important;
+  }
+
+  .cf-service-icon-box {
+    margin-bottom: 0 !important;
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .cf-service-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cf-service-content h3 {
+    margin: 0 0 4px 0 !important;
+    font-size: 1.05rem !important;
+  }
+
+  .cf-service-content p {
+    font-size: 0.82rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .cf-service-action-link {
+    margin-top: 4px !important;
+    font-size: 0.82rem !important;
+  }
+
+  /* Quick Actions 2-Column Grid */
+  .cf-quick-actions-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .cf-quick-action-btn {
+    padding: 12px 10px;
+  }
+
+  .cf-quick-action-btn div div:first-child {
+    font-size: 0.82rem !important;
+  }
+
+  .cf-quick-action-btn div div:last-child {
+    font-size: 0.7rem !important;
+  }
+
+  .cf-platform-apps-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .cf-active-token-banner {
+    padding: 12px 14px;
+  }
+
+  .cf-robot-doctor-stage {
+    padding: 4px 0 10px 0;
+  }
+
+  .cf-robot-doctor-body img {
+    width: 155px !important;
+  }
+
+  .cf-robot-pedestal-glow {
+    width: 180px !important;
+  }
+
+  .cf-robot-hologram-ring {
+    width: 180px !important;
+  }
 }
 
 

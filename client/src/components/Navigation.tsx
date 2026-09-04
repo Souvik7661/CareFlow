@@ -71,6 +71,7 @@ export const Navigation: React.FC<NavigationProps> = ({
         <div className="header-inner">
           <FashionLogo 
             size="md" 
+            className="header-fashion-logo"
             onClick={() => {
               if (currentUser) onNavigate('token-window');
               else onOpenAuth('login');
@@ -81,26 +82,26 @@ export const Navigation: React.FC<NavigationProps> = ({
             {!currentUser && (
               <>
                 <button 
-                  className="btn btn-outline btn-sm"
+                  className="btn btn-outline btn-sm header-btn-login"
                   onClick={() => onOpenAuth('login')}
-                  style={{ fontSize: '0.82rem', padding: '6px 16px', borderRadius: '9999px' }}
+                  style={{ fontSize: '0.82rem', padding: '6px 14px', borderRadius: '9999px' }}
                 >
-                  <span>Login</span>
+                  <span>Sign In</span>
                 </button>
                 <button 
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary btn-sm header-btn-register"
                   onClick={() => onOpenAuth('register')}
-                  style={{ fontSize: '0.82rem', padding: '6px 16px' }}
+                  style={{ fontSize: '0.82rem', padding: '6px 14px' }}
                 >
-                  <span>Sign In (New Patient)</span>
+                  <span>Register</span>
                 </button>
                 <button 
-                  className="nav-link-btn"
+                  className="nav-link-btn header-btn-lobby"
                   onClick={() => onNavigate('waiting-tv')}
                   style={{ fontSize: '0.8rem' }}
                 >
                   <Tv size={14} />
-                  <span>Lobby Display</span>
+                  <span>Lobby</span>
                 </button>
               </>
             )}
@@ -108,29 +109,29 @@ export const Navigation: React.FC<NavigationProps> = ({
             {currentUser?.role === 'PATIENT' && (
               <>
                 <button 
-                  className={`nav-link-btn ${currentView === 'welcome-hub' ? 'active' : ''}`}
+                  className={`nav-link-btn header-btn-services ${currentView === 'welcome-hub' ? 'active' : ''}`}
                   onClick={() => onNavigate('welcome-hub')}
                 >
                   <Sparkles size={15} />
                   <span>Services</span>
                 </button>
                 <button 
-                  className={`nav-link-btn ${(currentView === 'find-doctors' || currentView === 'doctor-list') ? 'active' : ''}`}
+                  className={`nav-link-btn header-btn-doctors ${(currentView === 'find-doctors' || currentView === 'doctor-list') ? 'active' : ''}`}
                   onClick={() => onNavigate('doctor-list')}
                 >
                   <Stethoscope size={15} />
                   <span>Doctors</span>
                 </button>
                 <button 
-                  className={`nav-link-btn ${currentView === 'ambulance' ? 'active' : ''}`}
+                  className={`nav-link-btn header-btn-support ${currentView === 'ambulance' ? 'active' : ''}`}
                   onClick={() => onNavigate('ambulance')}
                   style={{ color: '#ef4444', fontWeight: 700 }}
                 >
                   <Ambulance size={15} />
-                  <span>24/7 Support</span>
+                  <span>24/7</span>
                 </button>
                 <button 
-                  className={`nav-link-btn ${currentView === 'token-window' ? 'active' : ''}`}
+                  className={`nav-link-btn header-btn-token ${currentView === 'token-window' ? 'active' : ''}`}
                   onClick={() => onNavigate('token-window')}
                   style={{
                     background: currentView === 'token-window' ? 'var(--primary)' : 'var(--primary-light)',
@@ -141,7 +142,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                   }}
                 >
                   <Ticket size={15} />
-                  <span>My Token</span>
+                  <span>Token</span>
                 </button>
               </>
             )}

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>FullScreen</key>
+			<true/>
+			<key>IsRemovable</key>
+			<true/>
+			<key>Label</key>
+			<string>CareFlow AI</string>
+			<key>PayloadDescription</key>
+			<string>Configures CareFlow AI Hospital System WebClip for Home Screen</string>
+			<key>PayloadDisplayName</key>
+			<string>CareFlow AI WebClip</string>
+			<key>PayloadIdentifier</key>
+			<string>com.careflow.ios.webclip</string>
+			<key>PayloadType</key>
+			<string>com.apple.webClip.managed</string>
+			<key>PayloadUUID</key>
+			<string>A1B2C3D4-E5F6-7890-ABCD-EF1234567890</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>Precomposed</key>
+			<true/>
+			<key>URL</key>
+			<string>https://care-flow-tau.vercel.app/</string>
+		</dict>
+	</array>
+	<key>PayloadDisplayName</key>
+	<string>CareFlow AI Hospital Platform</string>
+	<key>PayloadIdentifier</key>
+	<string>com.careflow.ios.profile</string>
+	<key>PayloadOrganization</key>
+	<string>CareFlow Health Systems</string>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>B2C3D4E5-F6A1-8901-BCDE-FA2345678901</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>
