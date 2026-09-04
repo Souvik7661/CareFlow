@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Doctor } from '../../types';
-import { api } from '../../services/api';
+import { api, DEFAULT_DOCTORS } from '../../services/api';
 import { 
   ArrowLeft, 
   SlidersHorizontal, 
@@ -23,8 +23,8 @@ export const DoctorListScreen: React.FC<DoctorListScreenProps> = ({
   onSelectDoctor,
   onBack
 }) => {
-  const [doctors, setDoctors] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [doctors, setDoctors] = useState<any[]>(DEFAULT_DOCTORS);
+  const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -37,16 +37,20 @@ export const DoctorListScreen: React.FC<DoctorListScreenProps> = ({
     'Pulmonologist',
     'Orthopedic',
     'ENT',
-    'General Physician'
+    'General Physician',
+    'Pediatrician'
   ];
 
   useEffect(() => {
-    setLoading(true);
     api.getDoctorsList()
       .then(res => {
-        setDoctors(res.doctors || []);
+        if (res.doctors && res.doctors.length > 0) {
+          setDoctors(res.doctors);
+        }
       })
-      .catch(err => console.error(err))
+      .catch(() => {
+        setDoctors(DEFAULT_DOCTORS);
+      })
       .finally(() => setLoading(false));
   }, []);
 

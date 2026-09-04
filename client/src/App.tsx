@@ -140,13 +140,18 @@ export const App: React.FC = () => {
     const service = redirectingService;
     setRedirectingService(null);
     if (service === 'doctors') {
-      setCurrentView('find-doctor');
+      setCurrentView('doctor-list');
     } else if (service === 'book-appointment') {
-      setCurrentView('find-doctors');
+      setCurrentView('doctor-list');
     } else if (service === 'support') {
       setCurrentView('ambulance');
     }
   };
+
+  // 2-Second Dedicated Logo Splash Screen on Opening (Zero background leakage)
+  if (showSplash) {
+    return <SplashScreen onFinish={handleSplashFinish} />;
+  }
 
   // If waiting room TV mode is active, render full-screen monitor view
   if (currentView === 'waiting-tv') {
@@ -159,10 +164,6 @@ export const App: React.FC = () => {
 
   return (
     <div className="app-container">
-      {/* 2-Second Logo Splash Screen on Opening */}
-      {showSplash && (
-        <SplashScreen onFinish={handleSplashFinish} />
-      )}
 
       {/* 2-Second Redirection Loading Screen */}
       {redirectingService && (
@@ -220,7 +221,7 @@ export const App: React.FC = () => {
               setSelectedDoctorForProfile(doc);
               setCurrentView('doctor-profile');
             }}
-            onBack={() => setCurrentView(currentUser ? 'dashboard' : 'landing')}
+            onBack={() => setCurrentView('welcome-hub')}
           />
         )}
 

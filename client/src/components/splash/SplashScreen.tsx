@@ -27,16 +27,20 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   return (
     <div style={{
       position: 'fixed',
-      inset: 0,
-      background: 'radial-gradient(circle at 50% 45%, var(--bg-card) 0%, var(--bg-main) 60%, var(--primary-light) 100%)',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: '#060c18',
+      backgroundImage: 'radial-gradient(ellipse at 50% 45%, #0c1c38 0%, #060c18 70%)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 9999,
+      zIndex: 999999,
       opacity: fadeOut ? 0 : 1,
-      transform: fadeOut ? 'scale(1.04)' : 'scale(1)',
-      transition: 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+      transform: fadeOut ? 'scale(1.02)' : 'scale(1)',
+      transition: 'opacity 0.3s ease, transform 0.3s ease',
       pointerEvents: fadeOut ? 'none' : 'auto'
     }}>
       {/* Animated Logo Container */}
