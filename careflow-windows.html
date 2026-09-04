@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en" data-os="windows">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareFlow AI — Windows 11 Desktop Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0d9488;
+      --primary-hover: #0f766e;
+      --primary-light: rgba(13, 148, 136, 0.15);
+      --bg-dark: #070d18;
+      --bg-card: rgba(13, 23, 42, 0.85);
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --border: rgba(13, 148, 136, 0.28);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    /* Windows 11 Fluent Scrollbar */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(13, 148, 136, 0.5) transparent;
+    }
+    *::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    *::-webkit-scrollbar-thumb {
+      background: rgba(13, 148, 136, 0.4);
+      border-radius: 4px;
+    }
+    *::-webkit-scrollbar-thumb:hover {
+      background: rgba(13, 148, 136, 0.75);
+    }
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background: radial-gradient(circle at 10% 20%, rgba(13, 148, 136, 0.18) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 80%, rgba(2, 132, 199, 0.14) 0%, transparent 40%),
+                  linear-gradient(145deg, #050b16 0%, #081224 50%, #0b1830 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Windows Title Bar Emulation */
+    .win-titlebar {
+      height: 38px;
+      background: rgba(4, 9, 20, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0 0 16px;
+      user-select: none;
+    }
+    .win-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .win-controls {
+      display: flex;
+      height: 100%;
+    }
+    .win-btn {
+      width: 46px;
+      height: 100%;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .win-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    .win-btn.close:hover {
+      background: #e81123;
+      color: #fff;
+    }
+    /* Main Layout */
+    .win-container {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    /* Header Bar */
+    .win-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 24px;
+      backdrop-filter: blur(25px);
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-emblem {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #0d9488, #0284c7);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 20px rgba(13, 148, 136, 0.4);
+    }
+    .brand-text h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .shortcut-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(13, 148, 136, 0.15);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+    kbd {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: monospace;
+      font-weight: 700;
+      color: #fff;
+    }
+    /* Grid Dashboard */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 860px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      backdrop-filter: blur(25px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .card-heading {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    /* Service List */
+    .service-items {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .service-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .service-item:hover {
+      background: rgba(13, 148, 136, 0.12);
+      border-color: var(--primary);
+      transform: translateX(4px);
+    }
+    .service-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .service-icon {
+      font-size: 24px;
+      width: 44px;
+      height: 44px;
+      background: rgba(13, 148, 136, 0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Action Button */
+    .btn-win {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn-win:hover {
+      background: var(--primary-hover);
+    }
+    /* Token Window */
+    .token-display {
+      background: rgba(6, 12, 24, 0.7);
+      border: 1.5px dashed var(--primary);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 16px;
+    }
+    .token-num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 40px;
+      font-weight: 800;
+      color: #2dd4bf;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Windows Title Bar -->
+  <div class="win-titlebar">
+    <div class="win-title">
+      <span>🏥</span>
+      <span>CareFlow AI — Intelligent Hospital Platform (Windows 11 Edition)</span>
+    </div>
+    <div class="win-controls">
+      <button class="win-btn" title="Minimize">−</button>
+      <button class="win-btn" title="Maximize">□</button>
+      <button class="win-btn close" title="Close" onclick="window.close()">✕</button>
+    </div>
+  </div>
+
+  <div class="win-container">
+    <!-- Header -->
+    <div class="win-header">
+      <div class="brand-group">
+        <div class="brand-emblem">⚡</div>
+        <div class="brand-text">
+          <h1>CareFlow AI Healthcare Desktop</h1>
+          <p style="font-size: 13px; color: var(--text-sub);">Windows Fluent Design • Hospital Queue Management</p>
+        </div>
+      </div>
+      <div class="shortcut-badge">
+        <span>Windows Shortcuts:</span>
+        <kbd>Ctrl + K</kbd> Search • <kbd>Ctrl + B</kbd> Book
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard-grid">
+      <!-- Left Services Column -->
+      <div class="card">
+        <h2 class="card-heading">
+          <span>🩺</span> Hospital Services &amp; AI Triage
+        </h2>
+
+        <div class="service-items">
+          <div class="service-item" onclick="triggerService('AI Doctor Matching')">
+            <div class="service-left">
+              <div class="service-icon">👨‍⚕️</div>
+              <div>
+                <h3 style="font-size: 15px; font-weight: 700;">Find Specialists &amp; AI Match</h3>
+                <p style="font-size: 12px; color: var(--text-sub);">Analyzes symptoms and recommends top rated specialists</p>
+              </div>
+            </div>
+            <button class="btn-win" style="padding: 8px 14px; font-size: 12px;">Launch →</button>
+          </div>
+
+          <div class="service-item" onclick="triggerService('Instant Appointment Booking')">
+            <div class="service-left">
+              <div class="service-icon">📅</div>
+              <div>
+                <h3 style="font-size: 15px; font-weight: 700;">Schedule Doctor Appointment</h3>
+                <p style="font-size: 12px; color: var(--text-sub);">Reserve appointment slot and get digital entry ticket</p>
+              </div>
+            </div>
+            <button class="btn-win" style="padding: 8px 14px; font-size: 12px;">Book Now →</button>
+          </div>
+
+          <div class="service-item" onclick="triggerService('24/7 Emergency Support')">
+            <div class="service-left">
+              <div class="service-icon" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">🚨</div>
+              <div>
+                <h3 style="font-size: 15px; font-weight: 700; color: #ef4444;">24/7 Emergency &amp; Ambulance</h3>
+                <p style="font-size: 12px; color: var(--text-sub);">Immediate ambulance dispatch &amp; ICU contact</p>
+              </div>
+            </div>
+            <button class="btn-win" style="background: #dc2626; padding: 8px 14px; font-size: 12px;">Call 108</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Live Token & Status -->
+      <div class="card">
+        <h2 class="card-heading">
+          <span>🎫</span> Active Consultation Ticket
+        </h2>
+
+        <div style="font-size: 13px; color: var(--text-sub); line-height: 1.5;">
+          Patient Name: <strong style="color: #fff;">Souvik Kundu</strong><br>
+          Doctor: <strong style="color: #2dd4bf;">Dr. Rajesh Kumar</strong><br>
+          Department: Cardiology (Room 204)
+        </div>
+
+        <div class="token-display">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--primary); font-weight: 700;">LIVE QUEUE TOKEN</div>
+          <div class="token-num" id="win-token-num">CF-312</div>
+          <div style="font-size: 12px; color: var(--text-sub); margin-top: 4px;">Est. Wait: <strong>7 mins</strong> • 2 Patients Ahead</div>
+        </div>
+
+        <button class="btn-win" style="width: 100%; margin-top: 16px; justify-content: center;" onclick="generateNewToken()">
+          <span>↻</span> Rebook / Refresh Token
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function triggerService(serviceName) {
+      alert(`[Windows 11 Fluent App]\nOpening ${serviceName}...`);
+    }
+
+    function generateNewToken() {
+      const num = Math.floor(Math.random() * 90) + 300;
+      document.getElementById('win-token-num').textContent = 'CF-' + num;
+      alert(`New Token CF-${num} Generated!`);
+    }
+
+    // Windows Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        triggerService('AI Doctor Search (Ctrl+K)');
+      }
+      if (e.ctrlKey && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        generateNewToken();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "name": "CareFlow AI — Intelligent Hospital Platform",
+  "short_name": "CareFlow AI",
+  "description": "Intelligent Hospital Appointment, AI Doctor Matching & Queue Management System",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#060c18",
+  "theme_color": "#0d9488",
+  "categories": ["medical", "health", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Book Appointment",
+      "url": "/?action=book",
+      "description": "Directly schedule an appointment with top specialists"
+    },
+    {
+      "name": "AI Doctor Matching",
+      "url": "/?action=doctors",
+      "description": "Find recommended doctors using clinical AI"
+    },
+    {
+      "name": "Emergency Support",
+      "url": "/?action=support",
+      "description": "24/7 hospital helpline & ambulance assistance"
+    }
+  ]
+}

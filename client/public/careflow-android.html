@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en" data-os="android">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=no, viewport-fit=cover">
+  <title>CareFlow AI — Android Edition</title>
+  <meta name="theme-color" content="#060c18">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="./manifest.android.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --primary-light: rgba(16, 185, 129, 0.15);
+      --accent: #06b6d4;
+      --bg-dark: #060c18;
+      --bg-card: rgba(12, 24, 48, 0.88);
+      --text-main: #f0fdfa;
+      --text-sub: #94a3b8;
+      --border: rgba(16, 185, 129, 0.28);
+      --sab: env(safe-area-inset-bottom, 16px);
+      --sat: env(safe-area-inset-top, 12px);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #030712;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    /* Mobile Device Viewport / Wrapper */
+    .android-viewport {
+      width: 100%;
+      max-width: 440px;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 15% 10%, rgba(16, 185, 129, 0.16) 0%, transparent 45%),
+                  radial-gradient(ellipse at 85% 90%, rgba(6, 182, 212, 0.14) 0%, transparent 50%),
+                  linear-gradient(170deg, #050b18 0%, #08142a 45%, #0b1a36 100%);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 50px rgba(0,0,0,0.8);
+      position: relative;
+    }
+    /* Android System Status Bar */
+    .android-status-bar {
+      padding: max(10px, var(--sat)) 18px 8px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-sub);
+      background: rgba(6, 12, 24, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    /* Header */
+    .android-app-header {
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10, 22, 44, 0.6);
+      backdrop-filter: blur(20px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+    .brand h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .os-badge {
+      font-size: 11px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    /* Main Content */
+    .android-content {
+      padding: 20px 18px 100px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1;
+    }
+    /* Patient Hero Card */
+    .patient-hero {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4), 0 0 15px rgba(16, 185, 129, 0.1);
+    }
+    .patient-hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #10b981, #06b6d4);
+    }
+    .patient-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .patient-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      margin: 4px 0 12px 0;
+    }
+    .vitals-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .vital-box {
+      background: rgba(6, 12, 24, 0.6);
+      padding: 10px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .vital-val {
+      font-size: 16px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .vital-label {
+      font-size: 10px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+    }
+    /* Service Action Buttons */
+    .services-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .service-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      transition: transform 0.15s ease, background-color 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card:active {
+      transform: scale(0.97);
+      background-color: rgba(16, 185, 129, 0.18);
+    }
+    .service-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      flex-shrink: 0;
+    }
+    .service-info h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .service-info p {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    /* Appointment Booking Simulation Modal */
+    .booking-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .form-select, .form-input {
+      width: 100%;
+      background: #081329;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+    }
+    .btn-android {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+      min-height: 48px;
+    }
+    .btn-android:active {
+      transform: scale(0.97);
+    }
+    /* Android Bottom Navigation Bar */
+    .android-nav-dock {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 440px;
+      background: rgba(7, 16, 36, 0.94);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      padding: 10px 16px max(14px, var(--sab)) 16px;
+      display: flex;
+      justify-content: space-around;
+      z-index: 100;
+    }
+    .nav-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text-sub);
+      cursor: pointer;
+      padding: 4px 12px;
+      border-radius: 12px;
+    }
+    .nav-tab.active {
+      color: #10b981;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.12);
+    }
+    .toast-alert {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #10b981;
+      color: #030712;
+      padding: 10px 18px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.5);
+      z-index: 200;
+      display: none;
+      animation: fadeIn 0.2s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="android-viewport">
+    <!-- Android System Bar -->
+    <div class="android-status-bar">
+      <span id="android-clock">12:00</span>
+      <div class="status-icons">
+        <span>5G</span>
+        <span>📶</span>
+        <span>🔋 96%</span>
+      </div>
+    </div>
+
+    <!-- App Header -->
+    <header class="android-app-header">
+      <div class="brand">
+        <div class="brand-icon">🏥</div>
+        <div>
+          <h1>CareFlow AI</h1>
+          <span style="font-size: 11px; color: #10b981; font-weight: 600;">Intelligent Hospital Care</span>
+        </div>
+      </div>
+      <div class="os-badge">
+        <span>🤖</span> Android
+      </div>
+    </header>
+
+    <div class="toast-alert" id="android-toast">✓ Haptic pulse executed</div>
+
+    <!-- Content -->
+    <main class="android-content">
+      <!-- Patient Card -->
+      <section class="patient-hero">
+        <div class="patient-title">Active Patient File</div>
+        <h2 class="patient-name">Souvik Kundu</h2>
+        <div class="vitals-grid">
+          <div class="vital-box">
+            <div class="vital-val">72 bpm</div>
+            <div class="vital-label">Heart Rate</div>
+          </div>
+          <div class="vital-box">
+            <div class="vital-val">120/80</div>
+            <div class="vital-label">BP Normal</div>
+          </div>
+          <div class="vital-box">
+            <div class="vital-val">99%</div>
+            <div class="vital-label">SpO2</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Services -->
+      <div class="services-title">
+        <span>Hospital Services</span>
+        <span style="font-size: 12px; color: #10b981; cursor: pointer;" onclick="triggerAndroidVibe()">Haptics: Active</span>
+      </div>
+
+      <!-- Service 1 -->
+      <div class="service-card" onclick="selectService('AI Doctor Matching')">
+        <div class="service-icon">👨‍⚕️</div>
+        <div class="service-info">
+          <h3>Top Specialists &amp; AI Match</h3>
+          <p>Real-time queue &amp; doctor recommendations</p>
+        </div>
+      </div>
+
+      <!-- Service 2 -->
+      <div class="service-card" onclick="selectService('Quick Appointment Booking')">
+        <div class="service-icon">📅</div>
+        <div class="service-info">
+          <h3>Book Instant Appointment</h3>
+          <p>Fast-track token slot reservation</p>
+        </div>
+      </div>
+
+      <!-- Service 3 -->
+      <div class="service-card" onclick="triggerEmergencyCall()">
+        <div class="service-icon" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #ef4444;">🚨</div>
+        <div class="service-info">
+          <h3 style="color: #ef4444;">24/7 Emergency &amp; Ambulance</h3>
+          <p>Tap to dispatch ambulance or call 108</p>
+        </div>
+      </div>
+
+      <!-- Quick Booking Module -->
+      <div class="booking-card">
+        <h3 style="font-size: 15px; font-weight: 700; color: #38bdf8;">⚡ Instant Token Generator</h3>
+        <div class="form-group">
+          <label>Select Specialty</label>
+          <select class="form-select" id="dept-select">
+            <option>Cardiology (Dr. Rajesh Kumar)</option>
+            <option>Neurology (Dr. Priya Patel)</option>
+            <option>Pediatrics (Dr. Sneha Roy)</option>
+            <option>Orthopedics (Dr. Vikram Mehta)</option>
+          </select>
+        </div>
+        <button class="btn-android" onclick="bookToken()">
+          <span>🎫</span> Generate Live Hospital Token
+        </button>
+      </div>
+
+      <div id="token-result" style="display: none; background: rgba(16, 185, 129, 0.1); border: 1.5px dashed #10b981; border-radius: 16px; padding: 16px; text-align: center;">
+        <div style="font-size: 12px; text-transform: uppercase; color: #10b981; font-weight: 800;">Token Confirmed</div>
+        <div style="font-size: 32px; font-weight: 900; color: #fff; margin: 6px 0;" id="token-code">CF-204</div>
+        <div style="font-size: 13px; color: var(--text-sub);">Estimated Wait: <strong>8 mins</strong> • Counter 3</div>
+      </div>
+    </main>
+
+    <!-- Android Bottom Navigation Dock -->
+    <nav class="android-nav-dock">
+      <div class="nav-tab active" onclick="switchTab(this, 'Home')">
+        <span style="font-size: 18px;">🏠</span>
+        <span>Home</span>
+      </div>
+      <div class="nav-tab" onclick="switchTab(this, 'Doctors')">
+        <span style="font-size: 18px;">👨‍⚕️</span>
+        <span>Doctors</span>
+      </div>
+      <div class="nav-tab" onclick="switchTab(this, 'Queue')">
+        <span style="font-size: 18px;">📊</span>
+        <span>Live Queue</span>
+      </div>
+      <div class="nav-tab" onclick="switchTab(this, 'Profile')">
+        <span style="font-size: 18px;">👤</span>
+        <span>Profile</span>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('android-clock').textContent = 
+        now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    }
+    updateClock();
+    setInterval(updateClock, 10000);
+
+    // Haptics for Android
+    function triggerAndroidVibe(pattern = [25]) {
+      if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+      }
+      showToast('Android Haptic Pulse Triggered');
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('android-toast');
+      toast.textContent = '✓ ' + text;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2000);
+    }
+
+    function selectService(name) {
+      triggerAndroidVibe([15, 30, 15]);
+      showToast(name + ' Selected');
+    }
+
+    function triggerEmergencyCall() {
+      triggerAndroidVibe([50, 50, 50]);
+      if (confirm('Dispatch emergency ambulance / call hospital hotline 108?')) {
+        window.location.href = 'tel:108';
+      }
+    }
+
+    function bookToken() {
+      triggerAndroidVibe([20, 40, 20]);
+      const dept = document.getElementById('dept-select').value;
+      const num = Math.floor(Math.random() * 80) + 200;
+      document.getElementById('token-code').textContent = 'CF-' + num;
+      document.getElementById('token-result').style.display = 'block';
+      showToast('Token CF-' + num + ' Generated for ' + dept.split(' ')[0]);
+    }
+
+    function switchTab(el, tab) {
+      triggerAndroidVibe(15);
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      showToast('Switched to ' + tab);
+    }
+
+    // Android hardware back handling
+    window.addEventListener('popstate', () => {
+      showToast('Android Back Navigation Handled');
+    });
+    history.pushState({ page: 'home' }, '', '');
+  </script>
+</body>
+</html>

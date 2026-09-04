@@ -1,0 +1,26 @@
+{
+  "name": "CareFlow AI (Apple iOS Edition)",
+  "short_name": "CareFlow",
+  "version": "1.0.0",
+  "platform": "ios",
+  "apple": {
+    "web_app_capable": true,
+    "status_bar_style": "black-translucent",
+    "title": "CareFlow AI",
+    "safe_area_aware": true,
+    "dynamic_island_support": true,
+    "rubber_banding": false,
+    "touch_action": "manipulation"
+  },
+  "display": "standalone",
+  "background_color": "#060c18",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml",
+      "purpose": "apple-touch-icon"
+    }
+  ]
+}

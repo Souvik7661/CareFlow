@@ -4,6 +4,7 @@
   "description": "CareFlow AI: Intelligent Hospital Appointment & Queue Management",
   "main": "server/server.ts",
   "scripts": {
+    "build": "npm --prefix client install && npm --prefix client run build",
     "server": "tsx watch server/server.ts",
     "server:start": "node --experimental-strip-types server/server.ts",
     "seed": "tsx server/db/seed.ts",

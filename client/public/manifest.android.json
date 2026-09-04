@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+  "name": "CareFlow AI Hospital (Android Edition)",
+  "short_name": "CareFlow",
+  "id": "com.careflow.hospital.app",
+  "description": "Intelligent Hospital Appointment & Dynamic Queue Management System optimized for Android",
+  "start_url": "/?source=android-pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#060c18",
+  "theme_color": "#0d9488",
+  "lang": "en-US",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "categories": ["medical", "health", "lifestyle"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "48x48 72x72 96x96 144x144 192x192 256x256 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick Book Doctor",
+      "short_name": "Book",
+      "url": "/?service=book",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Doctors Directory",
+      "short_name": "Doctors",
+      "url": "/?service=doctors",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Emergency 24/7 Helpline",
+      "short_name": "Emergency",
+      "url": "/?service=support",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": []
+}

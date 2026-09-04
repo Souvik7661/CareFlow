@@ -21,6 +21,8 @@ import {
   Moon
 } from 'lucide-react';
 import { FashionLogo } from './common/FashionLogo';
+import { PlatformOptimizerHub } from './common/PlatformOptimizerHub';
+import { platform } from '../platforms/PlatformDetector';
 
 interface NavigationProps {
   currentUser: User | null;
@@ -46,6 +48,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isOSModalOpen, setIsOSModalOpen] = useState(false);
 
   useEffect(() => {
     if (currentUser?.patientId) {
@@ -205,6 +208,28 @@ export const Navigation: React.FC<NavigationProps> = ({
           </nav>
 
           <div className="header-actions">
+            {/* Cross-Platform OS Optimization Badge & Switcher */}
+            <button
+              className="btn btn-outline btn-sm"
+              onClick={() => setIsOSModalOpen(true)}
+              title="Cross-Platform OS Engine (Android • iOS • Windows • macOS)"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '6px 12px',
+                borderRadius: '9999px',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                border: '1.5px solid var(--primary-border)',
+                background: 'var(--primary-light)',
+                color: 'var(--primary)'
+              }}
+            >
+              <span>{platform.getOSInfo().icon}</span>
+              <span className="hide-mobile">{platform.getOSInfo().name}</span>
+            </button>
+
             {/* Dark/Light Mode Switcher */}
             {onToggleTheme && (
               <button
@@ -350,6 +375,12 @@ export const Navigation: React.FC<NavigationProps> = ({
           </div>
         </div>
       </header>
+
+      {/* Cross-Platform OS Optimizer Modal */}
+      <PlatformOptimizerHub 
+        isOpen={isOSModalOpen} 
+        onClose={() => setIsOSModalOpen(false)} 
+      />
     </>
   );
 };
