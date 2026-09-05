@@ -34,8 +34,15 @@ router.post('/register', (req, res) => {
       emergencyContact
     } = req.body;
 
-    if (!fullName || !phone || !age || !gender) {
-      return res.status(400).json({ error: 'Full name, phone, age, and gender are required.' });
+    let effectiveAge = age;
+    if (!effectiveAge && dob) {
+      const birthYear = new Date(dob).getFullYear();
+      if (!isNaN(birthYear)) effectiveAge = Math.max(1, new Date().getFullYear() - birthYear);
+    }
+    if (!effectiveAge) effectiveAge = 30;
+
+    if (!fullName || !phone || !gender) {
+      return res.status(400).json({ error: 'Full name, phone, and gender are required.' });
     }
 
     const effectiveEmail = email || `patient_${Date.now()}@careflow.com`;
@@ -67,7 +74,7 @@ router.post('/register', (req, res) => {
         userId,
         fullName,
         dob || null,
-        parseInt(age, 10),
+        parseInt(effectiveAge.toString(), 10),
         gender,
         phone,
         effectiveEmail,

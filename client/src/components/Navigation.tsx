@@ -82,6 +82,27 @@ export const Navigation: React.FC<NavigationProps> = ({
             {!currentUser && (
               <>
                 <button 
+                  className={`nav-link-btn header-btn-services ${currentView === 'welcome-hub' ? 'active' : ''}`}
+                  onClick={() => onNavigate('welcome-hub')}
+                >
+                  <Sparkles size={15} />
+                  <span>Services</span>
+                </button>
+                <button 
+                  className={`nav-link-btn header-btn-triage ${(currentView === 'find-doctor' || currentView === 'ai-triage' || currentView === 'recommendation') ? 'active' : ''}`}
+                  onClick={() => onNavigate('ai-triage')}
+                >
+                  <Stethoscope size={15} color="#a855f7" />
+                  <span>AI Triage & Match</span>
+                </button>
+                <button 
+                  className={`nav-link-btn header-btn-doctors ${(currentView === 'find-doctors' || currentView === 'doctor-list') ? 'active' : ''}`}
+                  onClick={() => onNavigate('doctor-list')}
+                >
+                  <Stethoscope size={15} />
+                  <span>Doctors</span>
+                </button>
+                <button 
                   className="btn btn-outline btn-sm header-btn-login"
                   onClick={() => onOpenAuth('login')}
                   style={{ fontSize: '0.82rem', padding: '6px 14px', borderRadius: '9999px' }}
@@ -116,11 +137,25 @@ export const Navigation: React.FC<NavigationProps> = ({
                   <span>Services</span>
                 </button>
                 <button 
+                  className={`nav-link-btn header-btn-triage ${(currentView === 'find-doctor' || currentView === 'ai-triage' || currentView === 'recommendation') ? 'active' : ''}`}
+                  onClick={() => onNavigate('ai-triage')}
+                >
+                  <Stethoscope size={15} color="#a855f7" />
+                  <span>AI Triage & Match</span>
+                </button>
+                <button 
                   className={`nav-link-btn header-btn-doctors ${(currentView === 'find-doctors' || currentView === 'doctor-list') ? 'active' : ''}`}
                   onClick={() => onNavigate('doctor-list')}
                 >
                   <Stethoscope size={15} />
                   <span>Doctors</span>
+                </button>
+                <button 
+                  className={`nav-link-btn header-btn-appointments ${currentView === 'my-appointments' ? 'active' : ''}`}
+                  onClick={() => onNavigate('my-appointments')}
+                >
+                  <Calendar size={15} />
+                  <span>Appointments</span>
                 </button>
                 <button 
                   className={`nav-link-btn header-btn-support ${currentView === 'ambulance' ? 'active' : ''}`}

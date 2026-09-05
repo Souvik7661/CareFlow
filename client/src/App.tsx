@@ -1,6 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, DoctorRecommendation, DiseaseItem, Doctor } from './types';
-import { api } from './services/api';
+import { api, DEFAULT_DOCTORS } from './services/api';
+import { sessionManager } from './services/session';
+
+const DEFAULT_RECOMMENDATION: any = {
+  probableCategory: 'Clinical Specialist Consultation',
+  recommendedSpecialty: 'Cardiologist',
+  confidenceScore: 94,
+  recommendedDepartment: {
+    id: 'DEP-CARD',
+    name: 'Cardiology',
+    description: 'Heart & Vascular Care Center',
+    wing: 'Block A • Wing 1'
+  },
+  recommendedDoctor: DEFAULT_DOCTORS[0],
+  alternativeDoctors: DEFAULT_DOCTORS.slice(1, 3),
+  emergencyFlag: false,
+  explanation: 'Based on reported symptoms and AI clinical analysis, an expert physician consultation is recommended.'
+};
 
 import { Navigation } from './components/Navigation';
 import { LandingPage } from './components/LandingPage';
@@ -35,6 +52,16 @@ import { SplashScreen } from './components/splash/SplashScreen';
 import { WelcomeServiceHub } from './components/hub/WelcomeServiceHub';
 import { RedirectingScreen } from './components/loading/RedirectingScreen';
 import { PatientTokenWindow } from './components/patient/PatientTokenWindow';
+import { CareFlowMascot } from './components/companion/CareFlowMascot';
+
+interface NavEntry {
+  view: string;
+  selectedDoctorForProfile?: any;
+  bookingDoctorId?: string;
+  selectedHospitalForAmbulance?: string;
+  prefilledCheckInId?: string | null;
+  currentRecommendation?: DoctorRecommendation | null;
+}
 
 export const App: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -59,6 +86,13 @@ export const App: React.FC = () => {
   const [selectedHospitalForAmbulance, setSelectedHospitalForAmbulance] = useState<string>('HOSP-01');
   const [isTeleconsultOpen, setIsTeleconsultOpen] = useState(false);
 
+  // Navigation History Stack
+  const [historyStack, setHistoryStack] = useState<NavEntry[]>([]);
+  const historyStackRef = useRef<NavEntry[]>([]);
+  historyStackRef.current = historyStack;
+  const currentViewRef = useRef<string>(currentView);
+  currentViewRef.current = currentView;
+
   // Sync theme to DOM & localStorage
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -69,38 +103,124 @@ export const App: React.FC = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
+  const getDefaultHome = (user: User | null = currentUser) => {
+    if (!user) return 'welcome-hub';
+    if (user.role === 'DOCTOR') return 'doctor-dashboard';
+    if (user.role === 'RECEPTIONIST') return 'reception-dashboard';
+    if (user.role === 'ADMIN') return 'admin-dashboard';
+    return 'welcome-hub';
+  };
+
+  const navigateTo = (nextView: string, extra: Partial<NavEntry> = {}, replace: boolean = false) => {
+    if (nextView === currentViewRef.current) return;
+
+    if (!replace) {
+      const currentEntry: NavEntry = {
+        view: currentViewRef.current,
+        selectedDoctorForProfile,
+        bookingDoctorId,
+        selectedHospitalForAmbulance,
+        prefilledCheckInId,
+        currentRecommendation
+      };
+      setHistoryStack(prev => [...prev, currentEntry]);
+    }
+
+    try {
+      window.history.pushState({ view: nextView, ...extra }, '', `#${nextView}`);
+    } catch (e) {}
+
+    if (extra.selectedDoctorForProfile !== undefined) setSelectedDoctorForProfile(extra.selectedDoctorForProfile);
+    if (extra.bookingDoctorId !== undefined) setBookingDoctorId(extra.bookingDoctorId);
+    if (extra.selectedHospitalForAmbulance !== undefined) setSelectedHospitalForAmbulance(extra.selectedHospitalForAmbulance);
+    if (extra.prefilledCheckInId !== undefined) setPrefilledCheckInId(extra.prefilledCheckInId);
+    if (extra.currentRecommendation !== undefined) setCurrentRecommendation(extra.currentRecommendation);
+
+    setCurrentView(nextView);
+  };
+
+  const goBack = (fromPopState: boolean = false) => {
+    const stack = historyStackRef.current;
+    if (stack.length > 0) {
+      const prevEntry = stack[stack.length - 1];
+      setHistoryStack(prev => prev.slice(0, -1));
+
+      if (prevEntry.selectedDoctorForProfile !== undefined) setSelectedDoctorForProfile(prevEntry.selectedDoctorForProfile);
+      if (prevEntry.bookingDoctorId !== undefined) setBookingDoctorId(prevEntry.bookingDoctorId);
+      if (prevEntry.selectedHospitalForAmbulance !== undefined) setSelectedHospitalForAmbulance(prevEntry.selectedHospitalForAmbulance);
+      if (prevEntry.prefilledCheckInId !== undefined) setPrefilledCheckInId(prevEntry.prefilledCheckInId);
+      if (prevEntry.currentRecommendation !== undefined) setCurrentRecommendation(prevEntry.currentRecommendation);
+
+      setCurrentView(prevEntry.view);
+
+      if (!fromPopState) {
+        try {
+          window.history.pushState({ view: prevEntry.view }, '', `#${prevEntry.view}`);
+        } catch (e) {}
+      }
+    } else {
+      const home = getDefaultHome();
+      setCurrentView(home);
+      if (!fromPopState) {
+        try {
+          window.history.pushState({ view: home }, '', `#${home}`);
+        } catch (e) {}
+      }
+    }
+  };
+
+  const handleGoBack = () => {
+    goBack(false);
+  };
+
+  // Browser back / forward button listener
+  useEffect(() => {
+    const handlePopState = () => {
+      goBack(true);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   // Initialize session on load
   useEffect(() => {
-    const token = localStorage.getItem('careflow_token');
+    const token = sessionManager.getToken();
     if (token) {
       api.getMe()
         .then(res => {
           setCurrentUser(res.user);
+          sessionManager.setUser(res.user);
           if (res.user.role === 'DOCTOR') setCurrentView('doctor-dashboard');
           else if (res.user.role === 'RECEPTIONIST') setCurrentView('reception-dashboard');
           else if (res.user.role === 'ADMIN') setCurrentView('admin-dashboard');
           else setCurrentView('welcome-hub');
         })
         .catch(() => {
-          localStorage.removeItem('careflow_token');
+          sessionManager.clearSession();
+          setCurrentUser(null);
           setCurrentView('welcome-hub');
         });
     } else {
+      sessionManager.clearSession();
+      setCurrentUser(null);
       setCurrentView('welcome-hub');
     }
   }, []);
 
   const handleSplashFinish = () => {
     setShowSplash(false);
-    const token = localStorage.getItem('careflow_token');
+    const token = sessionManager.getToken();
     if (!token && !currentUser) {
       setAuthModal({ isOpen: true, mode: 'login' });
     }
   };
 
-  const handleAuthSuccess = (user: User, token: string) => {
+  const handleAuthSuccess = (user: User, token: string, remember: boolean = false) => {
+    sessionManager.setToken(token, remember);
+    sessionManager.setUser(user, remember);
     setCurrentUser(user);
     setAuthModal({ isOpen: false, mode: 'login' });
+    setHistoryStack([]);
     if (user.role === 'DOCTOR') setCurrentView('doctor-dashboard');
     else if (user.role === 'RECEPTIONIST') setCurrentView('reception-dashboard');
     else if (user.role === 'ADMIN') setCurrentView('admin-dashboard');
@@ -111,8 +231,10 @@ export const App: React.FC = () => {
   const handleRoleSwitch = async (role: string, doctorId?: string) => {
     try {
       const res = await api.demoLogin(role, doctorId);
-      localStorage.setItem('careflow_token', res.token);
+      sessionManager.setToken(res.token, false);
+      sessionManager.setUser(res.user, false);
       setCurrentUser(res.user);
+      setHistoryStack([]);
 
       if (role === 'PATIENT') {
         setCurrentView('welcome-hub');
@@ -132,22 +254,23 @@ export const App: React.FC = () => {
     try {
       await api.logout();
     } catch (err) {}
-    localStorage.removeItem('careflow_token');
+    sessionManager.clearSession();
     setCurrentUser(null);
+    setHistoryStack([]);
     setCurrentView('welcome-hub');
-    setAuthModal({ isOpen: true, mode: 'login' });
+    setAuthModal({ isOpen: false, mode: 'login' });
   };
 
   const handleRedirectComplete = () => {
     const service = redirectingService;
     setRedirectingService(null);
     if (service === 'doctors') {
-      setCurrentView('doctor-list');
+      navigateTo('doctor-list');
     } else if (service === 'book-appointment') {
       setBookingDoctorId(undefined);
-      setCurrentView('direct-booking');
+      navigateTo('direct-booking');
     } else if (service === 'support') {
-      setCurrentView('ambulance');
+      navigateTo('ambulance');
     }
   };
 
@@ -160,7 +283,7 @@ export const App: React.FC = () => {
   if (currentView === 'waiting-tv') {
     return (
       <WaitingRoomDisplay 
-        onBack={() => setCurrentView(currentUser ? (currentUser.role === 'DOCTOR' ? 'doctor-dashboard' : (currentUser.role === 'RECEPTIONIST' ? 'reception-dashboard' : (currentUser.role === 'ADMIN' ? 'admin-dashboard' : 'welcome-hub'))) : 'welcome-hub')} 
+        onBack={goBack} 
       />
     );
   }
@@ -182,7 +305,7 @@ export const App: React.FC = () => {
         currentView={currentView}
         theme={theme}
         onToggleTheme={toggleTheme}
-        onNavigate={setCurrentView}
+        onNavigate={(v) => navigateTo(v)}
         onRoleSwitch={handleRoleSwitch}
         onOpenAuth={(mode) => setAuthModal({ isOpen: true, mode })}
         onLogout={handleLogout}
@@ -201,35 +324,57 @@ export const App: React.FC = () => {
         {/* Welcome Hub with AI Animated Doctor & Direct Quick Actions */}
         {(currentView === 'welcome-hub' || currentView === 'landing' || currentView === 'dashboard') && (
           <WelcomeServiceHub 
-            user={currentUser || { userId: 'USR-PAT-01', patientId: 'PAT-2026-00101', fullName: 'Valued Patient', email: 'patient@careflow.com', role: 'PATIENT' }}
+            user={currentUser || { userId: 'GUEST', fullName: 'Guest Patient', email: '', role: 'PATIENT' }}
             onSelectService={(srv) => setRedirectingService(srv)}
-            onOpenTokenWindow={() => setCurrentView('token-window')}
-            onNavigate={(v) => setCurrentView(v)}
+            onOpenTokenWindow={() => {
+              if (!currentUser) {
+                setAuthModal({ isOpen: true, mode: 'login' });
+              } else {
+                navigateTo('token-window');
+              }
+            }}
+            onNavigate={(v) => navigateTo(v)}
           />
         )}
 
         {/* Patient Token & Assigned Doctor Window (Opened on Logo Click) */}
         {currentView === 'token-window' && (
-          <PatientTokenWindow 
-            user={currentUser || { userId: 'USR-PAT-01', patientId: 'PAT-2026-00101', fullName: 'Valued Patient', email: 'patient@careflow.com', role: 'PATIENT' }}
-            onBack={() => setCurrentView('welcome-hub')}
-            onGoToLiveQueue={() => setCurrentView('live-queue')}
-            onBookNew={() => setCurrentView('direct-booking')}
-          />
+          currentUser ? (
+            <PatientTokenWindow 
+              user={currentUser}
+              onBack={handleGoBack}
+              onGoToLiveQueue={() => navigateTo('live-queue')}
+              onBookNew={() => navigateTo('direct-booking')}
+            />
+          ) : (
+            <div style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', padding: '30px', background: 'var(--bg-card)', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '8px' }}>Sign in to View Your Digital Token</h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                Please sign in with your account to view your active OPD token pass and live queue position.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <button className="btn btn-primary" onClick={() => setAuthModal({ isOpen: true, mode: 'login' })}>
+                  Sign In
+                </button>
+                <button className="btn btn-outline" onClick={handleGoBack}>
+                  Go Back
+                </button>
+              </div>
+            </div>
+          )
         )}
 
         {/* Doctor List (Screen 3: Find Doctors) */}
         {(currentView === 'doctor-list' || currentView === 'find-doctors') && (
           <DoctorListScreen 
             onSelectDoctor={(doc) => {
-              setSelectedDoctorForProfile(doc);
-              setCurrentView('doctor-profile');
+              navigateTo('doctor-profile', { selectedDoctorForProfile: doc });
             }}
             onBookDoctor={(doc) => {
-              setBookingDoctorId(doc.doctor_id || (doc as any).doctorId);
-              setCurrentView('direct-booking');
+              const docId = doc.doctor_id || (doc as any).doctorId;
+              navigateTo('direct-booking', { bookingDoctorId: docId });
             }}
-            onBack={() => setCurrentView('welcome-hub')}
+            onBack={handleGoBack}
           />
         )}
 
@@ -238,25 +383,29 @@ export const App: React.FC = () => {
           <DirectBookingScreen 
             currentUser={currentUser}
             initialDoctorId={bookingDoctorId}
-            onBack={() => setCurrentView('welcome-hub')}
+            onBack={handleGoBack}
             onBookingSuccess={(appt) => {
               setLatestAppointment(appt);
-              setCurrentView('confirmation');
+              navigateTo('confirmation');
             }}
           />
         )}
 
         {/* Doctor Profile & Schedule (Screen 4 of Blueprint: Book Appointment) */}
-        {currentView === 'doctor-profile' && selectedDoctorForProfile && currentUser && (
+        {currentView === 'doctor-profile' && selectedDoctorForProfile && (
           <DoctorProfileScreen 
             doctor={selectedDoctorForProfile}
-            user={currentUser}
-            onBack={() => setCurrentView('doctor-list')}
+            user={currentUser || { userId: 'GUEST', fullName: 'Guest Patient', email: '', role: 'PATIENT' }}
+            onBack={handleGoBack}
             onBookSlot={async (slot) => {
+              if (!currentUser) {
+                setAuthModal({ isOpen: true, mode: 'login' });
+                return;
+              }
               try {
                 const todayStr = new Date().toISOString().split('T')[0];
-                const patientId = currentUser.patientId || 'PAT-2026-88129';
-                const patientName = currentUser.fullName || 'Valued Patient';
+                const patientId = currentUser.patientId || `PAT-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+                const patientName = currentUser.fullName || 'Patient';
                 const doctorName = selectedDoctorForProfile.name || 'Dr. Ananya Sharma';
                 const departmentName = selectedDoctorForProfile.departmentName || selectedDoctorForProfile.department_name || 'Cardiology';
                 const roomNo = selectedDoctorForProfile.roomNo || selectedDoctorForProfile.room_no || 'Room 204';
@@ -304,23 +453,22 @@ export const App: React.FC = () => {
                 } catch (e) {}
 
                 setLatestAppointment(fullAppt);
-                setCurrentView('confirmation');
+                navigateTo('confirmation');
               } catch (err: any) {
                 alert('Booking failed: ' + (err.message || 'Unknown error'));
               }
             }}
             onOpenTeleconsult={() => setIsTeleconsultOpen(true)}
-            onOpenHospitalMap={() => setCurrentView('hospitals-map')}
+            onOpenHospitalMap={() => navigateTo('hospitals-map')}
           />
         )}
 
         {/* Nearest Hospitals Map (Screen 6 of Blueprint) */}
         {currentView === 'hospitals-map' && (
           <NearestHospitalMap 
-            onBack={() => setCurrentView('welcome-hub')}
+            onBack={handleGoBack}
             onOpenAmbulance={(hospId) => {
-              setSelectedHospitalForAmbulance(hospId);
-              setCurrentView('ambulance');
+              navigateTo('ambulance', { selectedHospitalForAmbulance: hospId });
             }}
           />
         )}
@@ -329,34 +477,35 @@ export const App: React.FC = () => {
         {currentView === 'ambulance' && (
           <AmbulanceServiceScreen 
             defaultHospitalId={selectedHospitalForAmbulance}
-            onBack={() => setCurrentView('welcome-hub')}
+            onBack={handleGoBack}
           />
         )}
 
-        {/* AI Health-Problem Form (Screen 1 & 2 of Blueprint) */}
-        {currentView === 'find-doctor' && currentUser && (
+        {/* AI Health-Problem Form / AI Triage & Match (Screen 1 & 2 of Blueprint) */}
+        {(currentView === 'find-doctor' || currentView === 'ai-triage') && (
           <FindDoctorForm 
-            user={currentUser}
+            user={currentUser || { userId: 'GUEST', fullName: 'Guest Patient', email: '', role: 'PATIENT' }}
             onRecommendationReceived={(rec) => {
-              setCurrentRecommendation(rec);
-              setSelectedDoctorForProfile(rec.recommendedDoctor);
-              setCurrentView('recommendation');
+              const matchedDoc = rec?.recommendedDoctor || rec?.recommendedDoctors?.[0] || DEFAULT_DOCTORS[0];
+              navigateTo('recommendation', {
+                currentRecommendation: rec,
+                selectedDoctorForProfile: matchedDoc
+              });
             }}
-            onCancel={() => setCurrentView('welcome-hub')}
+            onCancel={handleGoBack}
           />
         )}
 
         {/* AI Recommendation (Screen 3 of Blueprint) */}
-        {currentView === 'recommendation' && currentUser && currentRecommendation && (
+        {currentView === 'recommendation' && (
           <RecommendationAndBooking 
-            user={currentUser}
-            recommendation={currentRecommendation}
+            user={currentUser || { userId: 'GUEST', fullName: 'Guest Patient', email: '', role: 'PATIENT' }}
+            recommendation={currentRecommendation || DEFAULT_RECOMMENDATION}
             onProceedToProfile={(doc) => {
-              setSelectedDoctorForProfile(doc);
-              setCurrentView('doctor-profile');
+              navigateTo('doctor-profile', { selectedDoctorForProfile: doc || DEFAULT_DOCTORS[0] });
             }}
-            onViewAllDoctors={() => setCurrentView('doctor-list')}
-            onBack={() => setCurrentView('find-doctor')}
+            onViewAllDoctors={() => navigateTo('doctor-list')}
+            onBack={handleGoBack}
           />
         )}
 
@@ -365,52 +514,104 @@ export const App: React.FC = () => {
           <AppointmentConfirmation 
             appointment={latestAppointment}
             onGoToCheckIn={() => {
-              setPrefilledCheckInId(latestAppointment.appointmentId || latestAppointment.appointment_id);
-              setCurrentView('checkin');
+              const aptId = latestAppointment.appointmentId || latestAppointment.appointment_id;
+              navigateTo('checkin', { prefilledCheckInId: aptId });
             }}
-            onGoToMyAppointments={() => setCurrentView('my-appointments')}
-            onGoToLiveQueue={() => setCurrentView('live-queue')}
-            onGoToDashboard={() => setCurrentView('welcome-hub')}
+            onGoToMyAppointments={() => navigateTo('my-appointments')}
+            onGoToLiveQueue={() => navigateTo('live-queue')}
+            onGoToDashboard={() => navigateTo(getDefaultHome())}
           />
         )}
 
         {/* Manual Hospital Check-In */}
-        {currentView === 'checkin' && currentUser && (
-          <CheckInScreen 
-            user={currentUser}
-            initialAppointmentId={prefilledCheckInId}
-            onBack={() => setCurrentView('welcome-hub')}
-            onCheckInSuccess={() => setCurrentView('live-queue')}
-          />
+        {currentView === 'checkin' && (
+          currentUser ? (
+            <CheckInScreen 
+              user={currentUser}
+              initialAppointmentId={prefilledCheckInId}
+              onBack={handleGoBack}
+              onCheckInSuccess={() => navigateTo('live-queue')}
+            />
+          ) : (
+            <div style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', padding: '30px', background: 'var(--bg-card)', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '8px' }}>Sign in to Check In</h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                Please sign in with your account to check in for your scheduled hospital appointment.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <button className="btn btn-primary" onClick={() => setAuthModal({ isOpen: true, mode: 'login' })}>
+                  Sign In
+                </button>
+                <button className="btn btn-outline" onClick={handleGoBack}>
+                  Go Back
+                </button>
+              </div>
+            </div>
+          )
         )}
 
         {/* Live Queue Radar Screen */}
-        {currentView === 'live-queue' && currentUser && (
-          <LiveQueueScreen 
-            user={currentUser}
-            onBack={() => setCurrentView('welcome-hub')}
-            onGoToCheckIn={() => setCurrentView('checkin')}
-          />
+        {currentView === 'live-queue' && (
+          currentUser ? (
+            <LiveQueueScreen 
+              user={currentUser}
+              onBack={handleGoBack}
+              onGoToCheckIn={() => navigateTo('checkin')}
+            />
+          ) : (
+            <div style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', padding: '30px', background: 'var(--bg-card)', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '8px' }}>Sign in to View Live Queue</h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                Please sign in to track your queue position and projected consultation time.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <button className="btn btn-primary" onClick={() => setAuthModal({ isOpen: true, mode: 'login' })}>
+                  Sign In
+                </button>
+                <button className="btn btn-outline" onClick={handleGoBack}>
+                  Go Back
+                </button>
+              </div>
+            </div>
+          )
         )}
 
         {/* Patient Appointments */}
-        {currentView === 'my-appointments' && currentUser && (
-          <MyAppointments 
-            user={currentUser}
-            onBookNew={() => setCurrentView('direct-booking')}
-            onGoToCheckIn={(aptId) => {
-              if (aptId) setPrefilledCheckInId(aptId);
-              setCurrentView('checkin');
-            }}
-            onGoToLiveQueue={() => setCurrentView('live-queue')}
-          />
+        {currentView === 'my-appointments' && (
+          currentUser ? (
+            <MyAppointments 
+              user={currentUser}
+              onBookNew={() => navigateTo('direct-booking')}
+              onGoToCheckIn={(aptId) => {
+                if (aptId) setPrefilledCheckInId(aptId);
+                navigateTo('checkin');
+              }}
+              onGoToLiveQueue={() => navigateTo('live-queue')}
+              onBack={handleGoBack}
+            />
+          ) : (
+            <div style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', padding: '30px', background: 'var(--bg-card)', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '8px' }}>Sign in to View Appointments</h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                Please sign in to access your previous appointment records and hospital passes.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <button className="btn btn-primary" onClick={() => setAuthModal({ isOpen: true, mode: 'login' })}>
+                  Sign In
+                </button>
+                <button className="btn btn-outline" onClick={handleGoBack}>
+                  Go Back
+                </button>
+              </div>
+            </div>
+          )
         )}
 
         {/* Health Status (Screen 5 of Blueprint) */}
         {currentView === 'health-status' && (
           <HealthStatusScreen 
-            onBack={() => setCurrentView('welcome-hub')}
-            onNavigate={setCurrentView}
+            onBack={handleGoBack}
+            onNavigate={(v) => navigateTo(v)}
           />
         )}
 
@@ -418,7 +619,7 @@ export const App: React.FC = () => {
         {currentView === 'medical-history' && currentUser && (
           <MedicalHistory 
             user={currentUser}
-            onBack={() => setCurrentView('welcome-hub')}
+            onBack={handleGoBack}
           />
         )}
 
@@ -447,16 +648,6 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* Auth Modal */}
-      <AuthModal 
-        isOpen={authModal.isOpen}
-        initialMode={authModal.mode}
-        onClose={() => setAuthModal({ isOpen: false, mode: 'login' })}
-        onSuccess={(user, token) => {
-          handleAuthSuccess(user, token);
-        }}
-      />
-
       {/* Free Teleconsultation Modal (Screen 8 of Blueprint) */}
       {isTeleconsultOpen && (
         <TeleconsultationModal 
@@ -465,6 +656,9 @@ export const App: React.FC = () => {
           onClose={() => setIsTeleconsultOpen(false)}
         />
       )}
+
+      {/* CareFlow AI 360° Stationed Doctor & Hover Assistant */}
+      <CareFlowMascot user={currentUser} />
     </div>
   );
 };

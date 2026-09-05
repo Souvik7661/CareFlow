@@ -7,6 +7,7 @@ import {
   MedicalVisitRecord,
   Doctor
 } from '../types';
+import { sessionManager } from './session';
 
 const BASE_URL = '/api';
 
@@ -311,7 +312,7 @@ export const DEFAULT_HOSPITALS = [
 ];
 
 function getAuthHeader(): Record<string, string> {
-  const token = localStorage.getItem('careflow_token');
+  const token = sessionManager.getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
@@ -371,15 +372,23 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}): T 
     const randNum = Math.floor(10000 + Math.random() * 90000);
     const patientId = `PAT-2026-${randNum}`;
     const user: User = {
-      userId: `USR-${Date.now()}`,
-      email: body.email || 'patient@careflow.com',
+      userId: `USR-PAT-${Date.now().toString().slice(-6)}`,
+      email: body.email || `patient_${Date.now()}@careflow.com`,
       role: 'PATIENT',
       fullName: body.fullName || 'Patient',
       patientId: patientId
     };
     const token = `careflow_token_${Date.now()}`;
-    localStorage.setItem('careflow_token', token);
-    localStorage.setItem('careflow_current_user', JSON.stringify(user));
+    sessionManager.setToken(token);
+    sessionManager.setUser(user);
+
+    try {
+      const usersStr = localStorage.getItem('careflow_users_db');
+      const users = usersStr ? JSON.parse(usersStr) : [];
+      users.push({ ...user, password: body.password || 'password123' });
+      localStorage.setItem('careflow_users_db', JSON.stringify(users));
+    } catch (e) {}
+
     return {
       token,
       user,
@@ -389,22 +398,74 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}): T 
 
   // 2. Auth Login
   if (endpoint === '/auth/login') {
-    const saved = localStorage.getItem('careflow_current_user');
-    let user: User;
-    if (saved) {
-      user = JSON.parse(saved);
-    } else {
-      user = {
-        userId: 'USR-PAT-01',
-        email: body.email || 'patient@careflow.com',
-        role: 'PATIENT',
-        fullName: 'Souvik Kundu',
-        patientId: 'PAT-2026-88129'
-      };
+    const targetEmail = (body.email || '').toLowerCase().trim();
+    let user: User | null = null;
+
+    try {
+      const usersStr = localStorage.getItem('careflow_users_db');
+      if (usersStr) {
+        const users = JSON.parse(usersStr);
+        const match = users.find((u: any) => u.email?.toLowerCase().trim() === targetEmail);
+        if (match) {
+          user = {
+            userId: match.userId,
+            email: match.email,
+            role: match.role || 'PATIENT',
+            fullName: match.fullName,
+            patientId: match.patientId
+          };
+        }
+      }
+    } catch (e) {}
+
+    if (!user) {
+      if (targetEmail === 'patient@careflow.com') {
+        user = {
+          userId: 'USR-PAT-01',
+          email: 'patient@careflow.com',
+          role: 'PATIENT',
+          fullName: 'John Doe',
+          patientId: 'PAT-2026-00101'
+        };
+      } else if (targetEmail === 'doctor.sharma@careflow.com') {
+        user = {
+          userId: 'USR-DOC-01',
+          email: 'doctor.sharma@careflow.com',
+          role: 'DOCTOR',
+          fullName: 'Dr. Ananya Sharma',
+          doctorId: 'DOC-CARD-01'
+        };
+      } else if (targetEmail === 'reception@careflow.com') {
+        user = {
+          userId: 'USR-REC-01',
+          email: 'reception@careflow.com',
+          role: 'RECEPTIONIST',
+          fullName: 'Hospital Reception Desk'
+        };
+      } else if (targetEmail === 'admin@careflow.com') {
+        user = {
+          userId: 'USR-ADM-01',
+          email: 'admin@careflow.com',
+          role: 'ADMIN',
+          fullName: 'Hospital Administrator'
+        };
+      } else {
+        const namePart = targetEmail.split('@')[0] || 'Patient';
+        const formattedName = namePart.split(/[._-]/).map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        const randNum = Math.floor(10000 + Math.random() * 90000);
+        user = {
+          userId: `USR-PAT-${Date.now().toString().slice(-6)}`,
+          email: targetEmail || 'user@careflow.local',
+          role: 'PATIENT',
+          fullName: formattedName || 'Patient',
+          patientId: `PAT-2026-${randNum}`
+        };
+      }
     }
+
     const token = `careflow_token_${Date.now()}`;
-    localStorage.setItem('careflow_token', token);
-    localStorage.setItem('careflow_current_user', JSON.stringify(user));
+    sessionManager.setToken(token);
+    sessionManager.setUser(user);
     return { token, user } as any;
   }
 
@@ -439,31 +500,29 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}): T 
         userId: 'USR-PAT-01',
         email: 'patient@careflow.com',
         role: 'PATIENT',
-        fullName: 'Souvik Kundu',
-        patientId: 'PAT-2026-88129'
+        fullName: 'John Doe',
+        patientId: 'PAT-2026-00101'
       };
     }
     const token = `careflow_demo_${Date.now()}`;
-    localStorage.setItem('careflow_token', token);
-    localStorage.setItem('careflow_current_user', JSON.stringify(user));
+    sessionManager.setToken(token);
+    sessionManager.setUser(user);
     return { token, user, message: 'Demo sign-in successful' } as any;
   }
 
   // 4. Current User Session (/auth/me)
   if (endpoint === '/auth/me') {
-    const saved = localStorage.getItem('careflow_current_user');
-    if (saved) {
-      return { user: JSON.parse(saved) } as any;
+    const savedUser = sessionManager.getUser();
+    if (savedUser) {
+      return { user: savedUser } as any;
     }
-    return {
-      user: {
-        userId: 'USR-PAT-01',
-        email: 'patient@careflow.com',
-        role: 'PATIENT',
-        fullName: 'Souvik Kundu',
-        patientId: 'PAT-2026-88129'
-      }
-    } as any;
+    throw new Error('Unauthorized');
+  }
+
+  // 4.1 Logout
+  if (endpoint === '/auth/logout') {
+    sessionManager.clearSession();
+    return { message: 'Logged out successfully' } as any;
   }
 
   // 5. Doctor List
@@ -541,31 +600,46 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}): T 
       matchedDept = 'Orthopedics';
     }
 
+    const primaryRecDoctor = {
+      ...matchedDoc,
+      score: 95,
+      currentWaitTime: 10,
+      currentQueueLength: 2,
+      earliestSlot: '10:30 AM',
+      nextAvailableSlot: 'Today, 11:30 AM',
+      whyThisDoctor: `Specialized in ${matchedDoc.specialization} with ${matchedDoc.experience} years clinical experience.`,
+      matchReason: `Optimal match for reported symptoms with ${matchedDoc.experience} years clinical experience.`
+    };
+
     return {
+      probableCategory: `${matchedDept} Consultation`,
+      recommendedSpecialty: matchedDoc.specialization,
+      confidenceScore: 94,
       recommendedDepartment: {
+        id: matchedDoc.departmentId,
         departmentId: matchedDoc.departmentId,
+        name: matchedDept,
         departmentName: matchedDept,
         confidence: 0.94,
-        triageUrgency: 'Routine'
+        triageUrgency: 'Routine',
+        description: `${matchedDept} OPD Clinic`,
+        wing: matchedDoc.room_wing || 'Block A'
       },
+      recommendedDoctor: primaryRecDoctor,
       recommendedDoctors: [
-        {
-          ...matchedDoc,
-          score: 95,
-          currentWaitTime: 10,
-          currentQueueLength: 2,
-          earliestSlot: '10:30 AM',
-          matchReason: `Optimal match for reported symptoms with ${matchedDoc.experience} years clinical experience.`
-        },
+        primaryRecDoctor,
         ...DEFAULT_DOCTORS.filter(d => d.doctorId !== matchedDoc.doctorId).slice(0, 2).map((d, i) => ({
           ...d,
           score: 85 - i * 5,
           currentWaitTime: 15 + i * 5,
           currentQueueLength: 3 + i,
           earliestSlot: '11:15 AM',
+          nextAvailableSlot: 'Today, 02:30 PM',
+          whyThisDoctor: `Alternative ${d.specialization} specialist.`,
           matchReason: 'Alternate available specialist in related clinic.'
         }))
       ],
+      alternativeDoctors: DEFAULT_DOCTORS.filter(d => d.doctorId !== matchedDoc.doctorId).slice(0, 2),
       triageUrgency: 'Routine',
       disclaimer: 'Clinical AI assistance. In case of emergency, immediately contact hospital helpline or call 108.'
     } as any;
@@ -575,8 +649,20 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}): T 
   if (endpoint === '/appointments/book') {
     const randNum = Math.floor(200 + Math.random() * 80);
     const doc = DEFAULT_DOCTORS.find(d => d.doctorId === body.doctorId || d.doctor_id === body.doctorId) || DEFAULT_DOCTORS[0];
-    const patientName = body.patientName || 'Alex Carter';
-    const patientId = body.patientId || 'PAT-2026-88129';
+    
+    // Get patient details from body or active session
+    let patientName = body.patientName;
+    let patientId = body.patientId;
+    if (!patientName || !patientId) {
+      const u = sessionManager.getUser();
+      if (u) {
+        if (!patientName) patientName = u.fullName;
+        if (!patientId) patientId = u.patientId;
+      }
+    }
+    patientName = patientName || 'Patient';
+    patientId = patientId || `PAT-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+
     const apptId = `APT-2026-${Math.floor(10000 + Math.random() * 90000)}`;
     const token = `CF-${randNum}`;
 
@@ -606,16 +692,21 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}): T 
       appointment_time: body.appointmentTime || '10:00 AM',
       tokenNumber: token,
       token_number: token,
-      status: 'IN_QUEUE',
+      status: 'BOOKED',
       estimatedWaitTime: 8,
       estimated_wait_time: 8,
-      queuePosition: 2,
-      queue_position: 2,
+      queuePosition: 1,
+      queue_position: 1,
       reason: body.reason || 'General Health Consultation'
     };
 
     try {
-      localStorage.setItem('careflow_latest_appointment', JSON.stringify(appt));
+      sessionManager.setLatestAppointment(appt, patientId);
+      const key = `careflow_patient_appointments_${patientId}`;
+      const existingStr = sessionStorage.getItem(key) || localStorage.getItem(key);
+      const existingList = existingStr ? JSON.parse(existingStr) : [];
+      const updatedList = [appt, ...existingList.filter((a: any) => (a.appointmentId || a.appointment_id) !== apptId)];
+      sessionStorage.setItem(key, JSON.stringify(updatedList));
     } catch (e) {}
 
     return {
@@ -626,61 +717,52 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}): T 
 
   // 10.1 Patient's Own Appointments
   if (endpoint.startsWith('/appointments/my')) {
-    let savedAppt: any = null;
-    try {
-      const savedStr = localStorage.getItem('careflow_latest_appointment');
-      if (savedStr) savedAppt = JSON.parse(savedStr);
-    } catch (e) {}
+    let pId = '';
+    const match = endpoint.match(/patientId=([^&]+)/);
+    if (match) {
+      pId = decodeURIComponent(match[1]);
+    } else {
+      const savedUser = sessionManager.getUser();
+      if (savedUser) {
+        pId = savedUser.patientId || '';
+      }
+    }
 
-    const defaultApt = savedAppt || {
-      appointmentId: 'APT-2026-88129',
-      appointment_id: 'APT-2026-88129',
-      patientId: 'PAT-2026-88129',
-      patient_id: 'PAT-2026-88129',
-      patientName: 'Alex Carter',
-      patient_name: 'Alex Carter',
-      doctorId: 'DOC-CARD-01',
-      doctor_id: 'DOC-CARD-01',
-      doctorName: 'Dr. Ananya Sharma',
-      doctor_name: 'Dr. Ananya Sharma',
-      specialization: 'Cardiologist',
-      departmentName: 'Cardiology',
-      department_name: 'Cardiology',
-      roomNo: 'Room 204',
-      room_no: 'Room 204',
-      wing: 'Block A • Wing 1',
-      room_wing: 'Block A • Wing 1',
-      appointmentDate: new Date().toISOString().split('T')[0],
-      appointment_date: new Date().toISOString().split('T')[0],
-      appointmentTime: '10:00 AM',
-      appointment_time: '10:00 AM',
-      tokenNumber: 'CF-204',
-      token_number: 'CF-204',
-      status: 'IN_QUEUE',
-      estimatedWaitTime: 8,
-      estimated_wait_time: 8,
-      queuePosition: 2,
-      queue_position: 2,
-      reason: 'General Health Consultation'
-    };
+    if (pId) {
+      try {
+        const key = `careflow_patient_appointments_${pId}`;
+        const saved = sessionStorage.getItem(key) || localStorage.getItem(key);
+        if (saved) {
+          const list = JSON.parse(saved);
+          if (Array.isArray(list)) {
+            return { appointments: list } as any;
+          }
+        }
+      } catch (e) {}
+    }
 
+    // If no appointments exist yet for this patient, return empty list
     return {
-      appointments: [defaultApt]
+      appointments: []
     } as any;
   }
 
   // 11. Live Queue Status
   if (endpoint.startsWith('/queue/patient/')) {
-    let savedAppt: any = null;
-    try {
-      const savedStr = localStorage.getItem('careflow_latest_appointment');
-      if (savedStr) savedAppt = JSON.parse(savedStr);
-    } catch (e) {}
+    const patientId = endpoint.split('/')[3];
+    const savedAppt = sessionManager.getLatestAppointment(patientId);
+
+    if (!savedAppt) {
+      return {
+        hasActiveQueue: false
+      } as any;
+    }
 
     return {
+      hasActiveQueue: true,
       currentTokenNumber: 'CF-201',
-      patientTokenNumber: savedAppt?.tokenNumber || savedAppt?.token_number || 'CF-204',
-      queuePosition: 2,
+      patientTokenNumber: savedAppt?.tokenNumber || savedAppt?.token_number,
+      queuePosition: 1,
       estimatedWaitTimeMinutes: 8,
       estimatedConsultationTime: '10:45 AM',
       doctorStatus: 'IN_SESSION',
@@ -689,19 +771,25 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}): T 
       specialization: savedAppt?.specialization || 'Cardiologist',
       roomNo: savedAppt?.roomNo || savedAppt?.room_no || 'Room 204',
       departmentName: savedAppt?.departmentName || savedAppt?.department_name || 'Cardiology',
-      patientsAhead: 1
+      patientsAhead: 0
     } as any;
   }
 
   // 12. Health Status & History
   if (endpoint.startsWith('/health/status/')) {
+    let currentUser: any = null;
+    try {
+      const savedUserStr = localStorage.getItem('careflow_current_user');
+      if (savedUserStr) currentUser = JSON.parse(savedUserStr);
+    } catch (e) {}
+
     return {
       patient: {
-        fullName: 'Souvik Kundu',
-        patientId: 'PAT-2026-88129',
-        age: 21,
-        gender: 'Male',
-        bloodGroup: 'O+'
+        fullName: currentUser?.fullName || 'Patient',
+        patientId: currentUser?.patientId || endpoint.split('/')[3] || 'PAT-2026-00101',
+        age: currentUser?.age || 28,
+        gender: currentUser?.gender || 'Patient',
+        bloodGroup: currentUser?.bloodGroup || 'O+'
       },
       vitals: {
         heartRate: 72,
@@ -918,7 +1006,7 @@ export const api = {
   getMe: () => request<{ user: User }>('/auth/me'),
 
   logout: () => {
-    localStorage.removeItem('careflow_token');
+    sessionManager.clearSession();
     return Promise.resolve({ message: 'Logged out successfully' });
   },
 
@@ -941,7 +1029,7 @@ export const api = {
       `/appointments/slots?doctorId=${doctorId}&date=${date}`
     ),
 
-  bookAppointment: (payload: {
+  bookAppointment: async (payload: {
     patientId: string;
     patientName?: string;
     doctorId: string;
@@ -949,13 +1037,52 @@ export const api = {
     appointmentDate: string;
     appointmentTime: string;
     reason?: string;
-  }) => request<{ message: string; appointment: any }>('/appointments/book', {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  }),
+  }) => {
+    const res = await request<{ message: string; appointment: any }>('/appointments/book', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
 
-  getMyAppointments: (patientId: string) => 
-    request<{ appointments: Appointment[] }>(`/appointments/my?patientId=${patientId}`),
+    if (res?.appointment && payload.patientId) {
+      try {
+        const key = `careflow_patient_appointments_${payload.patientId}`;
+        const existingStr = sessionStorage.getItem(key) || localStorage.getItem(key);
+        const existingList = existingStr ? JSON.parse(existingStr) : [];
+        const apptId = res.appointment.appointmentId || res.appointment.appointment_id;
+        const updatedList = [res.appointment, ...existingList.filter((a: any) => (a.appointmentId || a.appointment_id) !== apptId)];
+        sessionStorage.setItem(key, JSON.stringify(updatedList));
+      } catch (e) {}
+    }
+
+    return res;
+  },
+
+  getMyAppointments: async (patientId: string) => {
+    try {
+      const res = await request<{ appointments: Appointment[] }>(`/appointments/my?patientId=${patientId}`);
+      if (res?.appointments && Array.isArray(res.appointments)) {
+        try {
+          const key = `careflow_patient_appointments_${patientId}`;
+          sessionStorage.setItem(key, JSON.stringify(res.appointments));
+        } catch (e) {}
+        return res;
+      }
+    } catch (e) {}
+
+    // Fallback to locally persisted appointments for this patient
+    try {
+      const key = `careflow_patient_appointments_${patientId}`;
+      const saved = sessionStorage.getItem(key) || localStorage.getItem(key);
+      if (saved) {
+        const list = JSON.parse(saved);
+        if (Array.isArray(list)) {
+          return { appointments: list };
+        }
+      }
+    } catch (e) {}
+
+    return { appointments: [] };
+  },
 
   cancelAppointment: (id: string) => 
     request<{ message: string }>(`/appointments/${id}/cancel`, { method: 'POST' }),

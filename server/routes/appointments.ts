@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { queryAll, queryOne, execute, transaction } from '../db/database.ts';
 import { optimizeDoctorQueue } from '../ai/aiQueueOptimizer.ts';
+import { getSessionUser } from './auth.ts';
 
 const router = Router();
 
@@ -80,7 +81,19 @@ router.get('/slots', (req, res) => {
 // 2. Book an Appointment
 router.post('/book', (req, res) => {
   try {
-    const { patientId, doctorId, departmentId, appointmentDate, appointmentTime, reason } = req.body;
+    let { patientId, doctorId, departmentId, appointmentDate, appointmentTime, timeSlot, reason, reasonForVisit } = req.body;
+
+    if (!appointmentTime && timeSlot) appointmentTime = timeSlot;
+    if (!reason && reasonForVisit) reason = reasonForVisit;
+
+    if (!patientId) {
+      const sessionUser = getSessionUser(req);
+      if (sessionUser?.patientId) {
+        patientId = sessionUser.patientId;
+      } else if (sessionUser?.userId) {
+        patientId = sessionUser.userId;
+      }
+    }
 
     if (!patientId || !doctorId || !appointmentDate || !appointmentTime) {
       return res.status(400).json({ error: 'Missing required booking fields.' });
@@ -91,11 +104,23 @@ router.post('/book', (req, res) => {
       return res.status(404).json({ error: 'Doctor not found.' });
     }
 
-    const patient = queryOne('SELECT * FROM patients WHERE patient_id = ?', [patientId]);
+    let patient = queryOne('SELECT * FROM patients WHERE patient_id = ?', [patientId]);
     if (!patient) {
-      return res.status(404).json({ error: 'Patient not found.' });
+      // Check if patientId corresponds to a user's ID
+      const user = queryOne('SELECT * FROM users WHERE id = ?', [patientId]);
+      if (user) {
+        const newPatientId = `PAT-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+        execute(`
+          INSERT INTO patients (patient_id, user_id, full_name, age, gender, phone, email)
+          VALUES (?, ?, ?, 30, 'Other', '+91 99999 00000', ?)
+        `, [newPatientId, user.id, user.full_name, user.email]);
+        patient = queryOne('SELECT * FROM patients WHERE patient_id = ?', [newPatientId]);
+      } else {
+        return res.status(404).json({ error: 'Patient not found.' });
+      }
     }
 
+    const effectivePatientId = patient.patient_id;
     const effectiveDeptId = departmentId || doctor.department_id;
     const dept = queryOne('SELECT * FROM departments WHERE department_id = ?', [effectiveDeptId]);
 
@@ -120,29 +145,15 @@ router.post('/book', (req, res) => {
     const queueId = `Q-2026-${randomNum}`;
 
     transaction(() => {
-      // 1. If patient has existing active appointments, archive them into history as COMPLETED
-      execute(`
-        UPDATE appointments 
-        SET status = 'COMPLETED' 
-        WHERE patient_id = ? AND status IN ('BOOKED', 'CHECKED_IN', 'IN_QUEUE', 'IN_CONSULTATION')
-      `, [patientId]);
-
-      // Complete previous active queue items as well
-      execute(`
-        UPDATE queue
-        SET status = 'COMPLETED'
-        WHERE patient_id = ? AND status IN ('WAITING', 'CALLED')
-      `, [patientId]);
-
-      // 2. Insert new active appointment
+      // 1. Insert new active appointment into database
       execute(`
         INSERT INTO appointments (
           appointment_id, patient_id, doctor_id, department_id, 
           appointment_date, appointment_time, status, reason
-        ) VALUES (?, ?, ?, ?, ?, ?, 'IN_QUEUE', ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, 'BOOKED', ?)
       `, [
         appointmentId,
-        patientId,
+        effectivePatientId,
         doctorId,
         effectiveDeptId,
         appointmentDate,
@@ -150,11 +161,11 @@ router.post('/book', (req, res) => {
         reason || 'Consultation'
       ]);
 
-      // 3. Immediately generate patient digital token check-in and queue turn
+      // 2. Generate initial check-in record
       execute(`
         INSERT INTO check_ins (checkin_id, appointment_id, patient_id, token_number, queue_status)
         VALUES (?, ?, ?, ?, 'Waiting')
-      `, [checkinId, appointmentId, patientId, tokenNum]);
+      `, [checkinId, appointmentId, effectivePatientId, tokenNum]);
 
       // Calculate queue position
       const queueCountResult = queryOne(`
@@ -168,15 +179,15 @@ router.post('/book', (req, res) => {
           queue_id, appointment_id, doctor_id, patient_id, 
           token_number, queue_position, estimated_wait_time, triage_priority, status
         ) VALUES (?, ?, ?, ?, ?, ?, ?, 'ROUTINE', 'WAITING')
-      `, [queueId, appointmentId, doctorId, patientId, tokenNum, queuePosition, estimatedWaitTime]);
+      `, [queueId, appointmentId, doctorId, effectivePatientId, tokenNum, queuePosition, estimatedWaitTime]);
 
-      // 4. Notification
+      // 3. Notification
       execute(`
         INSERT INTO notifications (notification_id, patient_id, appointment_id, type, title, message)
         VALUES (?, ?, ?, 'APPOINTMENT_CONFIRMED', 'Appointment Confirmed & Token Generated', ?)
       `, [
         `NOTIF-${Date.now()}`,
-        patientId,
+        effectivePatientId,
         appointmentId,
         `Your consultation with ${doctor.name} (${dept?.name || 'Department'}) is confirmed for ${appointmentDate} at ${appointmentTime} in ${doctor.room_no}. Your active queue token is #${tokenNum}.`
       ]);
@@ -186,7 +197,7 @@ router.post('/book', (req, res) => {
       message: 'Appointment booked successfully and digital pass issued',
       appointment: {
         appointmentId,
-        patientId,
+        patientId: effectivePatientId,
         patientName: patient.full_name,
         doctorId,
         doctorName: doctor.name,
@@ -197,8 +208,9 @@ router.post('/book', (req, res) => {
         wing: dept?.room_wing || 'Main Wing',
         appointmentDate,
         appointmentTime,
-        status: 'IN_QUEUE',
+        status: 'BOOKED',
         token_number: tokenNum,
+        tokenNumber: tokenNum,
         queue_position: 1,
         estimated_wait_time: doctor.avg_consultation_time || 15,
         reason
@@ -213,7 +225,18 @@ router.post('/book', (req, res) => {
 // 3. Get Patient's Appointments
 router.get('/my', (req, res) => {
   try {
-    const { patientId } = req.query;
+    let { patientId } = req.query;
+
+    if (!patientId) {
+      const sessionUser = getSessionUser(req);
+      if (sessionUser?.patientId) {
+        patientId = sessionUser.patientId;
+      } else if (sessionUser?.userId) {
+        const p = queryOne('SELECT patient_id FROM patients WHERE user_id = ?', [sessionUser.userId]);
+        if (p) patientId = p.patient_id;
+      }
+    }
+
     if (!patientId) {
       return res.status(400).json({ error: 'patientId is required.' });
     }
@@ -231,8 +254,8 @@ router.get('/my', (req, res) => {
              q.estimated_wait_time,
              q.status as queue_status
       FROM appointments a
-      JOIN doctors d ON a.doctor_id = d.doctor_id
-      JOIN departments dep ON a.department_id = dep.department_id
+      LEFT JOIN doctors d ON a.doctor_id = d.doctor_id
+      LEFT JOIN departments dep ON a.department_id = dep.department_id
       LEFT JOIN check_ins c ON a.appointment_id = c.appointment_id
       LEFT JOIN queue q ON a.appointment_id = q.appointment_id
       WHERE a.patient_id = ?

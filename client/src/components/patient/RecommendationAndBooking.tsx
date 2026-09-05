@@ -16,6 +16,8 @@ import {
   Info
 } from 'lucide-react';
 
+import { DEFAULT_DOCTORS } from '../../services/api';
+
 interface RecommendationAndBookingProps {
   user: User;
   recommendation: any;
@@ -31,10 +33,18 @@ export const RecommendationAndBooking: React.FC<RecommendationAndBookingProps> =
   onViewAllDoctors,
   onBack
 }) => {
-  const doctor = recommendation.recommendedDoctor;
-  const conditionName = recommendation.probableCategory || 'Gastritis / Acid Reflux';
-  const specialtyName = recommendation.recommendedSpecialty || 'Gastroenterologist';
-  const confidence = recommendation.confidenceScore || 92;
+  const doctor = recommendation?.recommendedDoctor || 
+                 recommendation?.recommendedDoctors?.[0] || 
+                 DEFAULT_DOCTORS[0];
+  const conditionName = recommendation?.probableCategory || 
+                        recommendation?.recommendedDepartment?.name || 
+                        recommendation?.recommendedDepartment?.departmentName || 
+                        'Clinical Specialist Consultation';
+  const specialtyName = recommendation?.recommendedSpecialty || 
+                        doctor?.specialization || 
+                        'General Physician';
+  const confidence = recommendation?.confidenceScore || 
+                     (recommendation?.recommendedDepartment?.confidence ? Math.round(recommendation.recommendedDepartment.confidence * 100) : 92);
 
   return (
     <div className="blueprint-flow-container">
@@ -113,17 +123,17 @@ export const RecommendationAndBooking: React.FC<RecommendationAndBookingProps> =
             fontWeight: 800,
             boxShadow: 'var(--shadow-sm)'
           }}>
-            {doctor.name.replace('Dr. ', '').charAt(0)}
+            {(doctor?.name || 'Dr. Specialist').replace('Dr. ', '').charAt(0)}
           </div>
 
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 800 }}>{doctor.name}</h3>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800 }}>{doctor?.name || 'Recommended Specialist'}</h3>
               <ChevronRight size={18} color="var(--text-muted)" />
             </div>
 
             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-              {doctor.specialization}
+              {doctor?.specialization || 'Clinical Specialist'}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>

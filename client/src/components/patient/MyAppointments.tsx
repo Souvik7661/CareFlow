@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Appointment } from '../../types';
 import { api } from '../../services/api';
 import { 
+  ArrowLeft,
   Calendar, 
   Clock, 
   MapPin, 
@@ -19,13 +20,15 @@ interface MyAppointmentsProps {
   onBookNew: () => void;
   onGoToCheckIn: (aptId?: string) => void;
   onGoToLiveQueue: () => void;
+  onBack?: () => void;
 }
 
 export const MyAppointments: React.FC<MyAppointmentsProps> = ({
   user,
   onBookNew,
   onGoToCheckIn,
-  onGoToLiveQueue
+  onGoToLiveQueue,
+  onBack
 }) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,6 +42,9 @@ export const MyAppointments: React.FC<MyAppointmentsProps> = ({
         .then(res => setAppointments(res.appointments || []))
         .catch(err => console.error(err))
         .finally(() => setLoading(false));
+    } else {
+      setAppointments([]);
+      setLoading(false);
     }
   };
 
@@ -66,6 +72,17 @@ export const MyAppointments: React.FC<MyAppointmentsProps> = ({
 
   return (
     <div style={{ maxWidth: '880px', margin: '0 auto' }}>
+      {onBack && (
+        <button 
+          className="apple-circle-action-btn" 
+          onClick={onBack}
+          style={{ marginBottom: '16px' }}
+          title="Back"
+        >
+          <ArrowLeft size={16} />
+        </button>
+      )}
+
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '14px' }}>
         <div>

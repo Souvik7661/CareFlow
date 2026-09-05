@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { sessionManager } from '../../services/session';
 import { 
   CheckCircle, 
   Calendar, 
@@ -34,10 +35,9 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   // Resilient Field Fallback Accessors
   let defaultPatName = 'Valued Patient';
   try {
-    const savedUser = localStorage.getItem('careflow_current_user');
-    if (savedUser) {
-      const u = JSON.parse(savedUser);
-      if (u.fullName) defaultPatName = u.fullName;
+    const savedUser = sessionManager.getUser();
+    if (savedUser && savedUser.fullName) {
+      defaultPatName = savedUser.fullName;
     }
   } catch (e) {}
 

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { execute, queryOne, transaction } from '../db/database.ts';
-import { analyzeAndRecommend, PatientFormInput } from '../ai/aiRecommendation.ts';
+import { analyzeAndRecommend, type PatientFormInput } from '../ai/aiRecommendation.ts';
 
 const router = Router();
 

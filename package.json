@@ -2,6 +2,7 @@
   "name": "careflow-ai",
   "version": "1.0.0",
   "description": "CareFlow AI: Intelligent Hospital Appointment & Queue Management",
+  "type": "module",
   "main": "server/server.ts",
   "scripts": {
     "build": "npm --prefix client install && npm --prefix client run build",

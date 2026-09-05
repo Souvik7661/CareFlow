@@ -2,7 +2,7 @@ import { api } from './client/src/services/api.ts';
 
 async function runEndToEndVerification() {
   console.log('====================================================');
-  console.log('🚀 STARTING CAREFLOW AI FULL END-TO-END VERIFICATION');
+  console.log(' STARTING CAREFLOW AI FULL END-TO-END VERIFICATION');
   console.log('====================================================\n');
 
   const BASE = 'http://localhost:5001/api';

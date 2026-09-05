@@ -406,10 +406,10 @@ a {
 
 .main-content {
   flex: 1;
-  max-width: 1240px;
+  max-width: 1560px;
   width: 100%;
   margin: 0 auto;
-  padding: 24px 20px 60px 20px;
+  padding: 16px 24px 60px 24px;
   box-sizing: border-box;
   overflow-x: hidden;
 }
@@ -500,10 +500,10 @@ a {
 }
 
 .header-inner {
-  max-width: 1240px;
+  max-width: 1560px;
   width: 100%;
   margin: 0 auto;
-  padding: 12px 20px;
+  padding: 12px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2244,20 +2244,20 @@ body {
 
 .cf-welcome-hub-container {
   width: 100%;
-  max-width: 720px;
+  max-width: 1560px;
   margin: 0 auto;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 18px;
   animation: welcome-fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 10px 16px 40px 16px;
+  padding: 8px 24px 48px 24px;
   overflow-x: hidden;
 }
 
 .cf-welcome-heading {
-  font-size: clamp(1.5rem, 5.5vw, 2.3rem);
+  font-size: clamp(1.6rem, 3.2vw, 2.5rem);
   font-weight: 800;
   color: var(--text-primary);
   margin: 0;
@@ -2268,51 +2268,87 @@ body {
   word-break: normal;
 }
 
-/* 3 Core Services Grid */
+/* 3 Core Services Grid - Desktop Widescreen */
 .cf-services-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 20px;
   width: 100%;
   box-sizing: border-box;
 }
 
 .cf-service-card {
-  padding: 22px 16px;
-  text-align: center;
+  padding: 20px 24px;
+  text-align: left;
   cursor: pointer;
-  border-radius: 24px;
+  border-radius: 22px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  gap: 18px;
   width: 100%;
   box-sizing: border-box;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .cf-service-icon-box {
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
+  width: 54px;
+  height: 54px;
+  min-width: 54px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 14px;
+  margin-bottom: 0;
   flex-shrink: 0;
 }
 
-/* Quick Actions 2-Column Mobile Grid */
+.cf-service-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.cf-service-content h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.cf-service-content p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.cf-service-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Quick Actions Grid: 7 columns on Desktop widescreen, 4 on tablet, 2 on mobile */
 .cf-quick-actions-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 12px;
   width: 100%;
   box-sizing: border-box;
 }
 
+@media (max-width: 1280px) {
+  .cf-quick-actions-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .cf-quick-action-btn {
-  padding: 16px 14px;
+  padding: 14px 12px;
   text-align: left;
   cursor: pointer;
   border-radius: 18px;
@@ -2337,7 +2373,7 @@ body {
 .cf-active-token-banner {
   width: 100%;
   box-sizing: border-box;
-  padding: 14px 20px;
+  padding: 14px 24px;
   border-radius: 20px;
   background: var(--primary-light);
   border: 1px solid var(--primary-border);
@@ -2348,11 +2384,11 @@ body {
   overflow: hidden;
 }
 
-/* Platform Native Apps Drawer/Grid */
+/* Platform Native Apps: 4 columns spanning full width */
 .cf-platform-apps-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 14px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -2471,5 +2507,483 @@ body {
   }
 }
 
+/* =========================================================
+   CareFlow AI — Neumorphic / Soft UI Authentication Modal
+   Matches user reference image specifications precisely
+   ========================================================= */
 
+.cf-nm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 16px;
+  animation: cfNmFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
+@keyframes cfNmFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.cf-nm-card {
+  background: #ebf2f7;
+  color: #1e293b;
+  border-radius: 32px;
+  box-shadow: 
+    20px 20px 50px rgba(160, 175, 195, 0.45),
+    -18px -18px 45px rgba(255, 255, 255, 0.95),
+    0 0 0 1px rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 36px 32px;
+  transition: max-width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.cf-nm-card::-webkit-scrollbar {
+  width: 6px;
+}
+.cf-nm-card::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+
+/* Header & Tabs */
+.cf-nm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.cf-nm-tabs {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.cf-nm-tab-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  padding: 6px 0;
+  position: relative;
+  transition: color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: inherit;
+}
+
+.cf-nm-tab-btn.active {
+  color: #0d9488;
+  font-weight: 700;
+}
+
+.cf-nm-tab-indicator {
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  background: #0d9488;
+  border-radius: 9999px;
+  animation: cfNmScaleX 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cfNmScaleX {
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+.cf-nm-close-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.cf-nm-close-btn:hover {
+  color: #0f172a;
+  background: rgba(203, 213, 225, 0.45);
+}
+
+/* Subtitle for registration */
+.cf-nm-subtitle {
+  color: #64748b;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  margin-top: -12px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+/* Form Group & Labels */
+.cf-nm-field-group {
+  margin-bottom: 18px;
+}
+
+.cf-nm-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+/* Sunken Inset Neumorphic Slot */
+.cf-nm-slot {
+  background: #ebf2f7;
+  border-radius: 20px;
+  box-shadow: 
+    inset 3px 3px 6px #cbd5e1, 
+    inset -3px -3px 6px #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  height: 48px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.cf-nm-slot:focus-within {
+  box-shadow: 
+    inset 3px 3px 6px rgba(13, 148, 136, 0.22), 
+    inset -3px -3px 6px #ffffff,
+    0 0 0 2px rgba(13, 148, 136, 0.35);
+}
+
+.cf-nm-slot-icon {
+  color: #64748b;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cf-nm-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.92rem;
+  color: #1e293b;
+  width: 100%;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.cf-nm-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.cf-nm-select {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.92rem;
+  color: #1e293b;
+  width: 100%;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.cf-nm-select option {
+  background: #ebf2f7;
+  color: #1e293b;
+}
+
+.cf-nm-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+.cf-nm-toggle-btn:hover {
+  color: #0f172a;
+}
+
+/* Neumorphic Custom Checkbox */
+.cf-nm-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 24px 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cf-nm-checkbox-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: #ebf2f7;
+  box-shadow: 
+    inset 2px 2px 4px #cbd5e1, 
+    inset -2px -2px 4px #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.cf-nm-checkbox-box.checked {
+  background: linear-gradient(135deg, #38bdf8 0%, #0d9488 100%);
+  box-shadow: 0 3px 8px rgba(13, 148, 136, 0.4);
+  border-color: transparent;
+}
+
+.cf-nm-checkbox-label {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+}
+
+/* Primary Neumorphic Gradient Button */
+.cf-nm-btn-primary {
+  background: linear-gradient(90deg, #38bdf8 0%, #0ea5e9 45%, #0d9488 100%);
+  color: #ffffff;
+  border-radius: 9999px;
+  height: 50px;
+  width: 100%;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px -4px rgba(13, 148, 136, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+}
+
+.cf-nm-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  box-shadow: 0 14px 28px -4px rgba(13, 148, 136, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+.cf-nm-btn-primary:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 6px 16px -2px rgba(13, 148, 136, 0.4);
+}
+
+.cf-nm-btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Quick Demo Accounts */
+.cf-nm-demo-section {
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(203, 213, 225, 0.6);
+}
+
+.cf-nm-demo-title {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.cf-nm-demo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cf-nm-chip {
+  background: #ebf2f7;
+  border-radius: 14px;
+  box-shadow: 
+    4px 4px 9px rgba(166, 180, 200, 0.45), 
+    -4px -4px 9px rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  padding: 8px 18px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  font-family: inherit;
+}
+
+.cf-nm-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    3px 3px 7px rgba(166, 180, 200, 0.55), 
+    -3px -3px 7px rgba(255, 255, 255, 0.95);
+  color: #0d9488;
+}
+
+.cf-nm-chip:active {
+  transform: translateY(0);
+  box-shadow: 
+    inset 2px 2px 5px rgba(166, 180, 200, 0.5), 
+    inset -2px -2px 5px #ffffff;
+}
+
+/* 2-Column Responsive Grid for Registration */
+.cf-nm-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .cf-nm-card {
+    padding: 24px 20px;
+    border-radius: 24px;
+  }
+  .cf-nm-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Neumorphic Country Phone Selector */
+.cf-nm-phone-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  padding: 0 10px 0 12px;
+}
+
+.cf-nm-country-dropdown-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 3px 6px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.cf-nm-country-dropdown-btn:hover {
+  background: rgba(203, 213, 225, 0.5);
+}
+
+.cf-nm-country-flag {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.cf-nm-country-dial {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+}
+
+.cf-nm-country-select-hidden {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  z-index: 2;
+}
+
+.cf-nm-country-select-hidden option {
+  background: #ebf2f7;
+  color: #1e293b;
+  font-size: 0.95rem;
+  padding: 6px 10px;
+}
+
+.cf-nm-phone-divider {
+  width: 1.5px;
+  height: 22px;
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.cf-nm-phone-input {
+  flex: 1;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.90rem;
+  padding: 0 4px;
+}
+
+.cf-nm-digit-badge {
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: #64748b;
+  background: rgba(203, 213, 225, 0.55);
+  padding: 2px 6px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.cf-nm-digit-badge.valid {
+  color: #0d9488;
+  background: rgba(13, 148, 136, 0.18);
+  font-weight: 800;
+}
+
+.cf-nm-length-hint {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: 6px;
+  transition: color 0.2s ease;
+}
+
+.cf-nm-length-hint.valid {
+  color: #0d9488;
+  font-weight: 700;
+}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User } from '../../types';
 import { api, DEFAULT_DOCTORS } from '../../services/api';
+import { sessionManager } from '../../services/session';
 import { 
   ArrowLeft, 
   Calendar, 
@@ -67,8 +68,8 @@ export const DirectBookingScreen: React.FC<DirectBookingScreenProps> = ({
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const patientId = currentUser?.patientId || 'PAT-2026-88129';
-      const patientName = currentUser?.fullName || 'Alex Carter';
+      const patientId = currentUser?.patientId || `PAT-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+      const patientName = currentUser?.fullName || 'Patient';
       const res = await api.bookAppointment({
         patientId,
         patientName,
@@ -112,7 +113,7 @@ export const DirectBookingScreen: React.FC<DirectBookingScreenProps> = ({
       };
 
       try {
-        localStorage.setItem('careflow_latest_appointment', JSON.stringify(fullAppointment));
+        sessionManager.setLatestAppointment(fullAppointment, currentUser?.patientId || currentUser?.userId);
       } catch (e) {}
 
       onBookingSuccess(fullAppointment);

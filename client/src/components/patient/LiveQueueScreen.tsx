@@ -42,6 +42,9 @@ export const LiveQueueScreen: React.FC<LiveQueueScreenProps> = ({
       }).finally(() => {
         setLoading(false);
       });
+    } else {
+      setQueueStatus(null);
+      setLoading(false);
     }
   };
 

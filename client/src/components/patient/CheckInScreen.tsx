@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User } from '../../types';
 import { api } from '../../services/api';
+import { sessionManager } from '../../services/session';
 import { 
   CheckCircle2, 
   Clock, 
@@ -53,13 +54,12 @@ export const CheckInScreen: React.FC<CheckInScreenProps> = ({
       setCheckInResult(res);
 
       try {
-        const savedStr = localStorage.getItem('careflow_latest_appointment');
-        if (savedStr) {
-          const appt = JSON.parse(savedStr);
+        const appt = sessionManager.getLatestAppointment(user.patientId);
+        if (appt) {
           appt.tokenNumber = res.tokenNumber || appt.tokenNumber;
           appt.token_number = res.tokenNumber || appt.token_number;
           appt.status = 'CHECKED_IN';
-          localStorage.setItem('careflow_latest_appointment', JSON.stringify(appt));
+          sessionManager.setLatestAppointment(appt, user.patientId);
         }
       } catch (e) {}
     } catch (err: any) {

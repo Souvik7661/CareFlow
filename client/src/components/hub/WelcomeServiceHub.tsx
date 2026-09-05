@@ -5,7 +5,6 @@ import {
   Calendar, 
   Headphones, 
   ArrowRight, 
-  Sparkles, 
   MessageSquare, 
   Heart, 
   Clock, 
@@ -18,7 +17,7 @@ import {
   CalendarPlus,
   Ticket
 } from 'lucide-react';
-import { FashionLogo } from '../common/FashionLogo';
+import { Doctor360CenterStage } from './Doctor360CenterStage';
 
 interface WelcomeServiceHubProps {
   user: User;
@@ -34,59 +33,14 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
   onNavigate
 }) => {
   const [hoveredService, setHoveredService] = useState<'doctors' | 'book-appointment' | 'support' | null>(null);
-  const [robotGreeting, setRobotGreeting] = useState<string | null>(null);
-  const [isSaluting, setIsSaluting] = useState(false);
 
-  const isGeneric = !user.fullName || user.fullName === 'Valued Patient' || user.fullName === 'Alex Carter';
+  const isGeneric = !user.fullName || user.fullName === 'Valued Patient' || user.fullName === 'Guest Patient' || user.userId === 'GUEST';
   const patientFirstName = isGeneric ? '' : user.fullName.split(' ')[0];
-  const speechGreeting = patientFirstName ? `Hello ${patientFirstName}! 👋` : `Hello there! 👋`;
-
-  const speeches = {
-    idle: `${speechGreeting} I am Dr. AI, your clinical companion. Select any service below and I'll guide your hospital care visit!`,
-    doctors: `🩺 Describe your symptoms in plain words, and our Clinical AI will analyze probable conditions and recommend the best specialist doctor across our hospital network!`,
-    'book-appointment': `📅 Directly browse all specialist doctors, view available morning and evening OPD consultation slots, and book your verified appointment!`,
-    support: `🚨 Need immediate emergency medical care? Dispatch an ambulance with real-time GPS tracking, contact our 24/7 helpdesk, or find nearest open emergency rooms!`
-  };
-
-  const handleDoctorClick = () => {
-    setIsSaluting(true);
-    const doctorGreeting = patientFirstName ? `Greetings, ${patientFirstName}!` : 'Greetings!';
-    setRobotGreeting(`"${doctorGreeting} Dr. AI is fully online and ready. How may I optimize your hospital visit today?"`);
-    setTimeout(() => {
-      setIsSaluting(false);
-    }, 1000);
-    setTimeout(() => {
-      setRobotGreeting(null);
-    }, 4500);
-  };
-
-  const currentSpeech = robotGreeting || (hoveredService ? speeches[hoveredService] : speeches.idle);
 
   return (
     <div className="cf-welcome-hub-container">
-      {/* Welcome Greeting Header with Animated Fashionable Brand */}
-      <div style={{ textAlign: 'center', maxWidth: '560px', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-        <div style={{ marginBottom: '8px' }}>
-          <FashionLogo size="lg" animated={true} />
-        </div>
-
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-color)',
-          padding: '5px 16px',
-          borderRadius: '9999px',
-          boxShadow: 'var(--shadow-sm)',
-          marginBottom: '10px'
-        }}>
-          <Sparkles size={14} color="#14b8a6" />
-          <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Autonomous Healthcare Portal
-          </span>
-        </div>
-
+      {/* Welcome Greeting Header */}
+      <div style={{ textAlign: 'center', maxWidth: '850px', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginBottom: '4px' }}>
         <h1 className="cf-welcome-heading">
           {patientFirstName ? `Welcome, ${patientFirstName} 👋` : 'Welcome to CareFlow 👋'}
         </h1>
@@ -101,162 +55,11 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
         </p>
       </div>
 
-      {/* AI Animated Doctor Assistant with Holographic Stethoscope Core & Speech Bubble */}
-      <div style={{
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        width: '100%',
-        maxWidth: '560px',
-        margin: '4px 0 10px 0'
-      }}>
-        {/* Dynamic Interactive Speech Bubble */}
-        <div style={{
-          background: 'var(--bg-card)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          border: '1.5px solid var(--primary-border)',
-          borderRadius: '24px',
-          padding: '16px 20px',
-          boxShadow: 'var(--shadow-lg)',
-          position: 'relative',
-          marginBottom: '20px',
-          width: '100%',
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '12px',
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-        }}>
-          <div style={{
-            width: '34px',
-            height: '34px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #14b8a6, #06b6d4)',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            marginTop: '2px',
-            boxShadow: '0 4px 10px rgba(20, 184, 166, 0.35)'
-          }}>
-            <MessageSquare size={16} />
-          </div>
-
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                CareFlow AI Intelligent Concierge
-              </span>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', animation: 'cf-pulse-glow 2s infinite' }} />
-            </div>
-            <p style={{
-              fontSize: '0.92rem',
-              fontWeight: 600,
-              color: 'var(--text-primary)',
-              lineHeight: 1.5,
-              margin: 0,
-              transition: 'all 0.25s ease'
-            }}>
-              {currentSpeech}
-            </p>
-          </div>
-
-          {/* Speech Bubble Pointer Arrow */}
-          <div style={{
-            position: 'absolute',
-            bottom: '-10px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: 0,
-            height: 0,
-            borderLeft: '10px solid transparent',
-            borderRight: '10px solid transparent',
-            borderTop: '10px solid var(--bg-card)'
-          }} />
-        </div>
-
-        {/* Realistic 3D AI Robot Doctor Stage with Life-Like Animations */}
-        <div className="cf-robot-doctor-stage">
-          {/* Ambient Ground Pedestal Glow */}
-          <div className="cf-robot-pedestal-glow" />
-
-          {/* Synchronized Breathing Ground Shadow */}
-          <div className="cf-robot-ground-shadow" />
-
-          {/* Rotating Holographic Telemetry Floor Ring */}
-          <div className="cf-robot-hologram-ring" />
-
-          {/* 3D Lifelike Robot Doctor Body */}
-          <div 
-            className={`cf-robot-doctor-body ${isSaluting ? 'saluting' : ''}`}
-            onClick={handleDoctorClick}
-            title="Click Dr. AI for interactive clinical guidance!"
-            style={{ 
-              cursor: 'pointer',
-              position: 'relative',
-              width: '200px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center'
-            }}
-          >
-            {/* Holographic scanner sheen passing across clipboard */}
-            <div className="cf-robot-sheen-overlay">
-              <div className="cf-robot-sheen-beam" />
-            </div>
-
-            {/* Glowing Heartbeat LED on D.9 badge */}
-            <div className="cf-robot-chest-heartbeat" />
-
-            {/* High-Resolution 3D Transparent Robot Doctor */}
-            <img 
-              src="/assets/ai_robot_doctor_transparent.png" 
-              alt="AI Robot Doctor"
-              style={{
-                width: '190px',
-                height: 'auto',
-                display: 'block',
-                filter: 'drop-shadow(0 12px 24px rgba(13, 148, 136, 0.35))',
-                transform: hoveredService === 'doctors' 
-                  ? 'rotate(-2.5deg) scale(1.04)' 
-                  : hoveredService === 'book-appointment'
-                  ? 'rotate(2.5deg) scale(1.04)'
-                  : hoveredService === 'support'
-                  ? 'scale(1.06)'
-                  : 'none',
-                transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'
-              }}
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (target.src.indexOf('ai_robot_doctor.png') === -1) {
-                  target.src = '/assets/ai_robot_doctor.png';
-                }
-              }}
-            />
-          </div>
-
-          {/* Autonomous Medical AI Status Badge */}
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '7px',
-            marginTop: '10px',
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-color)',
-            padding: '4px 14px',
-            borderRadius: '9999px',
-            boxShadow: 'var(--shadow-sm)',
-            zIndex: 4
-          }}>
-            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', animation: 'cf-pulse-glow 2s infinite' }} />
-            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-              Dr. AI Clinical Concierge Online
-            </span>
-          </div>
-        </div>
-      </div>
+      {/* 360° Rotating Doctor Buddy in Still/Fixed Place (Every Angle 0°-315°) */}
+      <Doctor360CenterStage 
+        userName={patientFirstName || 'there'} 
+        onDoctorClick={() => onSelectService('doctors')}
+      />
 
       {/* The 3 Core Options */}
       <div className="cf-services-grid">
@@ -448,22 +251,7 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
             </div>
           </button>
 
-          {/* Action 3: AI Symptoms Analyzer */}
-          <button
-            type="button"
-            className="card cf-quick-action-btn"
-            onClick={() => onNavigate && onNavigate('find-doctor')}
-          >
-            <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Stethoscope size={20} />
-            </div>
-            <div>
-              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>AI Triage &amp; Match</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Analyze symptoms</div>
-            </div>
-          </button>
-
-          {/* Action 4: Hospital Network */}
+          {/* Action 3: Hospital Network */}
           <button
             type="button"
             className="card cf-quick-action-btn"

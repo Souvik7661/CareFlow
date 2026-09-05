@@ -2,7 +2,7 @@ import { analyzeAndRecommend } from './server/ai/aiRecommendation.ts';
 
 async function verify10DoctorsAndDiseases() {
   console.log('========================================================================');
-  console.log('🔍 VERIFYING AI DYNAMIC DATABASE DISEASE MATCHING & 10 DISTINCT DOCTORS');
+  console.log('🔍 VERIFYING AI DYNAMIC DATABASE DISEASE MATCHING');
   console.log('========================================================================\n');
 
   const testCases = [
