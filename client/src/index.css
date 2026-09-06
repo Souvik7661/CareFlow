@@ -4518,4 +4518,99 @@ textarea {
     inset 0 0 0 1.5px rgba(255, 255, 255, 0.5);
 }
 
+/* ==========================================================================
+   CareFlow Ultra-Modern Transparent Glassmorphism Pills (Picture 2 Solution)
+   ========================================================================== */
+
+.cf-glass-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.cf-glass-pill:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(45, 212, 191, 0.5);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), 0 0 12px rgba(45, 212, 191, 0.25);
+}
+
+.cf-glass-pill.active {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.9) 0%, rgba(20, 184, 166, 0.8) 100%) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(45, 212, 191, 0.8) !important;
+  color: #ffffff !important;
+  font-weight: 800;
+  box-shadow: 
+    0 4px 20px rgba(13, 148, 136, 0.5), 
+    0 0 16px rgba(45, 212, 191, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+/* Light Theme Glassmorphism */
+[data-theme="light"] .cf-glass-pill {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  color: #334155;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="light"] .cf-glass-pill:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(13, 148, 136, 0.45);
+  color: #0d9488;
+}
+
+[data-theme="light"] .cf-glass-pill.active {
+  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%) !important;
+  border: 1.5px solid rgba(13, 148, 136, 0.85) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.4) !important;
+}
+
+/* Dark Theme Transparent Glassmorphism */
+[data-theme="dark"] .cf-glass-pill {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f8fafc;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .cf-glass-pill:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(45, 212, 191, 0.6);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 14px rgba(45, 212, 191, 0.35);
+}
+
+[data-theme="dark"] .cf-glass-pill.active {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.92) 0%, rgba(13, 148, 136, 0.82) 100%) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(45, 212, 191, 0.85) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 22px rgba(13, 148, 136, 0.55), 0 0 18px rgba(45, 212, 191, 0.4) !important;
+}
+
 

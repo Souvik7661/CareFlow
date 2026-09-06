@@ -126,7 +126,7 @@ export const DoctorListScreen: React.FC<DoctorListScreenProps> = ({
         display: 'flex',
         gap: '8px',
         overflowX: 'auto',
-        paddingBottom: '4px',
+        paddingBottom: '6px',
         scrollbarWidth: 'none'
       }}>
         {categories.map(cat => {
@@ -135,19 +135,7 @@ export const DoctorListScreen: React.FC<DoctorListScreenProps> = ({
             <button
               key={cat}
               type="button"
-              style={{
-                padding: '8px 18px',
-                borderRadius: '9999px',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                whiteSpace: 'nowrap',
-                cursor: 'pointer',
-                border: isActive ? 'none' : '1px solid var(--border-color)',
-                background: isActive ? 'var(--primary)' : 'var(--bg-card)',
-                color: isActive ? '#ffffff' : 'var(--text-secondary)',
-                boxShadow: isActive ? '0 4px 14px rgba(20, 184, 166, 0.35)' : 'var(--shadow-sm)',
-                transition: 'all 0.2s'
-              }}
+              className={`cf-glass-pill ${isActive ? 'active' : ''}`}
               onClick={() => setSelectedCategory(cat)}
             >
               {cat}

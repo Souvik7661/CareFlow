@@ -180,25 +180,14 @@ export const DiseaseCatalogGrid: React.FC<DiseaseCatalogGridProps> = ({
         </div>
 
         {/* Category Pills */}
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '6px' }}>
           {categories.map(cat => {
             const isSelected = selectedCategory === cat;
             return (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.82rem',
-                  fontWeight: 600,
-                  whiteSpace: 'nowrap',
-                  cursor: 'pointer',
-                  border: isSelected ? '1px solid var(--primary)' : '1px solid var(--border-color)',
-                  background: isSelected ? 'var(--primary)' : 'var(--bg-surface)',
-                  color: isSelected ? '#ffffff' : 'var(--text-secondary)',
-                  transition: 'all 0.2s ease'
-                }}
+                className={`cf-glass-pill ${isSelected ? 'active' : ''}`}
               >
                 {cat}
               </button>
