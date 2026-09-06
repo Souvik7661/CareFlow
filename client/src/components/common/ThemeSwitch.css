@@ -1,6 +1,7 @@
 /* =========================================================
-   CareFlow AI - 3D Tactile Claymorphic Neumorphic Switcher
-   Photorealistic Dual-Contour Pill with Layered Sliding Knob
+   CareFlow AI - 3D Tactile Neumorphic / Claymorphic Switch
+   Photorealistic 1:1 Match to User Image:
+   Dual-contour pill capsule with concentric 2-tier sliding knob
    ========================================================= */
 
 .clay-switch-container {
@@ -16,7 +17,7 @@
   padding: 0;
   outline: none;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.18s ease;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .clay-switch-container:hover {
@@ -24,10 +25,10 @@
 }
 
 .clay-switch-container:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
-/* 3D Outer Pill Frame with Dual-Contour Bevel */
+/* 3D Outer Pill Frame with Dual-Contour Bevel Rim */
 .clay-switch-frame {
   position: relative;
   border-radius: 9999px;
@@ -35,32 +36,28 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  background: linear-gradient(155deg, #f2f4f8 0%, #dfe3ea 48%, #cfd4dc 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 8px 24px -4px rgba(0, 0, 0, 0.14),
+    0 2px 6px -1px rgba(0, 0, 0, 0.08),
+    inset 0 2px 2px rgba(255, 255, 255, 0.95),
+    inset 0 -2px 2px rgba(0, 0, 0, 0.14);
   transition: background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
-/* Light Mode Frame (Matches Image 1 exactly) */
-.clay-switch-container.is-light .clay-switch-frame {
-  background: linear-gradient(150deg, #f2f5f9 0%, #dfe3e9 50%, #ccd1d9 100%);
-  border: 1.5px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 
-    0 6px 16px -2px rgba(0, 0, 0, 0.12),
-    0 2px 5px -1px rgba(0, 0, 0, 0.06),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.95),
-    inset 0 -1.5px 2px rgba(0, 0, 0, 0.12);
-}
-
-/* Dark Mode Frame */
+/* Dark Mode Adaptation: Sleek Deep Graphite Claymorphism */
 .clay-switch-container.is-dark .clay-switch-frame {
-  background: linear-gradient(150deg, #2d3545 0%, #1c222e 50%, #111620 100%);
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(155deg, #2b3342 0%, #1c222e 48%, #121620 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
   box-shadow: 
-    0 8px 20px -3px rgba(0, 0, 0, 0.55),
-    0 2px 6px -1px rgba(0, 0, 0, 0.35),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.18),
-    inset 0 -1.5px 2px rgba(0, 0, 0, 0.55);
+    0 8px 24px -4px rgba(0, 0, 0, 0.6),
+    0 2px 6px -1px rgba(0, 0, 0, 0.4),
+    inset 0 2px 2px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 2px rgba(0, 0, 0, 0.6);
 }
 
-/* Recessed Sunken Track */
+/* Recessed Sunken Capsule Track (Inner Bed) */
 .clay-switch-track {
   position: relative;
   border-radius: 9999px;
@@ -68,22 +65,19 @@
   align-items: center;
   box-sizing: border-box;
   overflow: visible;
+  background: linear-gradient(180deg, #d0d5dc 0%, #e2e5eb 100%);
+  box-shadow: 
+    inset 0 3px 6px rgba(0, 0, 0, 0.16),
+    inset 0 -1.5px 3px rgba(255, 255, 255, 0.9),
+    0 1px 1px rgba(255, 255, 255, 0.7);
   transition: background 0.35s ease, box-shadow 0.35s ease;
 }
 
-.clay-switch-container.is-light .clay-switch-track {
-  background: linear-gradient(180deg, #d2d6de 0%, #e2e5eb 100%);
-  box-shadow: 
-    inset 0 2.5px 5px rgba(0, 0, 0, 0.13),
-    inset 0 -1.5px 2.5px rgba(255, 255, 255, 0.85),
-    0 1px 1px rgba(255, 255, 255, 0.7);
-}
-
 .clay-switch-container.is-dark .clay-switch-track {
-  background: linear-gradient(180deg, #10141d 0%, #19202c 100%);
+  background: linear-gradient(180deg, #0d1118 0%, #161c28 100%);
   box-shadow: 
-    inset 0 3px 6px rgba(0, 0, 0, 0.65),
-    inset 0 -1.5px 2.5px rgba(255, 255, 255, 0.08),
+    inset 0 3.5px 7px rgba(0, 0, 0, 0.75),
+    inset 0 -1.5px 3px rgba(255, 255, 255, 0.08),
     0 1px 1px rgba(255, 255, 255, 0.06);
 }
 
@@ -99,57 +93,48 @@
   will-change: transform;
 }
 
-/* Outer Base Flange of Knob */
+/* Tier 1: Outer Raised Base Flange of Knob */
 .clay-knob-base {
   position: absolute;
   inset: 0;
   border-radius: 50%;
+  background: linear-gradient(145deg, #ffffff 0%, #e3e6ec 100%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 5px 14px rgba(0, 0, 0, 0.18),
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 1);
   transition: background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
-.clay-switch-container.is-light .clay-knob-base {
-  background: linear-gradient(145deg, #ffffff 0%, #e4e7ed 100%);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 
-    0 4px 10px rgba(0, 0, 0, 0.16),
-    0 1.5px 3px rgba(0, 0, 0, 0.08),
-    inset 0 1px 1px rgba(255, 255, 255, 0.95);
-}
-
 .clay-switch-container.is-dark .clay-knob-base {
-  background: linear-gradient(145deg, #3a4556 0%, #222938 100%);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(145deg, #3d4758 0%, #242b38 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 
-    0 5px 12px rgba(0, 0, 0, 0.5),
-    0 1.5px 4px rgba(0, 0, 0, 0.3),
+    0 6px 16px rgba(0, 0, 0, 0.55),
+    0 2px 5px rgba(0, 0, 0, 0.35),
     inset 0 1px 1px rgba(255, 255, 255, 0.25);
 }
 
-/* Inner Raised Convex Dome Cap */
+/* Tier 2: Inner Convex Dome Cap (Exact Smooth Satin Button from Image 1) */
 .clay-knob-cap {
   position: absolute;
   inset: 2.5px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
-}
-
-.clay-switch-container.is-light .clay-knob-cap {
-  background: linear-gradient(155deg, #ffffff 0%, #edf0f5 55%, #dce0e7 100%);
-  border: 0.5px solid rgba(255, 255, 255, 0.8);
+  background: linear-gradient(150deg, #ffffff 0%, #edf0f5 52%, #d8dde5 100%);
+  border: 0.5px solid rgba(255, 255, 255, 0.9);
   box-shadow: 
     inset 0 1.5px 2px rgba(255, 255, 255, 1),
     inset 0 -1.5px 2px rgba(0, 0, 0, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.09);
+    0 1.5px 2px rgba(0, 0, 0, 0.1);
+  transition: background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
 .clay-switch-container.is-dark .clay-knob-cap {
-  background: linear-gradient(155deg, #475569 0%, #2b3546 55%, #1a222f 100%);
+  background: linear-gradient(150deg, #4c576b 0%, #2e3748 52%, #1e2533 100%);
   border: 0.5px solid rgba(255, 255, 255, 0.12);
   box-shadow: 
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.28),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.3),
     inset 0 -1.5px 2px rgba(0, 0, 0, 0.45),
-    0 1px 2px rgba(0, 0, 0, 0.35);
+    0 1.5px 2px rgba(0, 0, 0, 0.35);
 }
