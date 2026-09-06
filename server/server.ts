@@ -57,19 +57,27 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Serve client in production if built
+// Serve client in production if built with PWA rural offline caching support
 const clientDist = path.resolve(__dirname, '../client/dist');
 if (fs.existsSync(clientDist)) {
   app.use(express.static(clientDist, {
-    setHeaders: (res) => {
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
+    setHeaders: (res, filePath) => {
+      if (filePath.includes('/assets/')) {
+        // Hashed static bundles: cache aggressively
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (filePath.endsWith('sw.js') || filePath.endsWith('manifest.webmanifest')) {
+        // Service Worker & manifest: revalidate
+        res.setHeader('Cache-Control', 'no-cache');
+      } else {
+        // HTML and other entry points: cacheable with revalidation
+        res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+      }
     }
   }));
+
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
     res.sendFile(path.join(clientDist, 'index.html'));
   });
 }
