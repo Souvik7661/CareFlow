@@ -126,6 +126,20 @@ export function seedDatabase() {
       isOpen247: 1,
       phone: '+91 33 2455 7700',
       mapsUrl: 'https://maps.google.com/?q=22.5697,88.4325'
+    },
+    {
+      id: 'HOSP-05',
+      name: 'Apollo Apex Multispeciality Hospital',
+      address: '58, Canal Circular Road, EM Bypass',
+      city: 'Kolkata',
+      lat: 22.5658,
+      lng: 88.3980,
+      dist: 4.2,
+      rating: 4.9,
+      reviews: 490,
+      isOpen247: 1,
+      phone: '+91 33 2320 3040',
+      mapsUrl: 'https://maps.google.com/?q=22.5658,88.3980'
     }
   ];
 
@@ -147,7 +161,10 @@ export function seedDatabase() {
     { id: 'DEP-GENM', name: 'General Medicine', specialty: 'General Medicine', desc: 'Internal & Preventative Medicine', wing: 'Block B, Ground Floor' },
     { id: 'DEP-ENT',  name: 'ENT & Otolaryngology', specialty: 'ENT', desc: 'Ear, Nose & Throat Center', wing: 'Block A, Ground Floor' },
     { id: 'DEP-PEDI', name: 'Pediatrics', specialty: 'Pediatrics', desc: 'Child & Neonatal Health', wing: 'Block D, 1st Floor' },
-    { id: 'DEP-EMER', name: 'Emergency Medicine', specialty: 'Emergency', desc: '24/7 Trauma & Critical Care', wing: 'Trauma Wing' }
+    { id: 'DEP-EMER', name: 'Emergency Medicine', specialty: 'Emergency', desc: '24/7 Trauma & Critical Care', wing: 'Trauma Wing' },
+    { id: 'DEP-ONCO', name: 'Medical Oncology & Cancer Center', specialty: 'Medical Oncology', desc: 'Comprehensive Cancer & Chemotherapy Institute', wing: 'Block D, 2nd Floor' },
+    { id: 'DEP-ENDO', name: 'Endocrinology & Diabetology', specialty: 'Endocrinology', desc: 'Diabetes, Thyroid & Metabolic Wellness', wing: 'Block C, 2nd Floor' },
+    { id: 'DEP-NEPH', name: 'Nephrology & Renal Care', specialty: 'Nephrology', desc: 'Kidney Health, Dialysis & Renal Stones Clinic', wing: 'Block A, 1st Floor' }
   ];
 
   for (const d of standardDepts) {
@@ -348,6 +365,63 @@ export function seedDatabase() {
       fee: 600,
       avgTime: 15,
       why: 'Specialized in sinusitis, swollen tonsils, throat pain, voice hoarseness, and ear ailments.'
+    },
+    // 11. Oncology / Cancer Care / Tumors -> Dr. Priya Mukherjee
+    {
+      docId: 'DOC-ONCO-01',
+      userId: 'USR-DOC-12',
+      email: 'doctor.priya.onco@careflow.com',
+      name: 'Dr. Priya Mukherjee',
+      specialization: 'Medical Oncologist',
+      deptId: 'DEP-ONCO',
+      hospId: 'HOSP-05', // Apollo Apex Multispeciality Hospital, 4.2 km
+      qualification: 'MBBS, MD (Medicine), DM (Medical Oncology - AIIMS), ESMO Fellow, 14+ years experience',
+      experience: 14,
+      phone: '+91 98300 77112',
+      room: 'Room 401',
+      rating: 4.9,
+      reviews: 340,
+      fee: 900,
+      avgTime: 20,
+      why: 'Specialized in cancer diagnosis, early tumor screening, chemotherapy, immunotherapy, and holistic oncological care.'
+    },
+    // 12. Diabetes / Thyroid / Metabolism / PCOS -> Dr. Amitav Ghosh
+    {
+      docId: 'DOC-ENDO-01',
+      userId: 'USR-DOC-13',
+      email: 'doctor.ghosh.endo@careflow.com',
+      name: 'Dr. Amitav Ghosh',
+      specialization: 'Endocrinologist & Diabetologist',
+      deptId: 'DEP-ENDO',
+      hospId: 'HOSP-05', // Apollo Apex Multispeciality Hospital, 4.2 km
+      qualification: 'MD (Internal Medicine), DM (Endocrinology - PGI), FACE (USA), 15+ years experience',
+      experience: 15,
+      phone: '+91 98300 88223',
+      room: 'Room 305',
+      rating: 4.8,
+      reviews: 385,
+      fee: 750,
+      avgTime: 15,
+      why: 'Specialized in Type 1 & Type 2 diabetes management, diabetic neuropathy, thyroid disorders, and metabolic obesity.'
+    },
+    // 13. Kidney Stones / UTI / Renal Health -> Dr. Sneha Roy
+    {
+      docId: 'DOC-NEPH-01',
+      userId: 'USR-DOC-14',
+      email: 'doctor.sneha.nephro@careflow.com',
+      name: 'Dr. Sneha Roy',
+      specialization: 'Nephrologist',
+      deptId: 'DEP-NEPH',
+      hospId: 'HOSP-03', // Medicare Multi-Specialty Hospital, 5.0 km
+      qualification: 'MBBS, MD (General Medicine), DM (Nephrology), FISN Fellow, 12+ years experience',
+      experience: 12,
+      phone: '+91 98300 99334',
+      room: 'Room 208',
+      rating: 4.8,
+      reviews: 270,
+      fee: 700,
+      avgTime: 15,
+      why: 'Specialized in acute and chronic kidney disease (CKD), kidney stone management, painful urination, and renal care.'
     }
   ];
 
@@ -415,13 +489,13 @@ export function seedDatabase() {
     { num: 15, name: 'Skin Rash', desc: 'Red, itchy, inflamed patches or allergic hive eruptions', cat: 'Dermatology', spec: 'Dermatologist', urg: 'Routine', amb: 0, icon: 'Sparkles' },
     { num: 16, name: 'Acne', desc: 'Pimples, cystic breakouts, oily skin related inflammation', cat: 'Dermatology', spec: 'Dermatologist', urg: 'Routine', amb: 0, icon: 'Smile' },
     { num: 17, name: 'Eczema', desc: 'Dry, flaky, intensely itchy, inflamed skin dermatitis', cat: 'Dermatology', spec: 'Dermatologist', urg: 'Routine', amb: 0, icon: 'Sparkles' },
-    { num: 18, name: 'UTI (Urinary Tract Infection)', desc: 'Painful burning urination, frequent urgent urination, pelvic pain', cat: 'Urology', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'AlertCircle' },
-    { num: 19, name: 'Kidney Stones', desc: 'Excruciating sharp pain in side and back, hematuria (blood in urine)', cat: 'Urology', spec: 'General Physician', urg: 'Urgent', amb: 0, icon: 'AlertTriangle' },
+    { num: 18, name: 'UTI (Urinary Tract Infection)', desc: 'Painful burning urination, frequent urgent urination, pelvic pain', cat: 'Urology', spec: 'Nephrologist', urg: 'Routine', amb: 0, icon: 'AlertCircle' },
+    { num: 19, name: 'Kidney Stones', desc: 'Excruciating sharp pain in side and back, hematuria (blood in urine)', cat: 'Urology', spec: 'Nephrologist', urg: 'Urgent', amb: 0, icon: 'AlertTriangle' },
     { num: 20, name: 'Gastritis', desc: 'Stomach ache, burning epigastric acidity, nausea, indigestion', cat: 'Gastroenterology', spec: 'Gastroenterologist', urg: 'Routine', amb: 0, icon: 'Flame' },
     { num: 21, name: 'GERD', desc: 'Acid reflux, heartburn, food regurgitation, sour throat', cat: 'Gastroenterology', spec: 'Gastroenterologist', urg: 'Routine', amb: 0, icon: 'Flame' },
     { num: 22, name: 'Constipation', desc: 'Hard infrequent stools, straining, painful bowel movement', cat: 'Gastroenterology', spec: 'Gastroenterologist', urg: 'Routine', amb: 0, icon: 'Clock' },
     { num: 23, name: 'Diarrhea', desc: 'Frequent loose watery stools, stomach cramps, dehydration risk', cat: 'Gastroenterology', spec: 'Gastroenterologist', urg: 'Routine', amb: 0, icon: 'AlertCircle' },
-    { num: 24, name: 'Thyroid Disorder', desc: 'Hypothyroidism or hyperthyroidism, chronic fatigue, weight shifts', cat: 'Endocrinology', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'Activity' },
+    { num: 24, name: 'Thyroid Disorder', desc: 'Hypothyroidism or hyperthyroidism, chronic fatigue, weight shifts', cat: 'Endocrinology', spec: 'Endocrinologist & Diabetologist', urg: 'Routine', amb: 0, icon: 'Activity' },
     { num: 25, name: 'Anemia', desc: 'Extreme fatigue, pale skin, dizziness, shortness of breath on exertion', cat: 'General', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'Droplet' },
     { num: 26, name: 'Arthritis', desc: 'Joint inflammation, stiffness, morning pain, reduced mobility', cat: 'Orthopedics', spec: 'Orthopedic Surgeon', urg: 'Routine', amb: 0, icon: 'Bone' },
     { num: 27, name: 'Back Pain', desc: 'Lumbar pain, spine stiffness, radiating sciatica, muscle spasm', cat: 'Orthopedics', spec: 'Orthopedic Surgeon', urg: 'Routine', amb: 0, icon: 'Bone' },
@@ -443,9 +517,9 @@ export function seedDatabase() {
     { num: 43, name: 'Heart Disease', desc: 'Coronary artery disease, irregular heartbeats, exertion breathlessness', cat: 'Cardiology', spec: 'Cardiologist', urg: 'Emergency', amb: 1, icon: 'Heart' },
     { num: 44, name: 'Stroke', desc: 'Sudden facial droop, arm weakness, speech slurring (FAST warning)', cat: 'Neurology', spec: 'Neurologist', urg: 'Emergency', amb: 1, icon: 'AlertTriangle' },
     { num: 45, name: 'Epilepsy', desc: 'Seizures, fits, momentary loss of consciousness, involuntary jerks', cat: 'Neurology', spec: 'Neurologist', urg: 'Emergency', amb: 1, icon: 'Zap' },
-    { num: 46, name: 'Obesity', desc: 'Excess body weight affecting cardiovascular and metabolic vitality', cat: 'General', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'Scale' },
+    { num: 46, name: 'Obesity', desc: 'Excess body weight affecting cardiovascular and metabolic vitality', cat: 'General', spec: 'Endocrinologist & Diabetologist', urg: 'Routine', amb: 0, icon: 'Scale' },
     { num: 47, name: 'Hair Fall', desc: 'Excessive hair shedding, scalp thinning, alopecia areata patches', cat: 'Dermatology', spec: 'Dermatologist', urg: 'Routine', amb: 0, icon: 'Sparkles' },
-    { num: 48, name: 'Diabetes', desc: 'Uncontrolled high blood sugar, excessive thirst, frequent urination', cat: 'General', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'Activity' },
+    { num: 48, name: 'Diabetes', desc: 'Uncontrolled high blood sugar, excessive thirst, frequent urination', cat: 'General', spec: 'Endocrinologist & Diabetologist', urg: 'Routine', amb: 0, icon: 'Activity' },
     { num: 49, name: 'Gallstones', desc: 'Sharp upper right abdominal colic pain, nausea after fatty meals', cat: 'Gastroenterology', spec: 'Gastroenterologist', urg: 'Urgent', amb: 0, icon: 'Flame' },
     { num: 50, name: 'Food Poisoning', desc: 'Sudden acute vomiting, watery diarrhea, stomach cramps after dining', cat: 'Gastroenterology', spec: 'General Physician', urg: 'Urgent', amb: 0, icon: 'AlertCircle' }
   ];
@@ -457,7 +531,12 @@ export function seedDatabase() {
     `, [`DIS-${d.num.toString().padStart(3, '0')}`, d.num, d.name, d.desc, d.cat, d.spec, d.urg, d.amb, d.icon]);
   }
 
-  console.log('[SEED] Successfully synchronized 10 distinct doctors, 4 hospitals, and 50 clinical diseases in database!');
+  // Ensure all doctors in hospital.db are linked to hospital network
+  execute("UPDATE doctors SET hospital_id = 'HOSP-05' WHERE doctor_id IN ('DOC-CARD-02', 'DOC-PEDI-01') AND (hospital_id IS NULL OR hospital_id = '')");
+  execute("UPDATE doctors SET hospital_id = 'HOSP-03' WHERE doctor_id = 'DOC-ORTH-02' AND (hospital_id IS NULL OR hospital_id = '')");
+  execute("UPDATE doctors SET hospital_id = 'HOSP-01' WHERE doctor_id = 'DOC-EMER-01' AND (hospital_id IS NULL OR hospital_id = '')");
+
+  console.log('[SEED] Successfully synchronized 13 distinct doctors, 5 hospitals, and 50 clinical diseases in database!');
 }
 
 if (process.argv[1]?.includes('seed')) {

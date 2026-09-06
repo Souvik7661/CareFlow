@@ -13,22 +13,27 @@ import {
   Ambulance, 
   ShieldCheck,
   ChevronRight,
-  CheckCircle2
+  CheckCircle2,
+  Stethoscope
 } from 'lucide-react';
 
 interface NearestHospitalMapProps {
   onBack: () => void;
   onSelectHospital?: (hospital: Hospital) => void;
   onOpenAmbulance: (hospitalId: string) => void;
+  onBookDoctor?: (doctor: any) => void;
 }
 
 export const NearestHospitalMap: React.FC<NearestHospitalMapProps> = ({
   onBack,
   onSelectHospital,
-  onOpenAmbulance
+  onOpenAmbulance,
+  onBookDoctor
 }) => {
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
+  const [hospitalDoctors, setHospitalDoctors] = useState<any[]>([]);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Default patient coordinates (Central Kolkata: MG Road area)
@@ -47,6 +52,22 @@ export const NearestHospitalMap: React.FC<NearestHospitalMapProps> = ({
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (selectedHospital) {
+      setLoadingDoctors(true);
+      api.getHospitalById(selectedHospital.hospital_id)
+        .then(res => {
+          setHospitalDoctors(res.doctors || []);
+        })
+        .catch(() => {
+          setHospitalDoctors([]);
+        })
+        .finally(() => setLoadingDoctors(false));
+    } else {
+      setHospitalDoctors([]);
+    }
+  }, [selectedHospital?.hospital_id]);
 
   const handleSelect = (h: Hospital) => {
     setSelectedHospital(h);
@@ -186,6 +207,96 @@ export const NearestHospitalMap: React.FC<NearestHospitalMapProps> = ({
               <span>Dispatch Ambulance</span>
             </button>
           </div>
+
+          {/* Specialist Doctors Available at Selected Hospital */}
+          <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Stethoscope size={16} color="var(--primary)" />
+                <span style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  Specialist Doctors at this Hospital ({hospitalDoctors.length})
+                </span>
+              </div>
+              <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                OPD Consultations
+              </span>
+            </div>
+
+            {loadingDoctors ? (
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', padding: '10px 0', textAlign: 'center' }}>
+                Loading specialists...
+              </div>
+            ) : hospitalDoctors.length === 0 ? (
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', padding: '10px 0', textAlign: 'center' }}>
+                No doctors listed for this hospital.
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {hospitalDoctors.map(doc => (
+                  <div
+                    key={doc.doctor_id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      background: 'var(--bg-card)',
+                      padding: '10px 14px',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border-color)',
+                      gap: '10px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                      <div style={{
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '10px',
+                        background: 'var(--primary-light)',
+                        color: 'var(--primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        fontSize: '0.8rem',
+                        flexShrink: 0
+                      }}>
+                        Dr
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {doc.name}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
+                          <span className="badge badge-primary" style={{ fontSize: '0.7rem', padding: '2px 8px' }}>
+                            {doc.specialization}
+                          </span>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                            {doc.room_no || 'OPD Room'} &bull; ₹{doc.consultation_fee || 500}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {onBookDoctor && (
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        style={{ padding: '6px 14px', fontSize: '0.76rem', flexShrink: 0, borderRadius: '9999px' }}
+                        onClick={() => onBookDoctor({
+                          ...doc,
+                          hospital_name: selectedHospital.name,
+                          hospital_distance: selectedHospital.distance_km,
+                          hospitalDistance: selectedHospital.distance_km
+                        })}
+                      >
+                        Book
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -231,6 +342,12 @@ export const NearestHospitalMap: React.FC<NearestHospitalMapProps> = ({
                     <span style={{ color: '#eab308', fontWeight: 700 }}>★ {h.rating}</span>
                     <span>&bull;</span>
                     <span style={{ color: 'var(--success)', fontWeight: 600 }}>24/7 Open</span>
+                    {(h as any).doctor_count !== undefined && (
+                      <>
+                        <span>&bull;</span>
+                        <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{(h as any).doctor_count} Specialists</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

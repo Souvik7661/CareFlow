@@ -29,7 +29,7 @@ export const DirectBookingScreen: React.FC<DirectBookingScreenProps> = ({
   onBookingSuccess
 }) => {
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>(
-    initialDoctorId || DEFAULT_DOCTORS[0].doctorId
+    initialDoctorId || DEFAULT_DOCTORS[0].doctorId || (DEFAULT_DOCTORS[0] as any).doctor_id
   );
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [selectedSlot, setSelectedSlot] = useState<string>('10:00 AM');
@@ -37,7 +37,7 @@ export const DirectBookingScreen: React.FC<DirectBookingScreenProps> = ({
   const [reason, setReason] = useState<string>('Routine health consultation & checkup');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const selectedDoctor = DEFAULT_DOCTORS.find(d => d.doctorId === selectedDoctorId) || DEFAULT_DOCTORS[0];
+  const selectedDoctor = DEFAULT_DOCTORS.find(d => d.doctorId === selectedDoctorId || (d as any).doctor_id === selectedDoctorId) || DEFAULT_DOCTORS[0];
 
   // Next 5 Days Generator
   const upcomingDays = Array.from({ length: 5 }).map((_, i) => {

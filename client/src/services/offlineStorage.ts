@@ -7,7 +7,7 @@
 import { Doctor, Appointment, DiseaseItem, MedicalVisitRecord } from '../types';
 
 const DB_NAME = 'CareFlow_Rural_DB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export interface OfflineSyncItem {
   id: string;
@@ -84,6 +84,11 @@ class OfflineStorageService {
           // 6. Patient Profiles Store
           if (!db.objectStoreNames.contains('patients')) {
             db.createObjectStore('patients', { keyPath: 'patientId' });
+          }
+
+          // 7. Hospitals Store
+          if (!db.objectStoreNames.contains('hospitals')) {
+            db.createObjectStore('hospitals', { keyPath: 'hospital_id' });
           }
         };
 
@@ -181,6 +186,45 @@ class OfflineStorageService {
     } catch (e) {}
 
     const saved = localStorage.getItem('careflow_offline_diseases');
+    return saved ? JSON.parse(saved) : [];
+  }
+
+  // --- HOSPITALS DATABASE ---
+
+  public async saveHospitals(hospitals: any[]): Promise<void> {
+    try {
+      localStorage.setItem('careflow_offline_hospitals', JSON.stringify(hospitals));
+
+      if (this.isIndexedDBAvailable) {
+        const db = await this.initDB();
+        const tx = db.transaction('hospitals', 'readwrite');
+        const store = tx.objectStore('hospitals');
+        for (const h of hospitals) {
+          const id = h.hospital_id || h.id;
+          store.put({ ...h, hospital_id: id });
+        }
+      }
+    } catch (e) {
+      console.warn('[OfflineDB] saveHospitals error:', e);
+    }
+  }
+
+  public async getHospitals(): Promise<any[]> {
+    try {
+      if (this.isIndexedDBAvailable) {
+        const db = await this.initDB();
+        const tx = db.transaction('hospitals', 'readonly');
+        const store = tx.objectStore('hospitals');
+        const req = store.getAll();
+        const result = await new Promise<any[]>((resolve) => {
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => resolve([]);
+        });
+        if (result && result.length > 0) return result;
+      }
+    } catch (e) {}
+
+    const saved = localStorage.getItem('careflow_offline_hospitals');
     return saved ? JSON.parse(saved) : [];
   }
 

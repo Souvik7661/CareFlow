@@ -475,6 +475,10 @@ const AppContent: React.FC = () => {
             onOpenAmbulance={(hospId) => {
               navigateTo('ambulance', { selectedHospitalForAmbulance: hospId });
             }}
+            onBookDoctor={(doc) => {
+              const docId = doc.doctor_id || (doc as any).doctorId;
+              navigateTo('direct-booking', { bookingDoctorId: docId });
+            }}
           />
         )}
 

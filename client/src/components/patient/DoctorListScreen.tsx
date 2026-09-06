@@ -35,7 +35,10 @@ export const DoctorListScreen: React.FC<DoctorListScreenProps> = ({
     'Orthopedic',
     'ENT',
     'General Physician',
-    'Pediatrician'
+    'Pediatrician',
+    'Oncologist',
+    'Endocrinologist',
+    'Nephrologist'
   ];
 
   useEffect(() => {
@@ -65,7 +68,11 @@ export const DoctorListScreen: React.FC<DoctorListScreenProps> = ({
       (selectedCategory === 'Pulmonologist' && spec.includes('pulmo')) ||
       (selectedCategory === 'Orthopedic' && spec.includes('ortho')) ||
       (selectedCategory === 'ENT' && spec.includes('ent')) ||
-      (selectedCategory === 'General Physician' && (spec.includes('general') || spec.includes('physician')));
+      (selectedCategory === 'General Physician' && (spec.includes('general') || spec.includes('physician'))) ||
+      (selectedCategory === 'Pediatrician' && spec.includes('pediat')) ||
+      (selectedCategory === 'Oncologist' && spec.includes('onco')) ||
+      (selectedCategory === 'Endocrinologist' && (spec.includes('endo') || spec.includes('diabet'))) ||
+      (selectedCategory === 'Nephrologist' && (spec.includes('nephro') || spec.includes('renal')));
 
     const matchesQuery = !query || name.includes(query) || spec.includes(query) || (doc.hospital_name || '').toLowerCase().includes(query);
 

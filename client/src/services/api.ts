@@ -262,6 +262,81 @@ export const DEFAULT_DOCTORS: any[] = [
     hospital_distance: 5.0,
     hospitalDistance: 5.0,
     why_this_doctor: 'Specialized in liver inflammation, fatty liver, viral hepatitis, and jaundice recovery.'
+  },
+  {
+    doctor_id: 'DOC-ONCO-01',
+    doctorId: 'DOC-ONCO-01',
+    name: 'Dr. Priya Mukherjee',
+    specialization: 'Medical Oncologist',
+    department_id: 'DEP-ONCO',
+    departmentId: 'DEP-ONCO',
+    department_name: 'Medical Oncology & Cancer Center',
+    departmentName: 'Medical Oncology & Cancer Center',
+    room_wing: 'Block D • Wing 2',
+    roomWing: 'Block D • Wing 2',
+    room_no: 'Room 401',
+    roomNo: 'Room 401',
+    avg_consultation_time: 20,
+    is_available: 1,
+    qualification: 'MBBS, MD (Medicine), DM (Medical Oncology - AIIMS), ESMO Fellow, 14+ years experience',
+    experience: 14,
+    rating: 4.9,
+    total_reviews: 340,
+    consultation_fee: 900,
+    hospital_name: 'Apollo Apex Multispeciality Hospital',
+    hospital_id: 'HOSP-05',
+    hospitalDistance: 4.2,
+    why_this_doctor: 'Specialized in cancer diagnosis, early tumor screening, chemotherapy, immunotherapy, and holistic oncological care.'
+  },
+  {
+    doctor_id: 'DOC-ENDO-01',
+    doctorId: 'DOC-ENDO-01',
+    name: 'Dr. Amitav Ghosh',
+    specialization: 'Endocrinologist & Diabetologist',
+    department_id: 'DEP-ENDO',
+    departmentId: 'DEP-ENDO',
+    department_name: 'Endocrinology & Diabetology',
+    departmentName: 'Endocrinology & Diabetology',
+    room_wing: 'Block C • Wing 2',
+    roomWing: 'Block C • Wing 2',
+    room_no: 'Room 305',
+    roomNo: 'Room 305',
+    avg_consultation_time: 15,
+    is_available: 1,
+    qualification: 'MD (Internal Medicine), DM (Endocrinology - PGI), FACE (USA), 15+ years experience',
+    experience: 15,
+    rating: 4.8,
+    total_reviews: 385,
+    consultation_fee: 750,
+    hospital_name: 'Apollo Apex Multispeciality Hospital',
+    hospital_id: 'HOSP-05',
+    hospitalDistance: 4.2,
+    why_this_doctor: 'Specialized in Type 1 & Type 2 diabetes management, diabetic neuropathy, thyroid disorders, and metabolic obesity.'
+  },
+  {
+    doctor_id: 'DOC-NEPH-01',
+    doctorId: 'DOC-NEPH-01',
+    name: 'Dr. Sneha Roy',
+    specialization: 'Nephrologist',
+    department_id: 'DEP-NEPH',
+    departmentId: 'DEP-NEPH',
+    department_name: 'Nephrology & Renal Care',
+    departmentName: 'Nephrology & Renal Care',
+    room_wing: 'Block A • Wing 1',
+    roomWing: 'Block A • Wing 1',
+    room_no: 'Room 208',
+    roomNo: 'Room 208',
+    avg_consultation_time: 15,
+    is_available: 1,
+    qualification: 'MBBS, MD (General Medicine), DM (Nephrology), FISN Fellow, 12+ years experience',
+    experience: 12,
+    rating: 4.8,
+    total_reviews: 270,
+    consultation_fee: 700,
+    hospital_name: 'Medicare Multi-Specialty Hospital',
+    hospital_id: 'HOSP-03',
+    hospitalDistance: 5.0,
+    why_this_doctor: 'Specialized in acute and chronic kidney disease (CKD), kidney stone management, painful urination, and renal care.'
   }
 ];
 
@@ -309,6 +384,17 @@ export const DEFAULT_HOSPITALS = [
     total_reviews: 175,
     is_open_247: 1,
     emergency_phone: '+91 33 2442 1122'
+  },
+  {
+    hospital_id: 'HOSP-05',
+    name: 'Apollo Apex Multispeciality Hospital',
+    address: '58, Canal Circular Road, EM Bypass',
+    city: 'Kolkata',
+    distance_km: 4.2,
+    rating: 4.9,
+    total_reviews: 490,
+    is_open_247: 1,
+    emergency_phone: '+91 33 2320 3040'
   }
 ];
 
@@ -1352,8 +1438,19 @@ export const api = {
     request<any>(`/health/status/${patientId}`),
 
   // Hospitals & Maps
-  getHospitals: () =>
-    request<{ hospitals: any[] }>('/hospitals'),
+  getHospitals: async () => {
+    try {
+      const res = await request<{ hospitals: any[] }>('/hospitals');
+      if (res?.hospitals && Array.isArray(res.hospitals) && res.hospitals.length > 0) {
+        offlineStorage.saveHospitals(res.hospitals);
+        return res;
+      }
+    } catch (err) {
+      console.warn('[API] getHospitals network failed, loading offline storage:', err);
+    }
+    const cached = await offlineStorage.getHospitals();
+    return { hospitals: cached && cached.length > 0 ? cached : DEFAULT_HOSPITALS };
+  },
 
   getHospitalById: (id: string) =>
     request<{ hospital: any; doctors: any[] }>(`/hospitals/${id}`),
@@ -1412,7 +1509,8 @@ export const api = {
     try {
       await Promise.allSettled([
         api.getDoctorsList(),
-        api.getDiseases()
+        api.getDiseases(),
+        api.getHospitals()
       ]);
     } catch (e) {}
   }
