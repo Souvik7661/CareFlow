@@ -7,7 +7,7 @@ export function hashPassword(password: string): string {
 }
 
 export function seedDatabase() {
-  console.log('[SEED] Checking database state & syncing 10 distinct doctors...');
+  console.log('[SEED] Checking database state & syncing 45 distinct doctors...');
 
   // Ensure tables exist
   db.exec(`
@@ -164,7 +164,11 @@ export function seedDatabase() {
     { id: 'DEP-EMER', name: 'Emergency Medicine', specialty: 'Emergency', desc: '24/7 Trauma & Critical Care', wing: 'Trauma Wing' },
     { id: 'DEP-ONCO', name: 'Medical Oncology & Cancer Center', specialty: 'Medical Oncology', desc: 'Comprehensive Cancer & Chemotherapy Institute', wing: 'Block D, 2nd Floor' },
     { id: 'DEP-ENDO', name: 'Endocrinology & Diabetology', specialty: 'Endocrinology', desc: 'Diabetes, Thyroid & Metabolic Wellness', wing: 'Block C, 2nd Floor' },
-    { id: 'DEP-NEPH', name: 'Nephrology & Renal Care', specialty: 'Nephrology', desc: 'Kidney Health, Dialysis & Renal Stones Clinic', wing: 'Block A, 1st Floor' }
+    { id: 'DEP-NEPH', name: 'Nephrology & Renal Care', specialty: 'Nephrology', desc: 'Kidney Health, Dialysis & Renal Stones Clinic', wing: 'Block A, 1st Floor' },
+    { id: 'DEP-GYN',  name: 'Gynecology & Obstetrics', specialty: 'Gynecology', desc: 'Women Health, Maternity, PCOS & Fertility Center', wing: 'Block D, 3rd Floor' },
+    { id: 'DEP-OPHT', name: 'Ophthalmology & Eye Care', specialty: 'Ophthalmology', desc: 'Advanced Eye Clinic, Retina & Cataract Care', wing: 'Block C, 1st Floor' },
+    { id: 'DEP-PSYC', name: 'Psychiatry & Behavioral Health', specialty: 'Psychiatry', desc: 'Mental Health, Anxiety, Depression & Sleep Center', wing: 'Block A, 4th Floor' },
+    { id: 'DEP-DENT', name: 'Dental Surgery & Oral Health', specialty: 'Dental', desc: 'Dentistry, Root Canal & Oral Maxillofacial Clinic', wing: 'Block B, Ground Floor' }
   ];
 
   for (const d of standardDepts) {
@@ -422,6 +426,519 @@ export function seedDatabase() {
       fee: 700,
       avgTime: 15,
       why: 'Specialized in acute and chronic kidney disease (CKD), kidney stone management, painful urination, and renal care.'
+    },
+    // 14. Cardiology -> Dr. Sanjay Bose
+    {
+      docId: 'DOC-CARD-03',
+      userId: 'USR-DOC-15',
+      email: 'doctor.bose.cardio@careflow.com',
+      name: 'Dr. Sanjay Bose',
+      specialization: 'Interventional Cardiologist',
+      deptId: 'DEP-CARD',
+      hospId: 'HOSP-02', // Sunrise Hospital, 3.1 km
+      qualification: 'MD (Cardiology), AIIMS Fellow, 17+ years experience',
+      experience: 17,
+      phone: '+91 98300 11015',
+      room: 'Room 205',
+      rating: 4.9,
+      reviews: 450,
+      fee: 850,
+      avgTime: 15,
+      why: 'Specialized in complex coronary angioplasty, hypertension management, and heart attack recovery.'
+    },
+    // 15. Pediatric Cardiology -> Dr. Meenakshi Sundaram
+    {
+      docId: 'DOC-CARD-04',
+      userId: 'USR-DOC-16',
+      email: 'doctor.meenakshi.cardio@careflow.com',
+      name: 'Dr. Meenakshi Sundaram',
+      specialization: 'Pediatric Cardiologist',
+      deptId: 'DEP-CARD',
+      hospId: 'HOSP-03', // Medicare Multi-Specialty Hospital, 5.0 km
+      qualification: 'MD (Pediatrics), DM (Cardiology), 13+ years experience',
+      experience: 13,
+      phone: '+91 98300 11016',
+      room: 'Room 207',
+      rating: 4.8,
+      reviews: 310,
+      fee: 800,
+      avgTime: 15,
+      why: 'Specialized in congenital heart defects, pediatric murmurs, rhythm disorders, and heart failure care.'
+    },
+    // 16. Neurosurgery & Stroke -> Dr. Anirban Mukherjee
+    {
+      docId: 'DOC-NEUR-02',
+      userId: 'USR-DOC-17',
+      email: 'doctor.anirban.neuro@careflow.com',
+      name: 'Dr. Anirban Mukherjee',
+      specialization: 'Neurosurgeon & Stroke Specialist',
+      deptId: 'DEP-NEUR',
+      hospId: 'HOSP-01', // City Hospital, 2.4 km
+      qualification: 'MCh (Neurosurgery), NIMHANS Alumnus, 18+ years experience',
+      experience: 18,
+      phone: '+91 98300 11017',
+      room: 'Room 301',
+      rating: 4.9,
+      reviews: 510,
+      fee: 950,
+      avgTime: 20,
+      why: 'Specialized in brain stroke intervention, aneurysm surgery, and acute traumatic head injuries.'
+    },
+    // 17. Neurology & Epilepsy -> Dr. Shreya Sengupta
+    {
+      docId: 'DOC-NEUR-03',
+      userId: 'USR-DOC-18',
+      email: 'doctor.shreya.neuro@careflow.com',
+      name: 'Dr. Shreya Sengupta',
+      specialization: 'Neurologist',
+      deptId: 'DEP-NEUR',
+      hospId: 'HOSP-05', // Apollo Apex Multispeciality Hospital, 4.2 km
+      qualification: 'MD, DM (Neurology), Fellowship in Epilepsy, 12+ years experience',
+      experience: 12,
+      phone: '+91 98300 11018',
+      room: 'Room 303',
+      rating: 4.8,
+      reviews: 290,
+      fee: 800,
+      avgTime: 15,
+      why: 'Specialized in refractory epilepsy, migraine prophylaxis, Parkinson tremors, and nerve conduction studies.'
+    },
+    // 18. Advanced Endoscopy -> Dr. Bipin Choudhury
+    {
+      docId: 'DOC-GAST-02',
+      userId: 'USR-DOC-19',
+      email: 'doctor.bipin.gastro@careflow.com',
+      name: 'Dr. Bipin Choudhury',
+      specialization: 'Gastroenterologist',
+      deptId: 'DEP-GAST',
+      hospId: 'HOSP-02', // Sunrise Hospital, 3.1 km
+      qualification: 'MD, DNB (Gastroenterology), 14+ years experience',
+      experience: 14,
+      phone: '+91 98300 11019',
+      room: 'Room 106',
+      rating: 4.7,
+      reviews: 320,
+      fee: 750,
+      avgTime: 15,
+      why: 'Specialized in therapeutic endoscopy, colonoscopy, chronic ulcer disease, and pancreatitis.'
+    },
+    // 19. Pediatric Gastroenterology -> Dr. Nandini Das
+    {
+      docId: 'DOC-GAST-03',
+      userId: 'USR-DOC-20',
+      email: 'doctor.nandini.gastro@careflow.com',
+      name: 'Dr. Nandini Das',
+      specialization: 'Gastroenterologist',
+      deptId: 'DEP-GAST',
+      hospId: 'HOSP-04', // HealthPlus Hospital, 6.2 km
+      qualification: 'MD (Pediatrics), Fellowship in Pediatric GI, 11+ years experience',
+      experience: 11,
+      phone: '+91 98300 11020',
+      room: 'Room 119',
+      rating: 4.8,
+      reviews: 240,
+      fee: 700,
+      avgTime: 15,
+      why: 'Specialized in child recurrent stomach pain, childhood celiac disease, acid reflux, and IBD.'
+    },
+    // 20. Cosmetic & Allergy Dermatology -> Dr. Ritika Sen
+    {
+      docId: 'DOC-DERM-02',
+      userId: 'USR-DOC-21',
+      email: 'doctor.ritika.derma@careflow.com',
+      name: 'Dr. Ritika Sen',
+      specialization: 'Dermatologist',
+      deptId: 'DEP-DERM',
+      hospId: 'HOSP-01', // City Hospital, 2.4 km
+      qualification: 'MD (Dermatology, Venereology & Leprosy), 9+ years experience',
+      experience: 9,
+      phone: '+91 98300 11021',
+      room: 'Room 107',
+      rating: 4.8,
+      reviews: 265,
+      fee: 650,
+      avgTime: 15,
+      why: 'Specialized in cystic acne, chemical peels, allergic dermatitis, and laser dermatology.'
+    },
+    // 21. Trichology & Scalp Disorders -> Dr. Manish Agarwal
+    {
+      docId: 'DOC-DERM-03',
+      userId: 'USR-DOC-22',
+      email: 'doctor.manish.derma@careflow.com',
+      name: 'Dr. Manish Agarwal',
+      specialization: 'Dermatologist',
+      deptId: 'DEP-DERM',
+      hospId: 'HOSP-05', // Apollo Apex Multispeciality Hospital, 4.2 km
+      qualification: 'MD (Dermatology), International Trichology Fellow, 13+ years experience',
+      experience: 13,
+      phone: '+91 98300 11022',
+      room: 'Room 110',
+      rating: 4.9,
+      reviews: 380,
+      fee: 700,
+      avgTime: 15,
+      why: 'Specialized in alopecia areata, chronic hair loss, scalp psoriasis, and skin pigmentation.'
+    },
+    // 22. Critical Care Pulmonology -> Dr. Debashis Roy
+    {
+      docId: 'DOC-PULM-02',
+      userId: 'USR-DOC-23',
+      email: 'doctor.debashis.pulmo@careflow.com',
+      name: 'Dr. Debashis Roy',
+      specialization: 'Pulmonologist',
+      deptId: 'DEP-PULM',
+      hospId: 'HOSP-01', // City Hospital, 2.4 km
+      qualification: 'MD (Chest Medicine), EDIC Fellow, 15+ years experience',
+      experience: 15,
+      phone: '+91 98300 11023',
+      room: 'Room 216',
+      rating: 4.8,
+      reviews: 310,
+      fee: 750,
+      avgTime: 15,
+      why: 'Specialized in COPD exacerbation, interstitial lung disease (ILD), and severe respiratory infections.'
+    },
+    // 23. Sleep & Respiratory Care -> Dr. Tanvi Parekh
+    {
+      docId: 'DOC-PULM-03',
+      userId: 'USR-DOC-24',
+      email: 'doctor.tanvi.pulmo@careflow.com',
+      name: 'Dr. Tanvi Parekh',
+      specialization: 'Pulmonologist',
+      deptId: 'DEP-PULM',
+      hospId: 'HOSP-04', // HealthPlus Hospital, 6.2 km
+      qualification: 'DNB (Respiratory Medicine), Sleep Medicine Fellow, 10+ years experience',
+      experience: 10,
+      phone: '+91 98300 11024',
+      room: 'Room 218',
+      rating: 4.7,
+      reviews: 195,
+      fee: 700,
+      avgTime: 15,
+      why: 'Specialized in obstructive sleep apnea, persistent night cough, allergic asthma, and bronchoscopy.'
+    },
+    // 24. Spine Surgery -> Dr. Harish Kulkarni
+    {
+      docId: 'DOC-ORTH-03',
+      userId: 'USR-DOC-25',
+      email: 'doctor.harish.ortho@careflow.com',
+      name: 'Dr. Harish Kulkarni',
+      specialization: 'Orthopedic Surgeon',
+      deptId: 'DEP-ORTH',
+      hospId: 'HOSP-05', // Apollo Apex Multispeciality Hospital, 4.2 km
+      qualification: 'MS (Orthopedics), Spine Fellowship (Germany), 16+ years experience',
+      experience: 16,
+      phone: '+91 98300 11025',
+      room: 'Room 115',
+      rating: 4.9,
+      reviews: 420,
+      fee: 850,
+      avgTime: 20,
+      why: 'Specialized in slip disc, sciatica decompression, cervical spondylosis, and minimally invasive spine surgery.'
+    },
+    // 25. Sports Medicine & Arthroscopy -> Dr. Rupa Ganguly
+    {
+      docId: 'DOC-ORTH-04',
+      userId: 'USR-DOC-26',
+      email: 'doctor.rupa.ortho@careflow.com',
+      name: 'Dr. Rupa Ganguly',
+      specialization: 'Orthopedic Surgeon',
+      deptId: 'DEP-ORTH',
+      hospId: 'HOSP-04', // HealthPlus Hospital, 6.2 km
+      qualification: 'MS (Orthopedics), Sports Injury Fellow, 11+ years experience',
+      experience: 11,
+      phone: '+91 98300 11026',
+      room: 'Room 116',
+      rating: 4.7,
+      reviews: 230,
+      fee: 700,
+      avgTime: 15,
+      why: 'Specialized in ACL/ligament reconstruction, meniscus tear repair, shoulder dislocation, and cartilage preservation.'
+    },
+    // 26. Obstetrics & Maternal Care -> Dr. Sharmila Sen
+    {
+      docId: 'DOC-GYN-01',
+      userId: 'USR-DOC-27',
+      email: 'doctor.sharmila.gyn@careflow.com',
+      name: 'Dr. Sharmila Sen',
+      specialization: 'Gynecologist & Obstetrician',
+      deptId: 'DEP-GYN',
+      hospId: 'HOSP-01', // City Hospital, 2.4 km
+      qualification: 'MD (Obstetrics & Gynecology), FICOG, 16+ years experience',
+      experience: 16,
+      phone: '+91 98300 11027',
+      room: 'Room 201',
+      rating: 4.9,
+      reviews: 480,
+      fee: 750,
+      avgTime: 15,
+      why: 'Specialized in safe maternal delivery, antenatal checkups, post-partum recovery, and menstrual irregularities.'
+    },
+    // 27. Infertility & IVF -> Dr. Ritu Bhardwaj
+    {
+      docId: 'DOC-GYN-02',
+      userId: 'USR-DOC-28',
+      email: 'doctor.ritu.gyn@careflow.com',
+      name: 'Dr. Ritu Bhardwaj',
+      specialization: 'Gynecologist & Obstetrician',
+      deptId: 'DEP-GYN',
+      hospId: 'HOSP-02', // Sunrise Hospital, 3.1 km
+      qualification: 'MS (OBG), Fellowship in Reproductive Medicine, 13+ years experience',
+      experience: 13,
+      phone: '+91 98300 11028',
+      room: 'Room 202',
+      rating: 4.8,
+      reviews: 350,
+      fee: 800,
+      avgTime: 20,
+      why: 'Specialized in reproductive medicine, follicular tracking, IVF counseling, and ovarian cyst management.'
+    },
+    // 28. High-Risk Pregnancy & PCOS -> Dr. Anindita Dutta
+    {
+      docId: 'DOC-GYN-03',
+      userId: 'USR-DOC-29',
+      email: 'doctor.anindita.gyn@careflow.com',
+      name: 'Dr. Anindita Dutta',
+      specialization: 'Gynecologist & Obstetrician',
+      deptId: 'DEP-GYN',
+      hospId: 'HOSP-05', // Apollo Apex Multispeciality Hospital, 4.2 km
+      qualification: 'MD (OBG), DGO, Fellowship in Gynecologic Laparoscopy, 12+ years experience',
+      experience: 12,
+      phone: '+91 98300 11029',
+      room: 'Room 203',
+      rating: 4.8,
+      reviews: 310,
+      fee: 750,
+      avgTime: 15,
+      why: 'Specialized in Polycystic Ovary Syndrome (PCOS), laparoscopic fibroid removal, and hormonal health.'
+    },
+    // 29. Cataract & Cornea -> Dr. Soumen Bhattacharya
+    {
+      docId: 'DOC-OPHT-01',
+      userId: 'USR-DOC-30',
+      email: 'doctor.soumen.eye@careflow.com',
+      name: 'Dr. Soumen Bhattacharya',
+      specialization: 'Ophthalmologist',
+      deptId: 'DEP-OPHT',
+      hospId: 'HOSP-02', // Sunrise Hospital, 3.1 km
+      qualification: 'MS (Ophthalmology), Cornea Fellow (Sankara Nethralaya), 14+ years experience',
+      experience: 14,
+      phone: '+91 98300 11030',
+      room: 'Room 120',
+      rating: 4.8,
+      reviews: 390,
+      fee: 600,
+      avgTime: 15,
+      why: 'Specialized in micro-incision cataract surgery (MICS), corneal ulcers, conjunctivitis, and dry eye syndrome.'
+    },
+    // 30. Glaucoma & Retina -> Dr. Pallavi Nambiar
+    {
+      docId: 'DOC-OPHT-02',
+      userId: 'USR-DOC-31',
+      email: 'doctor.pallavi.eye@careflow.com',
+      name: 'Dr. Pallavi Nambiar',
+      specialization: 'Ophthalmologist',
+      deptId: 'DEP-OPHT',
+      hospId: 'HOSP-03', // Medicare Multi-Specialty Hospital, 5.0 km
+      qualification: 'DNB (Ophthalmology), Vitreo-Retina Fellowship, 11+ years experience',
+      experience: 11,
+      phone: '+91 98300 11031',
+      room: 'Room 122',
+      rating: 4.7,
+      reviews: 240,
+      fee: 650,
+      avgTime: 15,
+      why: 'Specialized in diabetic retinopathy laser treatment, glaucoma eye pressure management, and macular care.'
+    },
+    // 31. Cognitive Psychiatry -> Dr. Abhijit Dasgupta
+    {
+      docId: 'DOC-PSYC-01',
+      userId: 'USR-DOC-32',
+      email: 'doctor.abhijit.psych@careflow.com',
+      name: 'Dr. Abhijit Dasgupta',
+      specialization: 'Psychiatrist',
+      deptId: 'DEP-PSYC',
+      hospId: 'HOSP-01', // City Hospital, 2.4 km
+      qualification: 'MD (Psychiatry), AIIMS Senior Resident, 15+ years experience',
+      experience: 15,
+      phone: '+91 98300 11032',
+      room: 'Room 310',
+      rating: 4.9,
+      reviews: 360,
+      fee: 700,
+      avgTime: 20,
+      why: 'Specialized in major depressive disorders, mood stabilization, panic disorder, and cognitive behavioral therapy.'
+    },
+    // 32. Anxiety & Sleep Disorders -> Dr. Meera Namboodiri
+    {
+      docId: 'DOC-PSYC-02',
+      userId: 'USR-DOC-33',
+      email: 'doctor.meera.psych@careflow.com',
+      name: 'Dr. Meera Namboodiri',
+      specialization: 'Psychiatrist',
+      deptId: 'DEP-PSYC',
+      hospId: 'HOSP-03', // Medicare Multi-Specialty Hospital, 5.0 km
+      qualification: 'DPM, MD (Psychiatry), 10+ years experience',
+      experience: 10,
+      phone: '+91 98300 11033',
+      room: 'Room 312',
+      rating: 4.8,
+      reviews: 220,
+      fee: 650,
+      avgTime: 20,
+      why: 'Specialized in generalized anxiety disorder, sleep-wake disruption, chronic stress, and adult ADHD therapy.'
+    },
+    // 33. Endodontics & Root Canal -> Dr. Subhashree Ghosh
+    {
+      docId: 'DOC-DENT-01',
+      userId: 'USR-DOC-34',
+      email: 'doctor.subhashree.dental@careflow.com',
+      name: 'Dr. Subhashree Ghosh',
+      specialization: 'Dental Surgeon',
+      deptId: 'DEP-DENT',
+      hospId: 'HOSP-04', // HealthPlus Hospital, 6.2 km
+      qualification: 'BDS, MDS (Conservative Dentistry & Endodontics), 11+ years experience',
+      experience: 11,
+      phone: '+91 98300 11034',
+      room: 'Room 125',
+      rating: 4.8,
+      reviews: 290,
+      fee: 500,
+      avgTime: 20,
+      why: 'Specialized in single-visit painless root canal therapy, toothache relief, aesthetic crowns, and restorative dentistry.'
+    },
+    // 34. Periodontics & Oral Surgery -> Dr. Kevin Patrick
+    {
+      docId: 'DOC-DENT-02',
+      userId: 'USR-DOC-35',
+      email: 'doctor.kevin.dental@careflow.com',
+      name: 'Dr. Kevin Patrick',
+      specialization: 'Dental Surgeon',
+      deptId: 'DEP-DENT',
+      hospId: 'HOSP-02', // Sunrise Hospital, 3.1 km
+      qualification: 'BDS, MDS (Periodontics & Oral Implantology), 12+ years experience',
+      experience: 12,
+      phone: '+91 98300 11035',
+      room: 'Room 126',
+      rating: 4.7,
+      reviews: 250,
+      fee: 550,
+      avgTime: 20,
+      why: 'Specialized in gum bleeding treatments, surgical wisdom tooth extractions, oral ulcers, and dental implants.'
+    },
+    // 35. Neonatology & Critical Pediatrics -> Dr. Madhusudan Roy
+    {
+      docId: 'DOC-PEDI-02',
+      userId: 'USR-DOC-36',
+      email: 'doctor.madhusudan.pedi@careflow.com',
+      name: 'Dr. Madhusudan Roy',
+      specialization: 'Pediatrician',
+      deptId: 'DEP-PEDI',
+      hospId: 'HOSP-03', // Medicare Multi-Specialty Hospital, 5.0 km
+      qualification: 'MD (Pediatrics), Fellowship in Neonatal Intensive Care, 13+ years experience',
+      experience: 13,
+      phone: '+91 98300 11036',
+      room: 'Room 102',
+      rating: 4.9,
+      reviews: 370,
+      fee: 650,
+      avgTime: 15,
+      why: 'Specialized in newborn care, premature baby monitoring, infant respiratory distress, and childhood vaccinations.'
+    },
+    // 36. Adolescent & Preventive Pediatrics -> Dr. Swati Chatterjee
+    {
+      docId: 'DOC-PEDI-03',
+      userId: 'USR-DOC-37',
+      email: 'doctor.swati.pedi@careflow.com',
+      name: 'Dr. Swati Chatterjee',
+      specialization: 'Pediatrician',
+      deptId: 'DEP-PEDI',
+      hospId: 'HOSP-04', // HealthPlus Hospital, 6.2 km
+      qualification: 'DCH, DNB (Pediatrics), 9+ years experience',
+      experience: 9,
+      phone: '+91 98300 11037',
+      room: 'Room 103',
+      rating: 4.7,
+      reviews: 215,
+      fee: 600,
+      avgTime: 15,
+      why: 'Specialized in childhood asthma, viral cough & cold in toddlers, growth milestones, and pediatric nutrition.'
+    },
+    // 37. Head & Neck ENT Surgery -> Dr. Alok Nath
+    {
+      docId: 'DOC-ENT-02',
+      userId: 'USR-DOC-38',
+      email: 'doctor.alok.ent@careflow.com',
+      name: 'Dr. Alok Nath',
+      specialization: 'ENT Specialist',
+      deptId: 'DEP-ENT',
+      hospId: 'HOSP-03', // Medicare Multi-Specialty Hospital, 5.0 km
+      qualification: 'MS (Otolaryngology), Micro-Ear Surgery Fellow, 14+ years experience',
+      experience: 14,
+      phone: '+91 98300 11038',
+      room: 'Room 111',
+      rating: 4.8,
+      reviews: 280,
+      fee: 650,
+      avgTime: 15,
+      why: 'Specialized in eardrum perforation repair, hearing loss assessment, vertigo treatments, and endoscopic sinus surgery.'
+    },
+    // 38. Diabetology & Thyroid -> Dr. Vandana Sharma
+    {
+      docId: 'DOC-ENDO-02',
+      userId: 'USR-DOC-39',
+      email: 'doctor.vandana.endo@careflow.com',
+      name: 'Dr. Vandana Sharma',
+      specialization: 'Endocrinologist & Diabetologist',
+      deptId: 'DEP-ENDO',
+      hospId: 'HOSP-02', // Sunrise Hospital, 3.1 km
+      qualification: 'MD (Medicine), Post-Doc Diabetology (UK), 12+ years experience',
+      experience: 12,
+      phone: '+91 98300 11039',
+      room: 'Room 306',
+      rating: 4.8,
+      reviews: 325,
+      fee: 700,
+      avgTime: 15,
+      why: 'Specialized in gestational diabetes, insulin optimization, Hashimoto thyroiditis, and lipid metabolic care.'
+    },
+    // 39. Urology & Kidney Surgery -> Dr. Pradeep Singhania
+    {
+      docId: 'DOC-NEPH-02',
+      userId: 'USR-DOC-40',
+      email: 'doctor.pradeep.urology@careflow.com',
+      name: 'Dr. Pradeep Singhania',
+      specialization: 'Nephrologist',
+      deptId: 'DEP-NEPH',
+      hospId: 'HOSP-01', // City Hospital, 2.4 km
+      qualification: 'MS (Surgery), MCh (Urology), 16+ years experience',
+      experience: 16,
+      phone: '+91 98300 11040',
+      room: 'Room 209',
+      rating: 4.9,
+      reviews: 430,
+      fee: 850,
+      avgTime: 20,
+      why: 'Specialized in laser kidney stone lithotripsy, prostate enlargement, recurrent urinary infections, and renal care.'
+    },
+    // 40. Surgical Oncology -> Dr. Subir Mazumder
+    {
+      docId: 'DOC-ONCO-02',
+      userId: 'USR-DOC-41',
+      email: 'doctor.subir.onco@careflow.com',
+      name: 'Dr. Subir Mazumder',
+      specialization: 'Medical Oncologist',
+      deptId: 'DEP-ONCO',
+      hospId: 'HOSP-05', // Apollo Apex Multispeciality Hospital, 4.2 km
+      qualification: 'MS (General Surgery), MCh (Surgical Oncology), 17+ years experience',
+      experience: 17,
+      phone: '+91 98300 11041',
+      room: 'Room 402',
+      rating: 4.9,
+      reviews: 460,
+      fee: 950,
+      avgTime: 20,
+      why: 'Specialized in solid tumor resection, breast and gastrointestinal surgical oncology, and multi-disciplinary cancer management.'
     }
   ];
 
@@ -500,16 +1017,16 @@ export function seedDatabase() {
     { num: 26, name: 'Arthritis', desc: 'Joint inflammation, stiffness, morning pain, reduced mobility', cat: 'Orthopedics', spec: 'Orthopedic Surgeon', urg: 'Routine', amb: 0, icon: 'Bone' },
     { num: 27, name: 'Back Pain', desc: 'Lumbar pain, spine stiffness, radiating sciatica, muscle spasm', cat: 'Orthopedics', spec: 'Orthopedic Surgeon', urg: 'Routine', amb: 0, icon: 'Bone' },
     { num: 28, name: 'Neck Pain', desc: 'Cervical stiffness, sharp neck pain, poor posture strain, headache', cat: 'Orthopedics', spec: 'Orthopedic Surgeon', urg: 'Routine', amb: 0, icon: 'Bone' },
-    { num: 29, name: 'Eye Infection', desc: 'Redness, burning, discharge, swollen eyelids, conjunctivitis', cat: 'Ophthalmology', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'Eye' },
+    { num: 29, name: 'Eye Infection', desc: 'Redness, burning, discharge, swollen eyelids, conjunctivitis', cat: 'Ophthalmology', spec: 'Ophthalmologist', urg: 'Routine', amb: 0, icon: 'Eye' },
     { num: 30, name: 'Ear Infection', desc: 'Sharp earache, fluid discharge, temporary hearing dampening', cat: 'ENT', spec: 'ENT Specialist', urg: 'Routine', amb: 0, icon: 'Volume2' },
-    { num: 31, name: 'Toothache', desc: 'Throbbing tooth pain, temperature sensitivity, dental cavity', cat: 'Dental', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'Smile' },
-    { num: 32, name: 'Gum Disease', desc: 'Swollen bleeding gums, gingivitis, loose teeth, bad breath', cat: 'Dental', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'Smile' },
-    { num: 33, name: 'Menstrual Pain', desc: 'Severe abdominal cramps, lower back pelvic aches during periods', cat: 'Gynecology', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'Heart' },
-    { num: 34, name: 'PCOS', desc: 'Hormonal imbalance, irregular menstrual cycles, acne, weight gain', cat: 'Gynecology', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'Activity' },
-    { num: 35, name: 'Pregnancy Care', desc: 'Prenatal wellness checkups, first trimester nausea, fetal monitoring', cat: 'Gynecology', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'UserCheck' },
-    { num: 36, name: 'Infertility', desc: 'Difficulty conceiving, reproductive health check, hormone profiling', cat: 'Gynecology', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'Heart' },
-    { num: 37, name: 'Depression', desc: 'Persistent sadness, lack of interest, sleep disruption, mood changes', cat: 'Mental Health', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'Brain' },
-    { num: 38, name: 'Anxiety', desc: 'Excessive nervousness, panic palpitations, racing thoughts, restlessness', cat: 'Mental Health', spec: 'General Physician', urg: 'Routine', amb: 0, icon: 'Brain' },
+    { num: 31, name: 'Toothache', desc: 'Throbbing tooth pain, temperature sensitivity, dental cavity', cat: 'Dental', spec: 'Dental Surgeon', urg: 'Routine', amb: 0, icon: 'Smile' },
+    { num: 32, name: 'Gum Disease', desc: 'Swollen bleeding gums, gingivitis, loose teeth, bad breath', cat: 'Dental', spec: 'Dental Surgeon', urg: 'Routine', amb: 0, icon: 'Smile' },
+    { num: 33, name: 'Menstrual Pain', desc: 'Severe abdominal cramps, lower back pelvic aches during periods', cat: 'Gynecology', spec: 'Gynecologist & Obstetrician', urg: 'Routine', amb: 0, icon: 'Heart' },
+    { num: 34, name: 'PCOS', desc: 'Hormonal imbalance, irregular menstrual cycles, acne, weight gain', cat: 'Gynecology', spec: 'Gynecologist & Obstetrician', urg: 'Routine', amb: 0, icon: 'Activity' },
+    { num: 35, name: 'Pregnancy Care', desc: 'Prenatal wellness checkups, first trimester nausea, fetal monitoring', cat: 'Gynecology', spec: 'Gynecologist & Obstetrician', urg: 'Routine', amb: 0, icon: 'UserCheck' },
+    { num: 36, name: 'Infertility', desc: 'Difficulty conceiving, reproductive health check, hormone profiling', cat: 'Gynecology', spec: 'Gynecologist & Obstetrician', urg: 'Routine', amb: 0, icon: 'Heart' },
+    { num: 37, name: 'Depression', desc: 'Persistent sadness, lack of interest, sleep disruption, mood changes', cat: 'Mental Health', spec: 'Psychiatrist', urg: 'Routine', amb: 0, icon: 'Brain' },
+    { num: 38, name: 'Anxiety', desc: 'Excessive nervousness, panic palpitations, racing thoughts, restlessness', cat: 'Mental Health', spec: 'Psychiatrist', urg: 'Routine', amb: 0, icon: 'Brain' },
     { num: 39, name: 'Insomnia', desc: 'Chronic difficulty falling or staying asleep, daytime exhaustion', cat: 'Neurology', spec: 'Neurologist', urg: 'Routine', amb: 0, icon: 'Moon' },
     { num: 40, name: 'Vertigo', desc: 'Sudden spinning sensation, loss of balance, nausea while turning', cat: 'Neurology', spec: 'Neurologist', urg: 'Routine', amb: 0, icon: 'RotateCw' },
     { num: 41, name: 'Liver Disease', desc: 'Liver inflammation, fatty liver diagnosis, right upper quadrant pain', cat: 'Gastroenterology', spec: 'Hepatologist & Gastroenterologist', urg: 'Routine', amb: 0, icon: 'Activity' },
@@ -536,7 +1053,7 @@ export function seedDatabase() {
   execute("UPDATE doctors SET hospital_id = 'HOSP-03' WHERE doctor_id = 'DOC-ORTH-02' AND (hospital_id IS NULL OR hospital_id = '')");
   execute("UPDATE doctors SET hospital_id = 'HOSP-01' WHERE doctor_id = 'DOC-EMER-01' AND (hospital_id IS NULL OR hospital_id = '')");
 
-  console.log('[SEED] Successfully synchronized 13 distinct doctors, 5 hospitals, and 50 clinical diseases in database!');
+  console.log('[SEED] Successfully synchronized 45 distinct doctors, 5 hospitals, and 50 clinical diseases in database!');
 }
 
 if (process.argv[1]?.includes('seed')) {

@@ -33,6 +33,10 @@ export const DoctorListScreen: React.FC<DoctorListScreenProps> = ({
     'Neurologist',
     'Pulmonologist',
     'Orthopedic',
+    'Gynecologist',
+    'Ophthalmologist',
+    'Psychiatrist',
+    'Dentist',
     'ENT',
     'General Physician',
     'Pediatrician',
@@ -67,6 +71,10 @@ export const DoctorListScreen: React.FC<DoctorListScreenProps> = ({
       (selectedCategory === 'Neurologist' && spec.includes('neuro')) ||
       (selectedCategory === 'Pulmonologist' && spec.includes('pulmo')) ||
       (selectedCategory === 'Orthopedic' && spec.includes('ortho')) ||
+      (selectedCategory === 'Gynecologist' && (spec.includes('gyne') || spec.includes('obstet'))) ||
+      (selectedCategory === 'Ophthalmologist' && (spec.includes('opht') || spec.includes('eye'))) ||
+      (selectedCategory === 'Psychiatrist' && (spec.includes('psych') || spec.includes('mental'))) ||
+      (selectedCategory === 'Dentist' && (spec.includes('dent') || spec.includes('oral'))) ||
       (selectedCategory === 'ENT' && spec.includes('ent')) ||
       (selectedCategory === 'General Physician' && (spec.includes('general') || spec.includes('physician'))) ||
       (selectedCategory === 'Pediatrician' && spec.includes('pediat')) ||
