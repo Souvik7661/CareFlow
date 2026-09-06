@@ -77,8 +77,13 @@ router.post('/walk-in', (req, res) => {
     const appointmentId = `APT-2026-${Math.floor(10000 + Math.random() * 90000)}`;
     const checkinId = `CHK-${Date.now()}`;
     const queueId = `QUE-${Date.now()}`;
-    const prefix = doctor.department_id === 'DEP-CARD' ? 'C' : (doctor.department_id === 'DEP-ORTH' ? 'O' : 'W');
-    const tokenNumber = `${prefix}-W${Math.floor(10 + Math.random() * 89)}`;
+    const countRow = queryOne(`
+      SELECT COUNT(*) as count 
+      FROM appointments 
+      WHERE doctor_id = ? AND appointment_date = ? AND status NOT IN ('CANCELLED')
+    `, [doctorId, today]);
+    const tokenSequence = (countRow?.count || 0) + 1;
+    const tokenNumber = `#${tokenSequence}`;
 
     transaction(() => {
       // 1. Insert patient

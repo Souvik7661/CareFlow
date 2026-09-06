@@ -8,6 +8,7 @@ import {
   Doctor
 } from '../types';
 import { sessionManager } from './session';
+import { offlineStorage } from './offlineStorage';
 
 const BASE_URL = '/api';
 
@@ -365,6 +366,76 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}): T 
     try {
       body = JSON.parse(options.body);
     } catch {}
+  }
+
+  // 0. OTP Send
+  if (endpoint === '/auth/otp/send') {
+    const phone = body.phone || '';
+    const purpose = body.purpose || 'REGISTER';
+    const mockOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    try {
+      localStorage.setItem(`careflow_otp_${phone.replace(/\D/g, '').slice(-10)}`, mockOtp);
+    } catch {}
+    return {
+      success: true,
+      message: `OTP sent successfully to your mobile phone (${phone})`,
+      otp: mockOtp,
+      expiresIn: 300
+    } as any;
+  }
+
+  // 0.1 OTP Verify
+  if (endpoint === '/auth/otp/verify') {
+    const phone = body.phone || '';
+    const otp = (body.otp || '').toString().trim();
+    const purpose = body.purpose || 'REGISTER';
+    const key = `careflow_otp_${phone.replace(/\D/g, '').slice(-10)}`;
+    const stored = localStorage.getItem(key);
+
+    if (stored && stored !== otp && otp !== '123456') {
+      throw new Error('Incorrect OTP code. Please check your SMS alert and try again.');
+    }
+
+    if (purpose === 'REGISTER') {
+      return {
+        success: true,
+        verified: true,
+        message: 'Phone number verified successfully!'
+      } as any;
+    }
+
+    // Purpose LOGIN:
+    let user: User | null = null;
+    try {
+      const usersStr = localStorage.getItem('careflow_users_db');
+      if (usersStr) {
+        const users = JSON.parse(usersStr);
+        const match = users.find((u: any) => u.phone && u.phone.replace(/\D/g, '').endsWith(phone.replace(/\D/g, '').slice(-10)));
+        if (match) user = match;
+      }
+    } catch {}
+
+    if (!user) {
+      const randNum = Math.floor(10000 + Math.random() * 90000);
+      user = {
+        userId: `USR-PAT-${Date.now().toString().slice(-6)}`,
+        patientId: `PAT-2026-${randNum}`,
+        fullName: 'Alex Carter',
+        email: 'alex.carter@careflow.com',
+        role: 'PATIENT',
+        phone
+      };
+    }
+
+    const token = `careflow_token_${Date.now()}`;
+    sessionManager.setToken(token);
+    sessionManager.setUser(user);
+    return {
+      success: true,
+      token,
+      user,
+      message: 'Signed in successfully via OTP'
+    } as any;
   }
 
   // 1. Auth Register
@@ -997,6 +1068,18 @@ export const api = {
       body: JSON.stringify(payload)
     }),
 
+  sendOtp: (phone: string, purpose: 'REGISTER' | 'LOGIN' = 'REGISTER') => 
+    request<{ success: boolean; message: string; otp?: string; expiresIn: number }>('/auth/otp/send', {
+      method: 'POST',
+      body: JSON.stringify({ phone, purpose })
+    }),
+
+  verifyOtp: (phone: string, otp: string, purpose: 'REGISTER' | 'LOGIN' = 'REGISTER') => 
+    request<{ success: boolean; verified?: boolean; token?: string; user?: User; message: string }>('/auth/otp/verify', {
+      method: 'POST',
+      body: JSON.stringify({ phone, otp, purpose })
+    }),
+
   demoLogin: (role: string, doctorId?: string) => 
     request<{ token: string; user: User; message: string }>('/auth/demo-login', {
       method: 'POST',
@@ -1038,50 +1121,72 @@ export const api = {
     appointmentTime: string;
     reason?: string;
   }) => {
-    const res = await request<{ message: string; appointment: any }>('/appointments/book', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
-
-    if (res?.appointment && payload.patientId) {
-      try {
-        const key = `careflow_patient_appointments_${payload.patientId}`;
-        const existingStr = sessionStorage.getItem(key) || localStorage.getItem(key);
-        const existingList = existingStr ? JSON.parse(existingStr) : [];
-        const apptId = res.appointment.appointmentId || res.appointment.appointment_id;
-        const updatedList = [res.appointment, ...existingList.filter((a: any) => (a.appointmentId || a.appointment_id) !== apptId)];
-        sessionStorage.setItem(key, JSON.stringify(updatedList));
-      } catch (e) {}
+    // If device is offline in a rural area, create local appointment with sequential token
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      console.log('[API] Network offline: Creating rural offline booking with sequential token...');
+      const { appointment } = await offlineStorage.createOfflineAppointment(payload);
+      return {
+        message: 'Rural Offline Pass Generated (Queued for Automatic Hospital Sync)',
+        appointment
+      };
     }
 
-    return res;
+    try {
+      const res = await request<{ message: string; appointment: any }>('/appointments/book', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      if (res?.appointment && payload.patientId) {
+        try {
+          const existing = await offlineStorage.getAppointments(payload.patientId);
+          const apptId = res.appointment.appointmentId || res.appointment.appointment_id;
+          const updated = [res.appointment, ...existing.filter((a: any) => (a.appointmentId || a.appointment_id) !== apptId)];
+          await offlineStorage.saveAppointments(payload.patientId, updated);
+        } catch (e) {}
+      }
+
+      return res;
+    } catch (err: any) {
+      console.warn('[API] Server request failed, falling back to rural offline pass:', err);
+      const { appointment } = await offlineStorage.createOfflineAppointment(payload);
+      return {
+        message: 'Rural Offline Pass Generated (Saved locally, auto-syncing when online)',
+        appointment
+      };
+    }
   },
 
   getMyAppointments: async (patientId: string) => {
+    let serverList: Appointment[] = [];
     try {
       const res = await request<{ appointments: Appointment[] }>(`/appointments/my?patientId=${patientId}`);
       if (res?.appointments && Array.isArray(res.appointments)) {
-        try {
-          const key = `careflow_patient_appointments_${patientId}`;
-          sessionStorage.setItem(key, JSON.stringify(res.appointments));
-        } catch (e) {}
-        return res;
+        serverList = res.appointments;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[API] getMyAppointments network error, reading local offline store:', e);
+    }
 
-    // Fallback to locally persisted appointments for this patient
-    try {
-      const key = `careflow_patient_appointments_${patientId}`;
-      const saved = sessionStorage.getItem(key) || localStorage.getItem(key);
-      if (saved) {
-        const list = JSON.parse(saved);
-        if (Array.isArray(list)) {
-          return { appointments: list };
-        }
-      }
-    } catch (e) {}
+    const localList = await offlineStorage.getAppointments(patientId);
 
-    return { appointments: [] };
+    // Merge server appointments with any locally booked offline passes
+    const mergedMap = new Map<string, any>();
+    for (const item of localList) {
+      const id = item.appointment_id || (item as any).appointmentId;
+      if (id) mergedMap.set(id, item);
+    }
+    for (const item of serverList) {
+      const id = item.appointment_id || (item as any).appointmentId;
+      if (id) mergedMap.set(id, item);
+    }
+
+    const merged = Array.from(mergedMap.values());
+    if (merged.length > 0) {
+      await offlineStorage.saveAppointments(patientId, merged);
+    }
+
+    return { appointments: merged };
   },
 
   cancelAppointment: (id: string) => 
@@ -1120,8 +1225,19 @@ export const api = {
     request<{ board: any[] }>('/queue/display'),
 
   // Doctor Directory & Dashboard
-  getDoctorsList: () => 
-    request<{ doctors: Doctor[] }>('/doctor/list'),
+  getDoctorsList: async () => {
+    try {
+      const res = await request<{ doctors: Doctor[] }>('/doctor/list');
+      if (res?.doctors && Array.isArray(res.doctors) && res.doctors.length > 0) {
+        offlineStorage.saveDoctors(res.doctors);
+        return res;
+      }
+    } catch (e) {
+      console.warn('[API] getDoctorsList network failed, reading from rural offline database:', e);
+    }
+    const cached = await offlineStorage.getDoctors();
+    return { doctors: cached.length > 0 ? cached : DEFAULT_DOCTORS };
+  },
 
   getDoctorDashboard: (doctorId: string) => 
     request<any>(`/doctor/dashboard/${doctorId}`),
@@ -1210,8 +1326,19 @@ export const api = {
     }),
 
   // Patient Medical History
-  getPatientHistory: (patientId: string) => 
-    request<{ timeline: MedicalVisitRecord[]; visits: MedicalVisitRecord[] }>(`/patient/history/${patientId}`),
+  getPatientHistory: async (patientId: string) => {
+    try {
+      const res = await request<{ timeline: MedicalVisitRecord[]; visits: MedicalVisitRecord[] }>(`/patient/history/${patientId}`);
+      if (res?.timeline && Array.isArray(res.timeline)) {
+        offlineStorage.saveMedicalHistory(patientId, res.timeline);
+        return res;
+      }
+    } catch (e) {
+      console.warn('[API] getPatientHistory network failed, reading from rural offline database:', e);
+    }
+    const cachedTimeline = await offlineStorage.getMedicalHistory(patientId);
+    return { timeline: cachedTimeline, visits: cachedTimeline };
+  },
 
   // Notifications
   getPatientNotifications: (patientId: string) => 
@@ -1232,11 +1359,34 @@ export const api = {
     request<{ hospital: any; doctors: any[] }>(`/hospitals/${id}`),
 
   // Diseases Catalog
-  getDiseases: (category?: string, search?: string) => {
-    let url = '/diseases?';
-    if (category) url += `category=${encodeURIComponent(category)}&`;
-    if (search) url += `search=${encodeURIComponent(search)}`;
-    return request<{ diseases: any[]; count: number }>(url);
+  getDiseases: async (category?: string, search?: string) => {
+    try {
+      let url = '/diseases?';
+      if (category) url += `category=${encodeURIComponent(category)}&`;
+      if (search) url += `search=${encodeURIComponent(search)}`;
+      const res = await request<{ diseases: any[]; count: number }>(url);
+      if (res?.diseases && Array.isArray(res.diseases) && res.diseases.length > 0) {
+        offlineStorage.saveDiseases(res.diseases);
+        return res;
+      }
+    } catch (e) {
+      console.warn('[API] getDiseases network failed, reading from rural offline database:', e);
+    }
+
+    const allOffline = await offlineStorage.getDiseases();
+    let filtered = allOffline;
+    if (category && category !== 'All') {
+      filtered = filtered.filter((d: any) => d.category === category);
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      filtered = filtered.filter((d: any) => 
+        (d.name && d.name.toLowerCase().includes(q)) ||
+        (d.description && d.description.toLowerCase().includes(q)) ||
+        (d.recommended_specialty && d.recommended_specialty.toLowerCase().includes(q))
+      );
+    }
+    return { diseases: filtered, count: filtered.length };
   },
 
   getDiseaseById: (id: string) =>
@@ -1256,5 +1406,14 @@ export const api = {
     request<any>('/ambulance/cancel', {
       method: 'POST',
       body: JSON.stringify({ requestId })
-    })
+    }),
+
+  preloadOfflineDatabase: async () => {
+    try {
+      await Promise.allSettled([
+        api.getDoctorsList(),
+        api.getDiseases()
+      ]);
+    } catch (e) {}
+  }
 };

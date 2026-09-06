@@ -1,115 +1,344 @@
-import React, { useEffect, useState } from 'react';
-import { FashionLogo } from '../common/FashionLogo';
+import React, { useEffect, useState, useRef } from 'react';
+import { Calendar, Users, Brain, Heart, ShieldCheck } from 'lucide-react';
+import './splash.css';
 
 interface SplashScreenProps {
   onFinish: () => void;
 }
 
+interface Particle {
+  x: number;
+  y: number;
+  radius: number;
+  color: string;
+  vx: number;
+  vy: number;
+  alpha: number;
+  maxAlpha: number;
+}
+
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const [fadeOut, setFadeOut] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [statusMessage, setStatusMessage] = useState('Calibrating Intelligent Clinical Engine...');
+  
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const animRef = useRef<number | null>(null);
+  const particleAnimRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+  const hasFinishedRef = useRef(false);
 
-  useEffect(() => {
-    // Start fade out at 1.7s, finish at 2.0s
-    const fadeTimer = setTimeout(() => {
-      setFadeOut(true);
-    }, 1700);
-
-    const finishTimer = setTimeout(() => {
+  // Smooth exit transition
+  const finishSplash = () => {
+    if (hasFinishedRef.current) return;
+    hasFinishedRef.current = true;
+    setFadeOut(true);
+    setTimeout(() => {
       onFinish();
-    }, 2000);
+    }, 350);
+  };
+
+  // 1. High-Performance Bio-Luminescent Particle Canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    const particles: Particle[] = [];
+    const colors = [
+      'rgba(45, 212, 191, ',  // Bright mint
+      'rgba(6, 182, 212, ',   // Vibrant cyan
+      'rgba(56, 189, 248, ',  // Sky blue
+      'rgba(255, 255, 255, '  // Pristine white bokeh
+    ];
+
+    const count = window.innerWidth < 768 ? 24 : 45;
+    for (let i = 0; i < count; i++) {
+      const baseAlpha = Math.random() * 0.5 + 0.2;
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 2.2 + 0.8,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: -(Math.random() * 0.65 + 0.25), // Drift gently upwards
+        alpha: baseAlpha,
+        maxAlpha: baseAlpha
+      });
+    }
+
+    const renderParticles = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Wrap around boundaries
+        if (p.y < -10) {
+          p.y = height + 10;
+          p.x = Math.random() * width;
+        }
+        if (p.x < -10) p.x = width + 10;
+        if (p.x > width + 10) p.x = -10;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `${p.color}${p.alpha})`;
+        ctx.shadowBlur = p.radius * 4;
+        ctx.shadowColor = p.color === 'rgba(255, 255, 255, ' ? '#ffffff' : '#2dd4bf';
+        ctx.fill();
+      }
+
+      particleAnimRef.current = requestAnimationFrame(renderParticles);
+    };
+
+    particleAnimRef.current = requestAnimationFrame(renderParticles);
 
     return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(finishTimer);
+      window.removeEventListener('resize', handleResize);
+      if (particleAnimRef.current) cancelAnimationFrame(particleAnimRef.current);
     };
-  }, [onFinish]);
+  }, []);
+
+  // 2. Exact 2-Second Mathematical Interpolation with Clinical Sequence
+  useEffect(() => {
+    const TOTAL_DURATION = 1750; // 1.75s active progress + 0.25s finish = 2 seconds total
+
+    const updateProgress = (timestamp: number) => {
+      if (!startTimeRef.current) startTimeRef.current = timestamp;
+      const elapsed = timestamp - startTimeRef.current;
+      
+      // Smooth cubic ease-out progression
+      const t = Math.min(1, elapsed / TOTAL_DURATION);
+      const easedT = 1 - Math.pow(1 - t, 2.2);
+      const currentProgress = Math.min(100, easedT * 100);
+
+      setProgress(currentProgress);
+
+      if (currentProgress < 42) {
+        setStatusMessage('Calibrating Intelligent Clinical Engine...');
+      } else if (currentProgress < 82) {
+        setStatusMessage('Synchronizing Doctor Matrix & AI Triage...');
+      } else {
+        setStatusMessage('Clinical Portal Ready • Entering CareFlow AI');
+      }
+
+      if (elapsed < TOTAL_DURATION) {
+        animRef.current = requestAnimationFrame(updateProgress);
+      } else {
+        setProgress(100);
+        // Start smooth cinematic exit at 1.8s
+        setTimeout(() => {
+          finishSplash();
+        }, 120);
+      }
+    };
+
+    animRef.current = requestAnimationFrame(updateProgress);
+
+    // Fallback safety timer to ensure finish at 2.1s max
+    const safetyTimer = setTimeout(() => {
+      finishSplash();
+    }, 2100);
+
+    // Keyboard navigation (Esc / Space / Enter to enter instantly)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') {
+        finishSplash();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      clearTimeout(safetyTimer);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      backgroundColor: '#060c18',
-      backgroundImage: 'radial-gradient(ellipse at 50% 45%, #0c1c38 0%, #060c18 70%)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 999999,
-      opacity: fadeOut ? 0 : 1,
-      transform: fadeOut ? 'scale(1.02)' : 'scale(1)',
-      transition: 'opacity 0.3s ease, transform 0.3s ease',
-      pointerEvents: fadeOut ? 'none' : 'auto'
-    }}>
-      {/* Animated Logo Container */}
-      <div style={{
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        animation: 'splash-pop 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
-      }}>
-        {/* Glowing Aura Ring */}
-        <div style={{
-          position: 'absolute',
-          width: '320px',
-          height: '320px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(20, 184, 166, 0.35) 0%, rgba(6, 182, 212, 0.12) 50%, transparent 75%)',
-          animation: 'splash-pulse 2s infinite ease-in-out',
-          zIndex: 1
-        }} />
+    <div 
+      className={`splash-container ${fadeOut ? 'splash-fade-out' : ''}`}
+      role="banner"
+      aria-label="CareFlow AI 4K Entering Screen"
+    >
+      {/* 1. Ultra-HD 4K Twilight Hospital Backdrop */}
+      <div className="splash-backdrop" />
 
-        {/* Official Animated Brand Logo */}
-        <div style={{ position: 'relative', zIndex: 2, transform: 'scale(1.05)', marginBottom: '16px' }}>
-          <FashionLogo size="xl" animated={true} />
+      {/* 2. Optical Medical AI Laser Sweep Beam */}
+      <div className="splash-laser-sweep" />
+
+      {/* 3. Interactive Floating Bio-Luminescent Particle Field */}
+      <canvas ref={canvasRef} className="splash-particles-canvas" />
+
+      {/* 4. Atmospheric Vignette & Contrast Depth Layer */}
+      <div className="splash-overlay" />
+
+      {/* 5. Orbiting Telemetry Arcs & Satellite Beacon */}
+      <div className="splash-orbital-arcs">
+        <div className="splash-arc splash-arc-1" />
+        <div className="splash-arc splash-arc-2">
+          <div className="splash-arc-satellite" />
         </div>
-
-        <p style={{
-          fontSize: '0.92rem',
-          color: 'var(--text-secondary)',
-          marginTop: '10px',
-          fontWeight: 500,
-          letterSpacing: '0.01em',
-          position: 'relative',
-          zIndex: 2
-        }}>
-          Intelligent Clinical Queue &amp; Care Optimization
-        </p>
-
-        {/* 2-Second Progress Bar */}
-        <div style={{
-          marginTop: '28px',
-          width: '200px',
-          height: '4px',
-          background: 'var(--border-color)',
-          borderRadius: '9999px',
-          overflow: 'hidden',
-          position: 'relative',
-          zIndex: 2
-        }}>
-          <div style={{
-            height: '100%',
-            background: 'linear-gradient(90deg, #14b8a6, #06b6d4)',
-            animation: 'splash-progress 2s linear forwards'
-          }} />
-        </div>
-
-        <span style={{
-          marginTop: '12px',
-          fontSize: '0.78rem',
-          fontWeight: 700,
-          color: 'var(--primary)',
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-          position: 'relative',
-          zIndex: 2
-        }}>
-          Initializing Autonomous Clinical Engine...
-        </span>
       </div>
+
+      {/* 6. Top Header Bar */}
+      <header className="splash-top-bar">
+        <div className="splash-top-left">
+          <div className="splash-accent-bar" />
+          <div className="splash-stacked-title">
+            <span>SMARTER</span>
+            <span>HEALTHCARE</span>
+            <span>FOR A BRIGHTER</span>
+            <span>TOMORROW</span>
+          </div>
+        </div>
+
+        <div className="splash-top-right">
+          <div className="splash-tr-brand-row">
+            <span className="splash-tr-brand">CareFlow</span>
+            <span className="splash-ai-chip">AI 2.0</span>
+          </div>
+
+          <span className="splash-tr-tags">
+            PREDICT <span className="splash-pipe">|</span> SCHEDULE <span className="splash-pipe">|</span> SERVE <span className="splash-pipe">|</span> CARE
+          </span>
+
+          {/* Animated Clinical EKG Pulse Line */}
+          <div className="splash-ekg-wrapper">
+            <svg className="splash-ekg-svg" viewBox="0 0 200 30" preserveAspectRatio="none">
+              <path className="splash-ekg-track" d="M0,15 L60,15 L68,5 L76,25 L84,8 L92,20 L100,15 L200,15" />
+              <path className="splash-ekg-pulse" d="M0,15 L60,15 L68,5 L76,25 L84,8 L92,20 L100,15 L200,15" />
+            </svg>
+          </div>
+        </div>
+      </header>
+
+      {/* 7. Center Brand & Action Hub */}
+      <main className="splash-center-hub">
+        {/* Animated 4K Brand Logo with Gyro Ring & Luminous Aura */}
+        <div className="splash-logo-wrapper">
+          <div className="splash-glow-aura" />
+          <div className="splash-logo-gyro">
+            <div className="splash-gyro-node" />
+          </div>
+
+          <img 
+            src="/assets/splash_center_logo_4k.png" 
+            alt="CareFlow - Smarter Appointments. Healthier Tomorrows." 
+            className="splash-logo-img"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src.indexOf('splash_center_logo.png') === -1) {
+                target.src = '/assets/splash_center_logo.png';
+              }
+            }}
+          />
+        </div>
+
+        {/* Dynamic 4K Progress Bar with Leading Hotspot Spark */}
+        <div className="splash-progress-container">
+          <div className="splash-progress-track">
+            <div 
+              className="splash-progress-fill" 
+              style={{ width: `${progress}%` }}
+            >
+              <div className="splash-progress-shimmer" />
+              <div className="splash-progress-spark" />
+            </div>
+          </div>
+          <span className="splash-progress-percent">{Math.round(progress)}%</span>
+        </div>
+
+        {/* Live Clinical Telemetry Status Caption */}
+        <div className="splash-status-wrapper">
+          <div className="splash-status-dot" />
+          <p className="splash-status-message">{statusMessage}</p>
+        </div>
+
+        {/* 8. 4 Glassmorphic Feature Highlights */}
+        <div className="splash-features-row">
+          {/* 1: Smart Appointments */}
+          <div className="splash-feature-box" title="AI Auto-Scheduling & Instant Token Allocation">
+            <div className="splash-icon-glass icon-cal">
+              <Calendar size={24} strokeWidth={2.2} />
+            </div>
+            <span className="splash-feature-label">Smart<br />Appointments</span>
+          </div>
+
+          <div className="splash-features-divider" />
+
+          {/* 2: Connected Care */}
+          <div className="splash-feature-box" title="Real-Time Doctor & Patient Queue Sync">
+            <div className="splash-icon-glass icon-users">
+              <Users size={24} strokeWidth={2.2} />
+            </div>
+            <span className="splash-feature-label">Connected<br />Care</span>
+          </div>
+
+          <div className="splash-features-divider" />
+
+          {/* 3: AI Powered Insights */}
+          <div className="splash-feature-box" title="Predictive Clinical Triage & Department Matching">
+            <div className="splash-icon-glass icon-brain">
+              <Brain size={24} strokeWidth={2.2} className="splash-brain-anim" />
+            </div>
+            <span className="splash-feature-label">AI Powered<br />Insights</span>
+          </div>
+
+          <div className="splash-features-divider" />
+
+          {/* 4: Healthier Tomorrows */}
+          <div className="splash-feature-box" title="Continuous Health Records & Long-Term Vital Tracking">
+            <div className="splash-icon-glass icon-heart">
+              <Heart size={24} strokeWidth={2.2} className="splash-heart-anim" />
+            </div>
+            <span className="splash-feature-label">Healthier<br />Tomorrows</span>
+          </div>
+        </div>
+      </main>
+
+      {/* 9. Bottom Footer Bar */}
+      <footer className="splash-bottom-bar">
+        <div className="splash-bottom-left">
+          <div className="splash-accent-bar-sm" />
+          <div className="splash-quote-text">"People Care First"</div>
+          <div className="splash-quote-author">- CareFlow</div>
+        </div>
+
+        <div className="splash-bottom-right">
+          <div className="splash-security-pill">
+            <ShieldCheck size={18} strokeWidth={2.5} className="splash-shield-anim" />
+            <span>Secure. Reliable. Always with You.</span>
+          </div>
+        </div>
+      </footer>
+
+      {/* Subtle Skip Indicator */}
+      <button 
+        type="button" 
+        onClick={finishSplash} 
+        className="splash-skip-tip" 
+        style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
+        title="Press Esc or click to enter immediately"
+      >
+        Press Esc or Click Here to Skip
+      </button>
     </div>
   );
 };
+
+export default SplashScreen;

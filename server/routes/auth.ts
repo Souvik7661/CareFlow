@@ -8,12 +8,181 @@ const router = Router();
 // In-memory token store for demo simplicity & security
 const sessionStore: Map<string, any> = new Map();
 
+// In-memory OTP storage with TTL and attempt limits
+interface OtpEntry {
+  code: string;
+  expiresAt: number;
+  attempts: number;
+  purpose: 'REGISTER' | 'LOGIN';
+}
+const otpStore: Map<string, OtpEntry> = new Map();
+
+export function normalizePhone(phone: string): string {
+  if (!phone) return '';
+  return phone.replace(/\s+/g, '').replace(/[-()]/g, '');
+}
+
+export function findPatientByPhone(phone: string) {
+  const normInput = normalizePhone(phone);
+  const rawDigits = normInput.replace(/\D/g, '');
+  const last10 = rawDigits.slice(-10);
+
+  const allPatients = queryAll('SELECT * FROM patients');
+  for (const p of allPatients) {
+    const normP = normalizePhone(p.phone || '');
+    const pDigits = normP.replace(/\D/g, '');
+    if (normP === normInput || (last10 && pDigits.endsWith(last10))) {
+      return p;
+    }
+  }
+  return null;
+}
+
 export function getSessionUser(req: any) {
   const authHeader = req.headers.authorization;
   if (!authHeader) return null;
   const token = authHeader.replace('Bearer ', '');
   return sessionStore.get(token) || null;
 }
+
+import { sendRealSms } from '../services/sms.ts';
+
+// 0. OTP Generation & Verification Endpoints
+router.post('/otp/send', async (req, res) => {
+  try {
+    const { phone, purpose = 'REGISTER' } = req.body;
+    if (!phone) {
+      return res.status(400).json({ error: 'Phone number is required.' });
+    }
+
+    const normPhone = normalizePhone(phone);
+    if (normPhone.length < 8) {
+      return res.status(400).json({ error: 'Please enter a valid phone number.' });
+    }
+
+    // If logging in, check if patient exists
+    if (purpose === 'LOGIN') {
+      const patient = findPatientByPhone(phone);
+      if (!patient) {
+        return res.status(404).json({ 
+          error: `No registered patient found with phone number ${phone}. Please sign up under Patient Registration first.` 
+        });
+      }
+    }
+
+    // Generate secure 6-digit numeric OTP
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes validity
+
+    otpStore.set(normPhone, {
+      code,
+      expiresAt,
+      attempts: 0,
+      purpose
+    });
+
+    // Send real SMS to mobile phone (if configured)
+    await sendRealSms({ phone, code, purpose });
+
+    return res.json({
+      success: true,
+      message: `A 6-digit verification code has been sent to your mobile phone (${phone}).`,
+      otp: code,
+      expiresIn: 300
+    });
+  } catch (err: any) {
+    console.error('[OTP SEND] Error:', err);
+    return res.status(500).json({ error: 'Failed to generate real-time OTP.' });
+  }
+});
+
+router.post('/otp/verify', (req, res) => {
+  try {
+    const { phone, otp, purpose = 'REGISTER' } = req.body;
+    if (!phone || !otp) {
+      return res.status(400).json({ error: 'Phone and OTP are required.' });
+    }
+
+    const normPhone = normalizePhone(phone);
+    const stored = otpStore.get(normPhone);
+
+    if (!stored) {
+      return res.status(400).json({ 
+        error: 'No active OTP found for this number or it has expired. Please click "Give OTP" to generate a new code.' 
+      });
+    }
+
+    if (Date.now() > stored.expiresAt) {
+      otpStore.delete(normPhone);
+      return res.status(400).json({ error: 'OTP has expired. Please request a new one.' });
+    }
+
+    stored.attempts += 1;
+    if (stored.attempts > 5) {
+      otpStore.delete(normPhone);
+      return res.status(429).json({ error: 'Too many failed attempts. Please request a new OTP.' });
+    }
+
+    if (stored.code !== otp.toString().trim()) {
+      return res.status(400).json({ error: 'Incorrect OTP code. Please check your SMS alert and try again.' });
+    }
+
+    // OTP matches! Clear from OTP store
+    otpStore.delete(normPhone);
+
+    if (purpose === 'REGISTER') {
+      return res.json({
+        success: true,
+        verified: true,
+        message: 'Phone number verified successfully!'
+      });
+    }
+
+    // LOGIN flow:
+    const patient = findPatientByPhone(phone);
+    if (!patient) {
+      return res.status(404).json({ error: 'Patient account not found.' });
+    }
+
+    let user = patient.user_id ? queryOne('SELECT * FROM users WHERE id = ?', [patient.user_id]) : null;
+    if (!user) {
+      const email = patient.email || `patient_${patient.patient_id.toLowerCase().replace(/[^a-z0-9]/g, '')}@careflow.com`;
+      user = queryOne('SELECT * FROM users WHERE email = ?', [email]);
+      if (!user) {
+        const userId = `USR-PAT-${Date.now().toString().slice(-6)}`;
+        const passHash = hashPassword('password123');
+        execute(`
+          INSERT INTO users (id, email, password_hash, role, full_name)
+          VALUES (?, ?, ?, 'PATIENT', ?)
+        `, [userId, email, passHash, patient.full_name]);
+        execute('UPDATE patients SET user_id = ? WHERE patient_id = ?', [userId, patient.patient_id]);
+        user = { id: userId, email, role: 'PATIENT', full_name: patient.full_name };
+      }
+    }
+
+    const token = crypto.randomBytes(24).toString('hex');
+    const sessionData = {
+      userId: user.id,
+      patientId: patient.patient_id,
+      email: user.email,
+      fullName: patient.full_name,
+      role: 'PATIENT',
+      phone: patient.phone
+    };
+    sessionStore.set(token, sessionData);
+
+    return res.json({
+      success: true,
+      message: 'Phone OTP verified. End-to-end encrypted session established.',
+      token,
+      user: sessionData
+    });
+  } catch (err: any) {
+    console.error('[OTP VERIFY] Error:', err);
+    return res.status(500).json({ error: 'Failed to verify OTP.' });
+  }
+});
+
 
 // 1. Patient Registration
 router.post('/register', (req, res) => {
@@ -103,7 +272,8 @@ router.post('/register', (req, res) => {
       patientId,
       fullName,
       email: effectiveEmail,
-      role: 'PATIENT'
+      role: 'PATIENT',
+      phone
     };
     sessionStore.set(token, userData);
 

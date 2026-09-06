@@ -49,12 +49,14 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   const roomWing = appointment?.wing || appointment?.room_wing || appointment?.roomWing || 'Block A • OPD Wing';
   const apptDate = appointment?.appointmentDate || appointment?.appointment_date || new Date().toISOString().split('T')[0];
   const apptTime = appointment?.appointmentTime || appointment?.appointment_time || '10:00 AM';
-  const tokenNum = appointment?.tokenNumber || appointment?.token_number || 'CF-204';
+  const rawToken = appointment?.tokenNumber || appointment?.token_number || '#1';
+  const displayToken = (rawToken || '').startsWith('#') ? rawToken : `#${rawToken}`;
+  const isOfflinePass = !!appointment?.isOffline;
 
   // Generate standard iCalendar (.ics) content
   const handleDownloadCalendar = () => {
     const title = `Hospital Appointment: ${docName} (${deptName})`;
-    const description = `CareFlow AI Appointment ID: ${apptId}. Room: ${roomNumber} (${roomWing}). Token: #${tokenNum}. Please check in upon arrival.`;
+    const description = `CareFlow AI Appointment ID: ${apptId}. Room: ${roomNumber} (${roomWing}). Token: ${displayToken}. Please check in upon arrival.`;
     const location = `CareFlow Apex Hospital - ${roomNumber}, ${roomWing}`;
     const cleanDate = (apptDate || '').replace(/-/g, '');
     
@@ -141,13 +143,30 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                fontSize: '0.84rem',
+                fontSize: '0.88rem',
                 fontWeight: 800,
                 boxShadow: '0 4px 12px rgba(13, 148, 136, 0.3)'
               }}>
                 <Ticket size={16} />
-                <span>TOKEN #{tokenNum}</span>
+                <span>TOKEN {displayToken}</span>
               </div>
+
+              {isOfflinePass && (
+                <div style={{
+                  background: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid #f59e0b',
+                  color: '#f59e0b',
+                  borderRadius: '10px',
+                  padding: '6px 10px',
+                  fontSize: '0.74rem',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  <span>⚡ RURAL OFFLINE PASS</span>
+                </div>
+              )}
 
               <div style={{
                 background: 'var(--bg-card)',

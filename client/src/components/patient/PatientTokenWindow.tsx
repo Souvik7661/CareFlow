@@ -152,7 +152,7 @@ export const PatientTokenWindow: React.FC<PatientTokenWindowProps> = ({
               WebkitTextFillColor: 'transparent',
               filter: 'drop-shadow(0 4px 10px rgba(20, 184, 166, 0.25))'
             }}>
-              {activeApt.token_number || 'T-001'}
+              {activeApt.token_number ? (activeApt.token_number.startsWith('#') ? activeApt.token_number : `#${activeApt.token_number}`) : '#1'}
             </div>
 
             <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginTop: '8px' }}>

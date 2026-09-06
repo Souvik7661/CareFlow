@@ -70,10 +70,10 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
         </button>
 
         <div style={{ textAlign: 'center' }}>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: '#0f172a', fontFamily: 'var(--font-heading)' }}>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)', fontFamily: 'var(--font-heading)' }}>
             Dashboard
           </h1>
-          <span style={{ fontSize: '0.84rem', color: '#64748b', fontWeight: 500 }}>
+          <span style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
             Good Morning, {user.fullName?.split(' ')[0] || 'Alex'} 👋
           </span>
         </div>
@@ -119,7 +119,7 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
       {/* Health Overview Section matching Blueprint Screen 2 */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
             Health Overview
           </h3>
           <button 
@@ -150,9 +150,9 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
               </div>
 
               <div>
-                <span style={{ fontSize: '0.76rem', color: '#64748b', fontWeight: 600, display: 'block' }}>Heart Rate</span>
-                <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
-                  72 <span style={{ fontSize: '0.8rem', fontWeight: 500, color: '#64748b' }}>bpm</span>
+                <span style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'block' }}>Heart Rate</span>
+                <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+                  72 <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--text-secondary)' }}>bpm</span>
                 </div>
               </div>
             </div>
@@ -180,10 +180,10 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
               <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'rgba(13, 148, 136, 0.12)', color: '#0d9488', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Activity size={14} />
               </div>
-              <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600 }}>Blood Pressure</span>
+              <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Blood Pressure</span>
             </div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', marginTop: '8px' }}>
-              120/80 <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 500 }}>mmHg</span>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '8px' }}>
+              120/80 <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 500 }}>mmHg</span>
             </div>
           </div>
 
@@ -192,10 +192,10 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
               <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'rgba(6, 182, 212, 0.12)', color: '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Droplet size={14} />
               </div>
-              <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600 }}>Blood Sugar</span>
+              <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Blood Sugar</span>
             </div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', marginTop: '8px' }}>
-              98 <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 500 }}>mg/dL</span>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '8px' }}>
+              98 <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 500 }}>mg/dL</span>
             </div>
           </div>
         </div>
@@ -204,7 +204,7 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
       {/* Upcoming Appointment Section matching Blueprint Screen 2 */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
             Upcoming Appointment
           </h3>
           <button 
@@ -238,10 +238,10 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
             </div>
 
             <div>
-              <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
+              <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
                 {upcomingApt?.doctor_name || 'Dr. Sarah Johnson'}
               </h4>
-              <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
                 {upcomingApt?.department_name || 'Cardiologist'} &bull; Room {upcomingApt?.room_no || '204'}
               </span>
               <div style={{ fontSize: '0.76rem', color: '#0d9488', fontWeight: 700, marginTop: '3px' }}>
@@ -263,7 +263,7 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
 
       {/* Quick Actions Grid matching Blueprint Screen 2 */}
       <div>
-        <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', margin: '0 0 10px 0' }}>
+        <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 10px 0' }}>
           Quick Actions
         </h3>
 
@@ -276,7 +276,7 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
             <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(13, 148, 136, 0.12)', color: '#0d9488', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px auto' }}>
               <FlaskConical size={18} />
             </div>
-            <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#1e293b' }}>Lab Test</span>
+            <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-primary)' }}>Lab Test</span>
           </button>
 
           <button 
@@ -287,7 +287,7 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
             <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(6, 182, 212, 0.12)', color: '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px auto' }}>
               <Pill size={18} />
             </div>
-            <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#1e293b' }}>Medicines</span>
+            <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-primary)' }}>Medicines</span>
           </button>
 
           <button 
@@ -298,7 +298,7 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
             <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px auto' }}>
               <FileText size={18} />
             </div>
-            <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#1e293b' }}>Reports</span>
+            <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-primary)' }}>Reports</span>
           </button>
 
           <button 
@@ -315,25 +315,17 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
       </div>
 
       {/* Floating Bottom Navigation Dock matching Reference Blueprint */}
-      <div style={{
-        position: 'fixed',
-        bottom: '18px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: 'calc(100% - 32px)',
-        maxWidth: '520px',
-        background: 'rgba(255, 255, 255, 0.92)',
-        backdropFilter: 'blur(24px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-        border: '1px solid rgba(255, 255, 255, 0.95)',
-        borderRadius: '9999px',
-        padding: '8px 20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        boxShadow: '0 12px 32px rgba(15, 118, 110, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.95)',
-        zIndex: 50
-      }}>
+      <div 
+        className="apple-bottom-dock" 
+        style={{
+          position: 'fixed',
+          bottom: '18px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 'calc(100% - 32px)',
+          maxWidth: '520px',
+        }}
+      >
         <button 
           className="apple-dock-item active" 
           onClick={() => onNavigate('dashboard')}

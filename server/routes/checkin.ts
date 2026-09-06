@@ -80,10 +80,14 @@ router.post('/', (req, res) => {
       });
     }
 
-    // Generate New Token
-    const prefix = DEPT_PREFIX_MAP[appointment.department_id] || 'T';
-    const randTokenNum = Math.floor(20 + Math.random() * 80);
-    const tokenNumber = `${prefix}-0${randTokenNum}`;
+    // Generate Sequential Token if not already checked in
+    const countRow = queryOne(`
+      SELECT COUNT(*) as count 
+      FROM appointments 
+      WHERE doctor_id = ? AND appointment_date = ? AND status NOT IN ('CANCELLED')
+    `, [appointment.doctor_id, appointment.appointment_date]);
+    const tokenSequence = (countRow?.count || 0) + 1;
+    const tokenNumber = `#${tokenSequence}`;
     const checkinId = `CHK-${Date.now()}`;
     const queueId = `QUE-${Date.now()}`;
 

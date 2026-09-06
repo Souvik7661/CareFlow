@@ -13,8 +13,8 @@ const DEFAULT_DISPLAY_ROOMS = [
     department_name: 'Cardiology',
     room_wing: 'Block A • Wing 1',
     room_no: 'Room 204',
-    nowServingToken: 'CF-201',
-    upcomingTokens: ['CF-202', 'CF-203', 'CF-204'],
+    nowServingToken: '#1',
+    upcomingTokens: ['#2', '#3', '#4'],
     isCalling: false,
     status: 'IN_SESSION'
   },
@@ -24,10 +24,10 @@ const DEFAULT_DISPLAY_ROOMS = [
     department_name: 'Gastroenterology',
     room_wing: 'Block B • Wing 2',
     room_no: 'Room 105',
-    nowServingToken: 'CF-115',
-    upcomingTokens: ['CF-116', 'CF-117', 'CF-118'],
+    nowServingToken: '#1',
+    upcomingTokens: ['#2', '#3'],
     isCalling: true,
-    calledToken: 'CF-115',
+    calledToken: '#1',
     status: 'IN_SESSION'
   },
   {
@@ -36,8 +36,8 @@ const DEFAULT_DISPLAY_ROOMS = [
     department_name: 'Dermatology',
     room_wing: 'Block C • Wing 1',
     room_no: 'Room 108',
-    nowServingToken: 'CF-089',
-    upcomingTokens: ['CF-090', 'CF-092'],
+    nowServingToken: '#1',
+    upcomingTokens: ['#2', '#3'],
     isCalling: false,
     status: 'IN_SESSION'
   },
@@ -47,8 +47,8 @@ const DEFAULT_DISPLAY_ROOMS = [
     department_name: 'Neurology',
     room_wing: 'Block A • Wing 3',
     room_no: 'Room 302',
-    nowServingToken: 'CF-305',
-    upcomingTokens: ['CF-306', 'CF-307', 'CF-309'],
+    nowServingToken: '#2',
+    upcomingTokens: ['#3', '#4', '#5'],
     isCalling: false,
     status: 'IN_SESSION'
   },
@@ -58,8 +58,8 @@ const DEFAULT_DISPLAY_ROOMS = [
     department_name: 'Pulmonology',
     room_wing: 'Block B • Wing 1',
     room_no: 'Room 215',
-    nowServingToken: 'CF-401',
-    upcomingTokens: ['CF-402', 'CF-405'],
+    nowServingToken: '#1',
+    upcomingTokens: ['#2', '#3'],
     isCalling: false,
     status: 'IN_SESSION'
   },
@@ -69,8 +69,8 @@ const DEFAULT_DISPLAY_ROOMS = [
     department_name: 'General Medicine',
     room_wing: 'Block B • Wing 3',
     room_no: 'Room 101',
-    nowServingToken: 'CF-012',
-    upcomingTokens: ['CF-013', 'CF-014', 'CF-016'],
+    nowServingToken: '#3',
+    upcomingTokens: ['#4', '#5', '#6'],
     isCalling: false,
     status: 'IN_SESSION'
   }
@@ -200,7 +200,7 @@ export const WaitingRoomDisplay: React.FC<WaitingRoomDisplayProps> = ({ onBack }
           
           let servingToken = item.nowServingToken || item.nowServing || item.tokenNumber || (item.isCalling ? item.calledToken : null);
           if (!servingToken || servingToken === '—') {
-            servingToken = `CF-${(idx + 1) * 100 + 1}`;
+            servingToken = `#${idx + 1}`;
           }
 
           let upcomingList: string[] = [];
@@ -211,7 +211,7 @@ export const WaitingRoomDisplay: React.FC<WaitingRoomDisplayProps> = ({ onBack }
           } else if (Array.isArray(item.upcoming_tokens) && item.upcoming_tokens.length > 0) {
             upcomingList = item.upcoming_tokens;
           } else {
-            upcomingList = [`CF-${(idx + 1) * 100 + 2}`, `CF-${(idx + 1) * 100 + 3}`];
+            upcomingList = [`#${(idx + 1) * 2}`, `#${(idx + 1) * 2 + 1}`];
           }
 
           const isJustCalled = lastCalledRoom === roomNo || item.isCalling;

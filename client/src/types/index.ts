@@ -9,6 +9,7 @@ export interface User {
   role: Role;
   specialization?: string;
   roomNo?: string;
+  phone?: string;
 }
 
 export interface Patient {

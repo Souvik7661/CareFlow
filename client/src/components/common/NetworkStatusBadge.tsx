@@ -1,0 +1,138 @@
+import React, { useState, useEffect } from 'react';
+import { Wifi, WifiOff, RefreshCw, CheckCircle2, Database } from 'lucide-react';
+import { syncManager } from '../../services/syncManager';
+
+export const NetworkStatusBadge: React.FC = () => {
+  const [status, setStatus] = useState(syncManager.getStatus());
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  useEffect(() => {
+    const unsubscribe = syncManager.subscribe((newStatus) => {
+      setStatus(newStatus);
+    });
+
+    const handleSynced = (e: any) => {
+      const count = e.detail?.count || 1;
+      setToastMessage(`Synced ${count} offline booking${count > 1 ? 's' : ''} with hospital database!`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 4000);
+    };
+
+    window.addEventListener('careflow:synced', handleSynced);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('careflow:synced', handleSynced);
+    };
+  }, []);
+
+  const handleManualSync = () => {
+    if (status.isOnline) {
+      syncManager.syncPendingBookings();
+    }
+  };
+
+  return (
+    <>
+      {/* Network & Offline Status Pill */}
+      <div
+        className="cf-network-status-badge"
+        onClick={handleManualSync}
+        title={
+          status.isOnline
+            ? 'Connected to Hospital Server • Click to check sync'
+            : 'Rural Offline Mode • All patient records & sequential tokens saved locally'
+        }
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '5px 12px',
+          borderRadius: '9999px',
+          fontSize: '0.78rem',
+          fontWeight: 700,
+          cursor: status.isOnline ? 'pointer' : 'default',
+          transition: 'all 0.25s ease',
+          background: status.isOnline 
+            ? 'rgba(16, 185, 129, 0.1)' 
+            : 'rgba(245, 158, 11, 0.16)',
+          border: status.isOnline 
+            ? '1px solid rgba(16, 185, 129, 0.35)' 
+            : '1px solid rgba(245, 158, 11, 0.55)',
+          color: status.isOnline ? '#10b981' : '#f59e0b',
+          boxShadow: status.isOnline 
+            ? '0 2px 8px rgba(16, 185, 129, 0.12)' 
+            : '0 2px 12px rgba(245, 158, 11, 0.25)'
+        }}
+      >
+        {status.isSyncing ? (
+          <>
+            <RefreshCw size={13} className="spin" style={{ color: '#2dd4bf' }} />
+            <span style={{ color: '#2dd4bf' }}>Syncing...</span>
+          </>
+        ) : status.isOnline ? (
+          <>
+            <span 
+              style={{ 
+                width: '6px', 
+                height: '6px', 
+                borderRadius: '50%', 
+                background: '#10b981', 
+                boxShadow: '0 0 6px #10b981' 
+              }} 
+            />
+            <span className="hide-mobile">Live Network</span>
+          </>
+        ) : (
+          <>
+            <WifiOff size={13} style={{ color: '#f59e0b' }} />
+            <span>Rural Offline</span>
+            {status.pendingCount > 0 && (
+              <span
+                style={{
+                  background: '#f59e0b',
+                  color: '#000',
+                  padding: '1px 5px',
+                  borderRadius: '9999px',
+                  fontSize: '0.68rem',
+                  fontWeight: 800
+                }}
+              >
+                {status.pendingCount}
+              </span>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Sync Success Toast Notification */}
+      {showToast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '85px',
+            right: '25px',
+            zIndex: 9999,
+            background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.95) 0%, rgba(4, 120, 87, 0.95) 100%)',
+            border: '1px solid rgba(52, 211, 153, 0.5)',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(16, 185, 129, 0.3)',
+            borderRadius: '16px',
+            padding: '12px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            color: '#ffffff',
+            fontSize: '0.88rem',
+            fontWeight: 600,
+            backdropFilter: 'blur(16px)',
+            animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}
+        >
+          <CheckCircle2 size={18} color="#34d399" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+    </>
+  );
+};

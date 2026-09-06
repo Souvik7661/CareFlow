@@ -173,8 +173,21 @@ export const MyAppointments: React.FC<MyAppointmentsProps> = ({
               <div key={apt.appointment_id} className="card" style={{ padding: '22px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                       <span className={`badge ${statusBadgeClass}`}>{apt.status}</span>
+                      {(apt as any).isOffline && (
+                        <span style={{ 
+                          background: 'rgba(245, 158, 11, 0.16)', 
+                          border: '1px solid #f59e0b', 
+                          color: '#f59e0b', 
+                          fontSize: '0.72rem', 
+                          fontWeight: 800, 
+                          padding: '2px 8px', 
+                          borderRadius: '9999px' 
+                        }}>
+                          ⚡ Rural Offline Pass
+                        </span>
+                      )}
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                         {apt.appointment_id}
                       </span>

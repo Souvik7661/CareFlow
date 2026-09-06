@@ -18,9 +18,13 @@ import {
   Ticket, 
   Sparkles,
   Sun,
-  Moon
+  Moon,
+  Globe2
 } from 'lucide-react';
 import { FashionLogo } from './common/FashionLogo';
+import { ThemeSwitch } from './common/ThemeSwitch';
+import { NetworkStatusBadge } from './common/NetworkStatusBadge';
+import { useLanguage } from '../context/LanguageContext';
 
 interface NavigationProps {
   currentUser: User | null;
@@ -43,6 +47,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   onOpenAuth,
   onLogout
 }) => {
+  const { currentLanguageObj, openLanguageModal, t } = useLanguage();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -86,35 +91,21 @@ export const Navigation: React.FC<NavigationProps> = ({
                   onClick={() => onNavigate('welcome-hub')}
                 >
                   <Sparkles size={15} />
-                  <span>Services</span>
+                  <span>{t('nav.services', 'Services')}</span>
                 </button>
                 <button 
                   className={`nav-link-btn header-btn-triage ${(currentView === 'find-doctor' || currentView === 'ai-triage' || currentView === 'recommendation') ? 'active' : ''}`}
                   onClick={() => onNavigate('ai-triage')}
                 >
                   <Stethoscope size={15} color="#a855f7" />
-                  <span>AI Triage & Match</span>
+                  <span>{t('nav.teleconsultation', 'AI Triage & Match')}</span>
                 </button>
                 <button 
                   className={`nav-link-btn header-btn-doctors ${(currentView === 'find-doctors' || currentView === 'doctor-list') ? 'active' : ''}`}
                   onClick={() => onNavigate('doctor-list')}
                 >
                   <Stethoscope size={15} />
-                  <span>Doctors</span>
-                </button>
-                <button 
-                  className="btn btn-outline btn-sm header-btn-login"
-                  onClick={() => onOpenAuth('login')}
-                  style={{ fontSize: '0.82rem', padding: '6px 14px', borderRadius: '9999px' }}
-                >
-                  <span>Sign In</span>
-                </button>
-                <button 
-                  className="btn btn-primary btn-sm header-btn-register"
-                  onClick={() => onOpenAuth('register')}
-                  style={{ fontSize: '0.82rem', padding: '6px 14px' }}
-                >
-                  <span>Register</span>
+                  <span>{t('nav.doctors', 'Doctors')}</span>
                 </button>
                 <button 
                   className="nav-link-btn header-btn-lobby"
@@ -122,7 +113,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                   style={{ fontSize: '0.8rem' }}
                 >
                   <Tv size={14} />
-                  <span>Lobby</span>
+                  <span>{t('nav.waitingTv', 'Lobby')}</span>
                 </button>
               </>
             )}
@@ -134,28 +125,28 @@ export const Navigation: React.FC<NavigationProps> = ({
                   onClick={() => onNavigate('welcome-hub')}
                 >
                   <Sparkles size={15} />
-                  <span>Services</span>
+                  <span>{t('nav.services', 'Services')}</span>
                 </button>
                 <button 
                   className={`nav-link-btn header-btn-triage ${(currentView === 'find-doctor' || currentView === 'ai-triage' || currentView === 'recommendation') ? 'active' : ''}`}
                   onClick={() => onNavigate('ai-triage')}
                 >
                   <Stethoscope size={15} color="#a855f7" />
-                  <span>AI Triage & Match</span>
+                  <span>{t('nav.teleconsultation', 'AI Triage & Match')}</span>
                 </button>
                 <button 
                   className={`nav-link-btn header-btn-doctors ${(currentView === 'find-doctors' || currentView === 'doctor-list') ? 'active' : ''}`}
                   onClick={() => onNavigate('doctor-list')}
                 >
                   <Stethoscope size={15} />
-                  <span>Doctors</span>
+                  <span>{t('nav.doctors', 'Doctors')}</span>
                 </button>
                 <button 
                   className={`nav-link-btn header-btn-appointments ${currentView === 'my-appointments' ? 'active' : ''}`}
                   onClick={() => onNavigate('my-appointments')}
                 >
                   <Calendar size={15} />
-                  <span>Appointments</span>
+                  <span>{t('nav.myAppointments', 'Appointments')}</span>
                 </button>
                 <button 
                   className={`nav-link-btn header-btn-support ${currentView === 'ambulance' ? 'active' : ''}`}
@@ -241,16 +232,36 @@ export const Navigation: React.FC<NavigationProps> = ({
           </nav>
 
           <div className="header-actions">
-            {/* Dark/Light Mode Switcher */}
+            {/* Language Switcher Trigger */}
+            <button
+              type="button"
+              className="btn btn-outline btn-sm header-lang-btn"
+              onClick={openLanguageModal}
+              title={t('common.selectLanguage', 'Select Language')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                borderRadius: '9999px',
+                fontSize: '0.82rem',
+                fontWeight: 700
+              }}
+            >
+              <Globe2 size={15} color="var(--primary)" />
+              <span>{currentLanguageObj.flag} {currentLanguageObj.code.toUpperCase()}</span>
+            </button>
+
+            {/* Rural Offline & Live Connectivity Badge */}
+            <NetworkStatusBadge />
+
+            {/* Photorealistic Framer Motion Dark/Light Switcher */}
             {onToggleTheme && (
-              <button
-                className="theme-toggle-btn"
-                onClick={onToggleTheme}
-                title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-                aria-label="Toggle Theme"
-              >
-                {theme === 'dark' ? <Sun size={18} color="#f59e0b" /> : <Moon size={18} color="#0d9488" />}
-              </button>
+              <ThemeSwitch
+                theme={theme as 'light' | 'dark'}
+                onToggle={onToggleTheme}
+                size="md"
+              />
             )}
 
             {currentUser ? (
@@ -361,7 +372,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                 <button 
                   className="btn btn-outline btn-sm"
                   onClick={onLogout}
-                  title="Sign Out"
+                  title={t('nav.logout', 'Sign Out')}
                   style={{ color: 'var(--text-muted)' }}
                 >
                   <LogOut size={15} />
@@ -373,13 +384,13 @@ export const Navigation: React.FC<NavigationProps> = ({
                   className="btn btn-outline btn-sm"
                   onClick={() => onOpenAuth('login')}
                 >
-                  Sign In
+                  {t('nav.signIn', 'Sign In')}
                 </button>
                 <button 
                   className="btn btn-primary btn-sm"
                   onClick={() => onOpenAuth('register')}
                 >
-                  Register
+                  {t('nav.register', 'Register')}
                 </button>
               </>
             )}

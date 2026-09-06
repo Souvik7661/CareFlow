@@ -57,7 +57,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           fontSize: '2.6rem',
           fontWeight: 800,
           lineHeight: 1.15,
-          color: '#0f172a',
+          color: 'var(--text-primary)',
           fontFamily: 'var(--font-heading)',
           letterSpacing: '-0.02em',
           margin: 0
@@ -66,7 +66,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </h1>
         <p style={{
           fontSize: '0.98rem',
-          color: '#64748b',
+          color: 'var(--text-secondary)',
           marginTop: '10px',
           lineHeight: 1.5,
           maxWidth: '440px'
@@ -165,8 +165,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           gap: '4px',
           boxShadow: '0 10px 25px rgba(15, 118, 110, 0.16)'
         }}>
-          <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Trusted by</span>
-          <strong style={{ fontSize: '0.88rem', color: '#0f172a', fontWeight: 800 }}>2M+ Users</strong>
+          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Trusted by</span>
+          <strong style={{ fontSize: '0.88rem', color: 'var(--text-primary)', fontWeight: 800 }}>2M+ Users</strong>
           <div style={{ display: 'flex', alignItems: 'center', marginTop: '2px' }}>
             <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#38bdf8', color: '#fff', fontSize: '0.64rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff' }}>S</div>
             <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#10b981', color: '#fff', fontSize: '0.64rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', marginLeft: '-6px' }}>M</div>
@@ -198,10 +198,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           }}>
             <Stethoscope size={20} />
           </div>
-          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1e293b', display: 'block' }}>
+          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-primary)', display: 'block' }}>
             Find Doctors
           </span>
-          <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>AI Specialist Triage</span>
+          <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>AI Specialist Triage</span>
         </button>
 
         <button 
@@ -222,10 +222,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           }}>
             <Calendar size={20} />
           </div>
-          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1e293b', display: 'block' }}>
+          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-primary)', display: 'block' }}>
             Book Appt
           </span>
-          <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Smart Time Slots</span>
+          <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Smart Time Slots</span>
         </button>
 
         <button 
@@ -246,16 +246,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           }}>
             <Headphones size={20} />
           </div>
-          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1e293b', display: 'block' }}>
+          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-primary)', display: 'block' }}>
             24/7 Support
           </span>
-          <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Emergency &amp; Care</span>
+          <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Emergency &amp; Care</span>
         </button>
       </div>
 
       {/* Role Sandbox Pills for Fast Review */}
-      <div className="card" style={{ padding: '14px 18px', borderRadius: '20px', background: 'rgba(255,255,255,0.7)' }}>
-        <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+      <div className="card" style={{ padding: '14px 18px', borderRadius: '20px' }}>
+        <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
           Interactive Role Sandbox
         </span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>

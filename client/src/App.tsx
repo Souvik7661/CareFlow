@@ -53,6 +53,9 @@ import { WelcomeServiceHub } from './components/hub/WelcomeServiceHub';
 import { RedirectingScreen } from './components/loading/RedirectingScreen';
 import { PatientTokenWindow } from './components/patient/PatientTokenWindow';
 import { CareFlowMascot } from './components/companion/CareFlowMascot';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { LanguageSelectionModal } from './components/language/LanguageSelectionModal';
+import { LanguageTransitionLoader } from './components/language/LanguageTransitionLoader';
 
 interface NavEntry {
   view: string;
@@ -63,7 +66,8 @@ interface NavEntry {
   currentRecommendation?: DoctorRecommendation | null;
 }
 
-export const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { isLanguageModalOpen, openLanguageModal, closeLanguageModal } = useLanguage();
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('careflow_theme') as 'light' | 'dark') || 'light';
   });
@@ -211,7 +215,8 @@ export const App: React.FC = () => {
     setShowSplash(false);
     const token = sessionManager.getToken();
     if (!token && !currentUser) {
-      setAuthModal({ isOpen: true, mode: 'login' });
+      // Per specification: before entering the login screen/popup, language selection popup appears
+      openLanguageModal();
     }
   };
 
@@ -443,8 +448,8 @@ export const App: React.FC = () => {
                   appointment_date: todayStr,
                   appointmentTime: slot,
                   appointment_time: slot,
-                  tokenNumber: res.appointment?.tokenNumber || res.appointment?.token_number || `CF-${Math.floor(200 + Math.random() * 80)}`,
-                  token_number: res.appointment?.tokenNumber || res.appointment?.token_number || `CF-${Math.floor(200 + Math.random() * 80)}`,
+                  tokenNumber: res.appointment?.tokenNumber || res.appointment?.token_number || '#1',
+                  token_number: res.appointment?.tokenNumber || res.appointment?.token_number || '#1',
                   status: 'CONFIRMED'
                 };
 
@@ -657,9 +662,34 @@ export const App: React.FC = () => {
         />
       )}
 
+      {/* Multilingual Selection Modal */}
+      <LanguageSelectionModal 
+        isOpen={isLanguageModalOpen}
+        onClose={closeLanguageModal}
+        allowClose={Boolean(currentUser)}
+        onSelectLanguage={() => {
+          closeLanguageModal();
+          const token = sessionManager.getToken();
+          if (!token && !currentUser) {
+            setAuthModal({ isOpen: true, mode: 'login' });
+          }
+        }}
+      />
+
+      {/* 1.5-Second Multilingual Transition Loading Screen */}
+      <LanguageTransitionLoader />
+
       {/* CareFlow AI 360° Stationed Doctor & Hover Assistant */}
       <CareFlowMascot user={currentUser} />
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 };
 

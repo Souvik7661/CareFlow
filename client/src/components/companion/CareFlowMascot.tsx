@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Moon, Sun, X, Sparkles } from 'lucide-react';
 import { User } from '../../types';
+import { useLanguage } from '../../context/LanguageContext';
 import './mascot.css';
 
 interface HoverExplanation {
@@ -15,6 +16,7 @@ interface CareFlowMascotProps {
 
 // Comprehensive clinical knowledge base describing each feature and button
 const OPTION_KNOWLEDGE_BASE: Record<string, HoverExplanation> = {
+
   // Navigation
   'services': {
     title: 'Hospital Services Hub',
@@ -139,19 +141,27 @@ const OPTION_KNOWLEDGE_BASE: Record<string, HoverExplanation> = {
   }
 };
 
+import { TRANSLATIONS } from '../../i18n/translations';
+
 export const CareFlowMascot: React.FC<CareFlowMascotProps> = ({ user }) => {
+  const { currentLanguage, t, translateText } = useLanguage();
   const [isSleeping, setIsSleeping] = useState<boolean>(false);
   const [isBubbleDismissed, setIsBubbleDismissed] = useState<boolean>(false);
   const [hoveredOption, setHoveredOption] = useState<HoverExplanation | null>(null);
 
   const dismissTimeoutRef = useRef<any>(null);
 
+  // Clear hovered option if language changes so new translations render immediately
+  useEffect(() => {
+    setHoveredOption(null);
+  }, [currentLanguage]);
+
   // Compute personalized greeting exactly matching Picture 1
   const isGeneric = !user?.fullName || user.fullName === 'Valued Patient' || user.fullName === 'Alex Carter' || user.fullName === 'Guest Patient' || user.userId === 'GUEST';
   const patientFirstName = isGeneric ? '' : user.fullName.split(' ')[0];
   const defaultSpeech = patientFirstName
-    ? `Hello ${patientFirstName}! 👋 I am Dr. AI, your clinical companion. Select any service below and I'll guide your hospital care visit!`
-    : `Hello there! 👋 I am Dr. AI, your clinical companion. Select any service below and I'll guide your hospital care visit!`;
+    ? t('mascot.defaultSpeechName', `Hello ${patientFirstName}! 👋 I am Dr. AI, your clinical companion. Select any service below and I'll guide your hospital care visit!`).replace('{name}', patientFirstName)
+    : t('mascot.defaultSpeech', "Hello there! 👋 I am Dr. AI, your clinical companion. Select any service below and I'll guide your hospital care visit!");
 
   // Global hover listener to detect what option the user is examining
   useEffect(() => {
@@ -164,9 +174,9 @@ export const CareFlowMascot: React.FC<CareFlowMascotProps> = ({ user }) => {
       const explicitTip = el.getAttribute('data-robot-tip');
       if (explicitTip) {
         return {
-          title: el.getAttribute('data-robot-title') || el.innerText?.slice(0, 30) || 'CareFlow Option',
-          category: el.getAttribute('data-robot-cat') || 'Clinical Assistant',
-          description: explicitTip
+          title: translateText(el.getAttribute('data-robot-title') || el.innerText?.slice(0, 30) || 'CareFlow Option'),
+          category: translateText(el.getAttribute('data-robot-cat') || 'Clinical Assistant'),
+          description: translateText(explicitTip)
         };
       }
 
@@ -174,19 +184,33 @@ export const CareFlowMascot: React.FC<CareFlowMascotProps> = ({ user }) => {
       const rawText = (el.innerText || el.getAttribute('aria-label') || el.getAttribute('title') || '').toLowerCase().trim();
       if (!rawText) return null;
 
+      const langDict = TRANSLATIONS[currentLanguage]?.mascot;
+      const optionsDict = langDict?.options || (langDict?.knowledgeBase as any);
+
       // Match with knowledge base
       for (const [key, info] of Object.entries(OPTION_KNOWLEDGE_BASE)) {
         if (rawText.includes(key)) {
-          return info;
+          if (optionsDict && optionsDict[key]) {
+            return {
+              title: optionsDict[key].title,
+              category: optionsDict[key].category,
+              description: optionsDict[key].description
+            };
+          }
+          return {
+            title: translateText(info.title),
+            category: translateText(info.category),
+            description: translateText(info.description)
+          };
         }
       }
 
       // Specialty / Department detection
       if (rawText.includes('cardiology') || rawText.includes('neurology') || rawText.includes('orthopedics') || rawText.includes('pediatrics')) {
         return {
-          title: 'Specialty Department Filter',
-          category: 'Medical Specialties',
-          description: 'Filter specialist hospital doctors and OPD consultation clinics by medical specialty.'
+          title: translateText('Specialty Department Filter'),
+          category: translateText('Medical Specialties'),
+          description: translateText('Filter specialist hospital doctors and OPD consultation clinics by medical specialty.')
         };
       }
 
@@ -194,18 +218,19 @@ export const CareFlowMascot: React.FC<CareFlowMascotProps> = ({ user }) => {
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
         const placeholder = el.getAttribute('placeholder') || 'clinical field';
         return {
-          title: 'Information Entry Field',
-          category: 'Data Input',
-          description: `Enter your ${placeholder.toLowerCase()} to proceed with your verification or clinical search.`
+          title: translateText('Information Entry Field'),
+          category: translateText('Data Input'),
+          description: translateText(`Enter your ${placeholder.toLowerCase()} to proceed with your verification or clinical search.`)
         };
       }
 
       // General button with meaningful text
       if (el.tagName === 'BUTTON' && el.innerText && el.innerText.length < 45 && el.innerText.length > 2) {
+        const btnText = el.innerText.trim();
         return {
-          title: el.innerText.trim(),
-          category: 'Interactive Action',
-          description: `Click to activate the ${el.innerText.trim().toLowerCase()} service in your hospital session.`
+          title: translateText(btnText),
+          category: translateText('Interactive Action'),
+          description: translateText(`Click to activate the ${btnText.toLowerCase()} service in your hospital session.`)
         };
       }
 
@@ -254,16 +279,16 @@ export const CareFlowMascot: React.FC<CareFlowMascotProps> = ({ user }) => {
       document.removeEventListener('mouseout', handleMouseOut);
       if (dismissTimeoutRef.current) clearTimeout(dismissTimeoutRef.current);
     };
-  }, [isSleeping]);
+  }, [isSleeping, currentLanguage]);
 
   // Handle direct click on Dr. AI
   const handleDoctorClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsBubbleDismissed(false);
     setHoveredOption({
-      title: 'Dr. AI • Clinical Concierge',
-      category: 'CareFlow Assistant',
-      description: `Welcome to CareFlow! Hover over any option or button on the screen and I will explain what it does and guide your visit.`
+      title: t('mascot.companionName', 'Dr. AI • Clinical Concierge'),
+      category: t('mascot.statusActive', 'CareFlow Assistant'),
+      description: t('mascot.defaultSpeech', "Hello there! 👋 I am Dr. AI, your clinical companion. Select any service below and I'll guide your hospital care visit!")
     });
     if (dismissTimeoutRef.current) clearTimeout(dismissTimeoutRef.current);
     dismissTimeoutRef.current = setTimeout(() => {
@@ -297,7 +322,7 @@ export const CareFlowMascot: React.FC<CareFlowMascotProps> = ({ user }) => {
             }}
           />
         </div>
-        <span className="cf-docked-label">Wake Dr. AI</span>
+        <span className="cf-docked-label">{t('mascot.wakeUpTooltip', 'Wake Dr. AI')}</span>
         <Sun size={14} color="#f59e0b" />
       </div>
     );
@@ -318,7 +343,7 @@ export const CareFlowMascot: React.FC<CareFlowMascotProps> = ({ user }) => {
               <div className="cf-bubble-p1-header">
                 <div className="cf-bubble-p1-title-badge">
                   <span className="cf-bubble-p1-label">
-                    CareFlow AI Intelligent Concierge
+                    {translateText('CareFlow AI Intelligent Concierge')}
                   </span>
                   <span className="cf-bubble-p1-dot" />
                 </div>

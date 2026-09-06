@@ -18,10 +18,10 @@ export const FashionLogo: React.FC<FashionLogoProps> = ({
   className = ''
 }) => {
   const sizeMap = {
-    sm: { box: 36, imgSize: 28, font: '1.15rem', badgeFont: '0.6rem', gap: '8px' },
-    md: { box: 44, imgSize: 34, font: '1.34rem', badgeFont: '0.66rem', gap: '10px' },
-    lg: { box: 64, imgSize: 52, font: '1.9rem', badgeFont: '0.78rem', gap: '14px' },
-    xl: { box: 110, imgSize: 92, font: '2.5rem', badgeFont: '0.95rem', gap: '18px' },
+    sm: { box: 36, imgSize: 32, font: '1.15rem', badgeFont: '0.6rem', gap: '8px' },
+    md: { box: 44, imgSize: 38, font: '1.34rem', badgeFont: '0.66rem', gap: '10px' },
+    lg: { box: 64, imgSize: 56, font: '1.9rem', badgeFont: '0.78rem', gap: '14px' },
+    xl: { box: 120, imgSize: 104, font: '2.5rem', badgeFont: '0.95rem', gap: '18px' },
   };
 
   const config = sizeMap[size];
@@ -43,10 +43,10 @@ export const FashionLogo: React.FC<FashionLogoProps> = ({
         {/* Ambient Pulsing Surgical Glow */}
         <div style={{
           position: 'absolute',
-          inset: '-12px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(20, 184, 166, 0.4) 0%, rgba(6, 182, 212, 0.15) 55%, transparent 75%)',
-          filter: 'blur(12px)',
+          inset: '-16px',
+          borderRadius: '32px',
+          background: 'radial-gradient(circle, rgba(20, 184, 166, 0.45) 0%, rgba(6, 182, 212, 0.2) 55%, transparent 75%)',
+          filter: 'blur(16px)',
           animation: animated ? 'cf-pulse-glow 3s ease-in-out infinite' : 'none',
           zIndex: 0,
           pointerEvents: 'none'
@@ -56,35 +56,46 @@ export const FashionLogo: React.FC<FashionLogoProps> = ({
         <div style={{
           position: 'absolute',
           inset: '-8px',
-          borderRadius: '50%',
-          border: '1.5px dashed rgba(20, 184, 166, 0.45)',
+          borderRadius: '28px',
+          border: '1.5px dashed rgba(20, 184, 166, 0.5)',
           animation: animated ? 'cf-spin 20s linear infinite' : 'none',
           zIndex: 1,
           pointerEvents: 'none'
         }} />
 
-        {/* Official CareFlow Logo Image */}
-        <img 
-          src="/assets/careflow_logo_transparent.png" 
-          alt="CareFlow AI Official Logo"
-          style={{
-            width: size === 'xl' ? '220px' : '160px',
-            height: 'auto',
-            maxHeight: size === 'xl' ? '220px' : '160px',
-            objectFit: 'contain',
-            position: 'relative',
-            zIndex: 2,
-            filter: 'drop-shadow(0 6px 16px rgba(13, 148, 136, 0.35))',
-            transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-          }}
-          onError={(e) => {
-            // Fallback to original image if transparent variant isn't accessible
-            const target = e.currentTarget;
-            if (target.src.indexOf('careflow_official_logo.png') === -1) {
-              target.src = '/assets/careflow_official_logo.png';
-            }
-          }}
-        />
+        {/* Official CareFlow Logo Showcase Card */}
+        <div style={{
+          position: 'relative',
+          zIndex: 2,
+          padding: '16px 20px',
+          borderRadius: '24px',
+          background: 'rgba(255, 255, 255, 0.98)',
+          boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.45), 0 0 25px rgba(20, 184, 166, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.85)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backdropFilter: 'blur(16px)',
+          transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}>
+          <img 
+            src="/assets/careflow_logo.png" 
+            alt="CareFlow Official Logo"
+            style={{
+              width: size === 'xl' ? '230px' : '160px',
+              height: 'auto',
+              maxHeight: size === 'xl' ? '230px' : '160px',
+              objectFit: 'contain',
+              display: 'block'
+            }}
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src.indexOf('careflow_official_logo.png') === -1) {
+                target.src = '/assets/careflow_official_logo.png';
+              }
+            }}
+          />
+        </div>
       </div>
     );
   }
@@ -180,8 +191,8 @@ export const FashionLogo: React.FC<FashionLogoProps> = ({
             }}
             onError={(e) => {
               const target = e.currentTarget;
-              if (target.src.indexOf('careflow_official_logo.png') === -1) {
-                target.src = '/assets/careflow_official_logo.png';
+              if (target.src.indexOf('careflow_emblem.png') === -1) {
+                target.src = '/assets/careflow_emblem.png';
               }
             }}
           />

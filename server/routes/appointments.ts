@@ -137,14 +137,23 @@ router.post('/book', (req, res) => {
 
     const randomNum = Math.floor(10000 + Math.random() * 90000);
     const appointmentId = `APT-2026-${randomNum}`;
-
-    // Generate clean token number based on department prefix
-    const deptPrefix = (dept?.specialty || doctor.specialization || 'OPD').slice(0, 1).toUpperCase();
-    const tokenNum = `${deptPrefix}-${Math.floor(100 + Math.random() * 900)}`;
     const checkinId = `CHK-2026-${randomNum}`;
     const queueId = `Q-2026-${randomNum}`;
 
+    let tokenNum = '#1';
+    let tokenSequence = 1;
+
     transaction(() => {
+      // Calculate sequential token number for this doctor on this specific date
+      const countRow = queryOne(`
+        SELECT COUNT(*) as count 
+        FROM appointments 
+        WHERE doctor_id = ? AND appointment_date = ? AND status NOT IN ('CANCELLED')
+      `, [doctorId, appointmentDate]);
+
+      tokenSequence = (countRow?.count || 0) + 1;
+      tokenNum = `#${tokenSequence}`;
+
       // 1. Insert new active appointment into database
       execute(`
         INSERT INTO appointments (
@@ -189,7 +198,7 @@ router.post('/book', (req, res) => {
         `NOTIF-${Date.now()}`,
         effectivePatientId,
         appointmentId,
-        `Your consultation with ${doctor.name} (${dept?.name || 'Department'}) is confirmed for ${appointmentDate} at ${appointmentTime} in ${doctor.room_no}. Your active queue token is #${tokenNum}.`
+        `Your consultation with ${doctor.name} (${dept?.name || 'Department'}) is confirmed for ${appointmentDate} at ${appointmentTime} in ${doctor.room_no}. Your active queue token is ${tokenNum}.`
       ]);
     });
 
@@ -211,8 +220,9 @@ router.post('/book', (req, res) => {
         status: 'BOOKED',
         token_number: tokenNum,
         tokenNumber: tokenNum,
-        queue_position: 1,
-        estimated_wait_time: doctor.avg_consultation_time || 15,
+        tokenSequence,
+        queue_position: tokenSequence,
+        estimated_wait_time: tokenSequence * (doctor.avg_consultation_time || 15),
         reason
       }
     });

@@ -18,6 +18,7 @@ import {
   Ticket
 } from 'lucide-react';
 import { Doctor360CenterStage } from './Doctor360CenterStage';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface WelcomeServiceHubProps {
   user: User;
@@ -32,6 +33,7 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
   onOpenTokenWindow,
   onNavigate
 }) => {
+  const { t } = useLanguage();
   const [hoveredService, setHoveredService] = useState<'doctors' | 'book-appointment' | 'support' | null>(null);
 
   const isGeneric = !user.fullName || user.fullName === 'Valued Patient' || user.fullName === 'Guest Patient' || user.userId === 'GUEST';
@@ -42,7 +44,7 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
       {/* Welcome Greeting Header */}
       <div style={{ textAlign: 'center', maxWidth: '850px', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginBottom: '4px' }}>
         <h1 className="cf-welcome-heading">
-          {patientFirstName ? `Welcome, ${patientFirstName} 👋` : 'Welcome to CareFlow 👋'}
+          {patientFirstName ? `${t('hub.welcomeGreeting', 'Welcome')}, ${patientFirstName} 👋` : `${t('hub.welcomeGreeting', 'Welcome to CareFlow')} 👋`}
         </h1>
 
         <p style={{
@@ -51,7 +53,7 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
           color: 'var(--text-secondary)',
           marginTop: '6px'
         }}>
-          What service do you require today?
+          {t('hub.subGreeting', 'What service do you require today?')}
         </p>
       </div>
 
@@ -86,15 +88,15 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
 
           <div className="cf-service-content">
             <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 6px 0' }}>
-              Doctors
+              {t('hub.specialistCardTitle', 'Doctors')}
             </h3>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.45, margin: 0 }}>
-              AI Clinical Diagnosis &amp; Specialist Recommendation
+              {t('hub.specialistCardDesc', 'AI Clinical Diagnosis & Specialist Recommendation')}
             </p>
           </div>
 
           <div className="cf-service-action-link" style={{ color: 'var(--primary)' }}>
-            <span>Find Specialist</span>
+            <span>{t('hub.findSpecialistAction', 'Find Specialist')}</span>
             <ArrowRight size={15} />
           </div>
         </div>
@@ -122,15 +124,15 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
 
           <div className="cf-service-content">
             <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 6px 0' }}>
-              Book Appt
+              {t('hub.bookCardTitle', 'Book Appt')}
             </h3>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.45, margin: 0 }}>
-              Doctor OPD Schedules &amp; Immediate Time Slots
+              {t('hub.bookCardDesc', 'Doctor OPD Schedules & Immediate Time Slots')}
             </p>
           </div>
 
           <div className="cf-service-action-link" style={{ color: 'var(--secondary)' }}>
-            <span>Choose Slot</span>
+            <span>{t('hub.bookSlotAction', 'Choose Slot')}</span>
             <ArrowRight size={15} />
           </div>
         </div>
@@ -158,15 +160,15 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
 
           <div className="cf-service-content">
             <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 6px 0' }}>
-              24/7 Support
+              {t('hub.supportCardTitle', '24/7 Support')}
             </h3>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.45, margin: 0 }}>
-              Emergency Ambulance, Hotline &amp; Hospital Care
+              {t('hub.supportCardDesc', 'Emergency Ambulance, Hotline & Hospital Care')}
             </p>
           </div>
 
           <div className="cf-service-action-link" style={{ color: 'var(--danger)' }}>
-            <span>Emergency Care</span>
+            <span>{t('hub.supportAction', 'Emergency Care')}</span>
             <ArrowRight size={15} />
           </div>
         </div>
@@ -196,16 +198,16 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
           </div>
           <div style={{ minWidth: 0 }}>
             <span style={{ fontSize: '0.72rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Active Token &amp; Assigned Doctor
+              {t('hub.activeTokenBanner', 'Active Token & Assigned Doctor')}
             </span>
             <span style={{ fontSize: '0.86rem', color: 'var(--text-primary)', fontWeight: 700, display: 'block', wordBreak: 'break-word' }}>
-              Click here or tap the CareFlow logo anytime to view your live token
+              {t('hub.clickToViewToken', 'Click here or tap the CareFlow logo anytime to view your live token')}
             </span>
           </div>
         </div>
 
         <span className="badge badge-primary" style={{ padding: '6px 14px', fontSize: '0.78rem', flexShrink: 0 }}>
-          View Token &rarr;
+          {t('hub.viewTokenBadge', 'View Token →')}
         </span>
       </div>
 
@@ -213,10 +215,10 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
       <div style={{ width: '100%', marginTop: '6px', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '4px' }}>
           <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            Quick Hospital Actions
+            {t('hub.quickHospitalActions', 'Quick Hospital Actions')}
           </span>
           <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-            Instant self-service tools
+            {t('hub.instantSelfService', 'Instant self-service tools')}
           </span>
         </div>
 
@@ -231,8 +233,12 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
               <UserCheck size={20} />
             </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>Hospital Check-In</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Arrival verification</div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
+                {t('hub.hospitalCheckIn', 'Hospital Check-In')}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                {t('hub.arrivalVerification', 'Arrival verification')}
+              </div>
             </div>
           </button>
 
@@ -246,8 +252,12 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
               <Activity size={20} />
             </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>Live Queue Status</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Wait times &amp; turns</div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
+                {t('hub.liveQueueStatus', 'Live Queue Status')}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                {t('hub.waitTimesAndTurns', 'Wait times & turns')}
+              </div>
             </div>
           </button>
 
@@ -261,8 +271,12 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
               <Building2 size={20} />
             </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>Hospital Network</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Nearby ICU &amp; OPD</div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
+                {t('hub.hospitalNetwork', 'Hospital Network')}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                {t('hub.nearbyIcuOpd', 'Nearby ICU & OPD')}
+              </div>
             </div>
           </button>
 
@@ -276,8 +290,12 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
               <Calendar size={20} />
             </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>My Consultations</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Passes &amp; history</div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
+                {t('hub.myConsultations', 'My Consultations')}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                {t('hub.bookedPasses', 'Passes & history')}
+              </div>
             </div>
           </button>
 
@@ -291,8 +309,12 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
               <CalendarPlus size={20} />
             </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>Direct Book Slot</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Choose doctor &amp; date</div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
+                {t('hub.directBookSlot', 'Direct Book Slot')}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                {t('hub.chooseDoctorDate', 'Choose doctor & date')}
+              </div>
             </div>
           </button>
 
@@ -306,8 +328,12 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
               <Ambulance size={20} />
             </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>Emergency Ambulance</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>GPS dispatch &amp; 108</div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
+                {t('hub.emergencyAmbulance', 'Emergency Ambulance')}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                {t('hub.gpsDispatch', 'GPS dispatch & 108')}
+              </div>
             </div>
           </button>
 
@@ -321,21 +347,25 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
               <Tv size={20} />
             </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>Lobby Display</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Public waiting TV</div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
+                {t('hub.lobbyDisplay', 'Lobby Display')}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                {t('hub.publicWaitingTv', 'Public waiting TV')}
+              </div>
             </div>
           </button>
         </div>
       </div>
 
-      {/* Official Native App Installers & Extensions (Replaces old HTML wrappers) */}
+      {/* Official Native App Installers & Extensions */}
       <div style={{ width: '100%', marginTop: '10px', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '4px' }}>
           <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            Official Native Installers &amp; Packages
+            {t('hub.nativeInstallersTitle', 'Official Native Installers & Packages')}
           </span>
           <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-            Direct device packages (.apk • .mobileconfig • .dmg • .exe)
+            {t('hub.nativeInstallersSubtitle', 'Direct device packages (.apk • .mobileconfig • .dmg • .exe)')}
           </span>
         </div>
 
