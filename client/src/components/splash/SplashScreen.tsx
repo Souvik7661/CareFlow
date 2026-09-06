@@ -19,7 +19,6 @@ interface Particle {
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const [fadeOut, setFadeOut] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState('Calibrating Intelligent Clinical Engine...');
   
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -126,8 +125,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       const easedT = 1 - Math.pow(1 - t, 2.2);
       const currentProgress = Math.min(100, easedT * 100);
 
-      setProgress(currentProgress);
-
       if (currentProgress < 42) {
         setStatusMessage('Calibrating Intelligent Clinical Engine...');
       } else if (currentProgress < 82) {
@@ -139,7 +136,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       if (elapsed < TOTAL_DURATION) {
         animRef.current = requestAnimationFrame(updateProgress);
       } else {
-        setProgress(100);
         // Start smooth cinematic exit at 1.8s
         setTimeout(() => {
           finishSplash();
@@ -178,9 +174,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       {/* 1. Ultra-HD 4K Twilight Hospital Backdrop */}
       <div className="splash-backdrop" />
 
-      {/* 2. Optical Medical AI Laser Sweep Beam */}
-      <div className="splash-laser-sweep" />
-
       {/* 3. Interactive Floating Bio-Luminescent Particle Field */}
       <canvas ref={canvasRef} className="splash-particles-canvas" />
 
@@ -216,14 +209,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           <span className="splash-tr-tags">
             PREDICT <span className="splash-pipe">|</span> SCHEDULE <span className="splash-pipe">|</span> SERVE <span className="splash-pipe">|</span> CARE
           </span>
-
-          {/* Animated Clinical EKG Pulse Line */}
-          <div className="splash-ekg-wrapper">
-            <svg className="splash-ekg-svg" viewBox="0 0 200 30" preserveAspectRatio="none">
-              <path className="splash-ekg-track" d="M0,15 L60,15 L68,5 L76,25 L84,8 L92,20 L100,15 L200,15" />
-              <path className="splash-ekg-pulse" d="M0,15 L60,15 L68,5 L76,25 L84,8 L92,20 L100,15 L200,15" />
-            </svg>
-          </div>
         </div>
       </header>
 
@@ -247,20 +232,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
               }
             }}
           />
-        </div>
-
-        {/* Dynamic 4K Progress Bar with Leading Hotspot Spark */}
-        <div className="splash-progress-container">
-          <div className="splash-progress-track">
-            <div 
-              className="splash-progress-fill" 
-              style={{ width: `${progress}%` }}
-            >
-              <div className="splash-progress-shimmer" />
-              <div className="splash-progress-spark" />
-            </div>
-          </div>
-          <span className="splash-progress-percent">{Math.round(progress)}%</span>
         </div>
 
         {/* Live Clinical Telemetry Status Caption */}
