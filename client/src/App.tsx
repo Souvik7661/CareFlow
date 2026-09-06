@@ -673,14 +673,12 @@ const AppContent: React.FC = () => {
         allowClose={Boolean(currentUser)}
         onSelectLanguage={() => {
           closeLanguageModal();
-          const token = sessionManager.getToken();
-          if (!token && !currentUser) {
-            setAuthModal({ isOpen: true, mode: 'login' });
-          }
+          setCurrentView('welcome-hub');
+          setAuthModal({ isOpen: false, mode: 'login' });
         }}
       />
 
-      {/* 1.5-Second Multilingual Transition Loading Screen */}
+      {/* 1-Second Multilingual Transition Loading Screen */}
       <LanguageTransitionLoader />
 
       {/* CareFlow AI 360° Stationed Doctor & Hover Assistant */}

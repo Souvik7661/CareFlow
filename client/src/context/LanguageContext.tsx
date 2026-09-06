@@ -75,9 +75,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setTransitionProgress(0);
     setIsLanguageModalOpen(false);
 
-    // Smoothly animate progress 0% -> 100% over exactly 1500ms
+    // Smoothly animate progress 0% -> 100% over exactly 1000ms (1 second)
     const startTime = Date.now();
-    const duration = 1500;
+    const duration = 1000;
 
     if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
     progressIntervalRef.current = setInterval(() => {
