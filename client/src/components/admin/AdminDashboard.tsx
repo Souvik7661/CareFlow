@@ -92,7 +92,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Admin Header */}
       <div style={{
-        background: '#ffffff',
+        background: 'var(--bg-card)',
         border: '1px solid var(--border-color)',
         borderRadius: 'var(--radius-xl)',
         padding: '24px 28px',
@@ -115,56 +115,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
         </div>
 
         {/* Tab Switcher */}
-        <div style={{ display: 'flex', gap: '8px', background: 'var(--bg-muted)', padding: '4px', borderRadius: 'var(--radius-md)' }}>
+        <div className="cf-segmented-control cf-flex">
           <button
+            type="button"
+            className={`cf-segmented-btn ${activeTab === 'analytics' ? 'active' : ''}`}
             onClick={() => setActiveTab('analytics')}
-            style={{
-              padding: '8px 14px',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: '0.86rem',
-              fontWeight: 600,
-              background: activeTab === 'analytics' ? '#ffffff' : 'transparent',
-              color: activeTab === 'analytics' ? 'var(--primary)' : 'var(--text-secondary)',
-              boxShadow: activeTab === 'analytics' ? 'var(--shadow-sm)' : 'none',
-              cursor: 'pointer'
-            }}
           >
-            <BarChart3 size={15} style={{ display: 'inline', marginRight: '6px' }} />
-            Analytics &amp; KPIs
+            <BarChart3 size={15} />
+            <span>Analytics &amp; KPIs</span>
           </button>
 
           <button
+            type="button"
+            className={`cf-segmented-btn ${activeTab === 'doctors' ? 'active' : ''}`}
             onClick={() => setActiveTab('doctors')}
-            style={{
-              padding: '8px 14px',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: '0.86rem',
-              fontWeight: 600,
-              background: activeTab === 'doctors' ? '#ffffff' : 'transparent',
-              color: activeTab === 'doctors' ? 'var(--primary)' : 'var(--text-secondary)',
-              boxShadow: activeTab === 'doctors' ? 'var(--shadow-sm)' : 'none',
-              cursor: 'pointer'
-            }}
           >
-            <Stethoscope size={15} style={{ display: 'inline', marginRight: '6px' }} />
-            Doctor Management
+            <Stethoscope size={15} />
+            <span>Doctor Management</span>
           </button>
 
           <button
+            type="button"
+            className={`cf-segmented-btn ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
-            style={{
-              padding: '8px 14px',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: '0.86rem',
-              fontWeight: 600,
-              background: activeTab === 'settings' ? '#ffffff' : 'transparent',
-              color: activeTab === 'settings' ? 'var(--primary)' : 'var(--text-secondary)',
-              boxShadow: activeTab === 'settings' ? 'var(--shadow-sm)' : 'none',
-              cursor: 'pointer'
-            }}
           >
-            <Settings size={15} style={{ display: 'inline', marginRight: '6px' }} />
-            Hospital Settings
+            <Settings size={15} />
+            <span>Hospital Settings</span>
           </button>
         </div>
       </div>

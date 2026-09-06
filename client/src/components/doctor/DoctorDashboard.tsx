@@ -185,7 +185,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Top Header & Doctor Profile Selector */}
       <div style={{
-        background: '#ffffff',
+        background: 'var(--bg-card)',
         border: '1px solid var(--border-color)',
         borderRadius: 'var(--radius-xl)',
         padding: '24px 28px',
@@ -316,7 +316,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
               </div>
 
               {/* Patient Submitted Problem & AI Category */}
-              <div style={{ background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '16px', margin: '18px 0' }}>
+              <div style={{ background: 'var(--bg-muted)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '16px', margin: '18px 0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                   <Sparkles size={15} color="var(--primary)" />
                   <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--primary)' }}>
@@ -498,7 +498,8 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
           padding: '20px'
         }}>
           <div style={{
-            background: '#ffffff',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
             borderRadius: 'var(--radius-xl)',
             maxWidth: '740px',
             width: '100%',

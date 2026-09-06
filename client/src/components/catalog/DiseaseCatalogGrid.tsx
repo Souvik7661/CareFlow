@@ -104,7 +104,7 @@ export const DiseaseCatalogGrid: React.FC<DiseaseCatalogGridProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Header Banner */}
       <div style={{
-        background: '#ffffff',
+        background: 'var(--bg-card)',
         border: '1px solid var(--border-color)',
         borderRadius: 'var(--radius-xl)',
         padding: '24px 28px',
@@ -149,7 +149,7 @@ export const DiseaseCatalogGrid: React.FC<DiseaseCatalogGridProps> = ({
 
       {/* Search Bar & Category Filters */}
       <div style={{
-        background: '#ffffff',
+        background: 'var(--bg-card)',
         border: '1px solid var(--border-color)',
         borderRadius: 'var(--radius-lg)',
         padding: '16px 20px',
@@ -402,7 +402,7 @@ export const DiseaseCatalogGrid: React.FC<DiseaseCatalogGridProps> = ({
                         padding: '10px 14px',
                         border: '1px solid var(--border-color)',
                         borderRadius: 'var(--radius-md)',
-                        background: '#ffffff'
+                        background: 'var(--bg-card)'
                       }}
                     >
                       <div>

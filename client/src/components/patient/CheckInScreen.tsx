@@ -186,34 +186,18 @@ export const CheckInScreen: React.FC<CheckInScreenProps> = ({
           )}
 
           {/* Mode Switcher */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '24px', background: 'var(--bg-muted)', padding: '4px', borderRadius: 'var(--radius-md)' }}>
+          <div className="cf-segmented-control" style={{ marginBottom: '24px' }}>
             <button
               type="button"
+              className={`cf-segmented-btn ${method === 'appointment' ? 'active' : ''}`}
               onClick={() => { setMethod('appointment'); setError(null); }}
-              style={{
-                padding: '8px',
-                borderRadius: 'var(--radius-sm)',
-                fontWeight: 600,
-                fontSize: '0.88rem',
-                background: method === 'appointment' ? '#ffffff' : 'transparent',
-                color: method === 'appointment' ? 'var(--text-primary)' : 'var(--text-muted)',
-                boxShadow: method === 'appointment' ? 'var(--shadow-sm)' : 'none'
-              }}
             >
               By Appointment ID
             </button>
             <button
               type="button"
+              className={`cf-segmented-btn ${method === 'phone' ? 'active' : ''}`}
               onClick={() => { setMethod('phone'); setError(null); }}
-              style={{
-                padding: '8px',
-                borderRadius: 'var(--radius-sm)',
-                fontWeight: 600,
-                fontSize: '0.88rem',
-                background: method === 'phone' ? '#ffffff' : 'transparent',
-                color: method === 'phone' ? 'var(--text-primary)' : 'var(--text-muted)',
-                boxShadow: method === 'phone' ? 'var(--shadow-sm)' : 'none'
-              }}
             >
               By Phone &amp; Patient ID
             </button>

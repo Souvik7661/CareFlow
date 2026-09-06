@@ -58,7 +58,8 @@ export const HealthStatusScreen: React.FC<HealthStatusScreenProps> = ({ onBack, 
       <div style={{
         display: 'flex',
         gap: '6px',
-        background: '#f1f5f9',
+        background: 'var(--bg-muted)',
+        border: '1px solid var(--border-color)',
         padding: '4px',
         borderRadius: '9999px',
         boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04)'
@@ -77,9 +78,9 @@ export const HealthStatusScreen: React.FC<HealthStatusScreenProps> = ({ onBack, 
                 fontSize: '0.8rem',
                 fontWeight: 700,
                 cursor: 'pointer',
-                background: isActive ? '#0d9488' : 'transparent',
-                color: isActive ? '#ffffff' : '#64748b',
-                boxShadow: isActive ? '0 4px 10px rgba(13, 148, 136, 0.3)' : 'none',
+                background: isActive ? 'linear-gradient(135deg, rgba(20, 184, 166, 0.95) 0%, rgba(13, 148, 136, 0.88) 100%)' : 'transparent',
+                color: isActive ? '#ffffff' : 'var(--text-secondary)',
+                boxShadow: isActive ? '0 4px 12px rgba(13, 148, 136, 0.35)' : 'none',
                 transition: 'all 0.2s'
               }}
               onClick={() => setActiveTab(tab)}

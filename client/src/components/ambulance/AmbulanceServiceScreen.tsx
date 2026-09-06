@@ -190,7 +190,7 @@ export const AmbulanceServiceScreen: React.FC<AmbulanceServiceScreenProps> = ({
 
       {/* Estimated Arrival Banner matching Screen 7 */}
       <div style={{
-        background: '#ffffff',
+        background: 'var(--bg-card)',
         border: '1px solid var(--border-color)',
         borderRadius: 'var(--radius-lg)',
         padding: '16px 20px',

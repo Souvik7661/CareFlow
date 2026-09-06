@@ -120,7 +120,7 @@ export const ReceptionistDashboard: React.FC<ReceptionistDashboardProps> = ({ us
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header Bar */}
       <div style={{
-        background: '#ffffff',
+        background: 'var(--bg-card)',
         border: '1px solid var(--border-color)',
         borderRadius: 'var(--radius-xl)',
         padding: '24px 28px',
@@ -342,7 +342,8 @@ export const ReceptionistDashboard: React.FC<ReceptionistDashboardProps> = ({ us
           padding: '20px'
         }}>
           <div style={{
-            background: '#ffffff',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
             borderRadius: 'var(--radius-xl)',
             maxWidth: '600px',
             width: '100%',
