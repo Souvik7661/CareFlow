@@ -92,10 +92,50 @@ class PlatformEngine {
     if (os === 'android') {
       metaThemeColor.setAttribute('content', isDark ? '#060c18' : '#0d9488');
     } else if (os === 'ios') {
-      metaThemeColor.setAttribute('content', isDark ? '#000000' : '#ffffff');
+      metaThemeColor.setAttribute('content', isDark ? '#0b0f17' : '#ffffff');
     } else {
       metaThemeColor.setAttribute('content', isDark ? '#060c18' : '#0d9488');
     }
+
+    // Set up MutationObserver to re-sync meta theme-color whenever theme changes
+    if (!(this as any)._themeObserver && typeof MutationObserver !== 'undefined') {
+      (this as any)._themeObserver = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          if (m.type === 'attributes' && m.attributeName === 'data-theme') {
+            this.applyOSToDocument();
+            break;
+          }
+        }
+      });
+      (this as any)._themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    }
+  }
+
+  /**
+   * Set up cross-platform keyboard shortcuts:
+   * - Cmd+K (macOS) / Ctrl+K (Windows/Android)
+   * - Escape to dismiss modals
+   */
+  public setupGlobalShortcuts(handlers: { onSearch?: () => void; onEscape?: () => void }): () => void {
+    if (typeof window === 'undefined') return () => {};
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMac = this.getActiveOS() === 'mac';
+      const isSearchShortcut = isMac 
+        ? (e.metaKey && e.key.toLowerCase() === 'k')
+        : (e.ctrlKey && e.key.toLowerCase() === 'k');
+
+      if (isSearchShortcut) {
+        e.preventDefault();
+        this.triggerHaptic('light');
+        handlers.onSearch?.();
+      } else if (e.key === 'Escape') {
+        handlers.onEscape?.();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }
 
   /**

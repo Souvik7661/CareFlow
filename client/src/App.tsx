@@ -56,6 +56,8 @@ import { CareFlowMascot } from './components/companion/CareFlowMascot';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { LanguageSelectionModal } from './components/language/LanguageSelectionModal';
 import { LanguageTransitionLoader } from './components/language/LanguageTransitionLoader';
+import { MobileBottomDock } from './components/common/MobileBottomDock';
+import { platform } from './platforms/PlatformDetector';
 
 interface NavEntry {
   view: string;
@@ -177,14 +179,41 @@ const AppContent: React.FC = () => {
     goBack(false);
   };
 
-  // Browser back / forward button listener
+  // Browser back / forward hardware button listener (Android gesture bar & browser back)
   useEffect(() => {
     const handlePopState = () => {
+      if (isTeleconsultOpen) {
+        setIsTeleconsultOpen(false);
+        return;
+      }
+      if (authModal.isOpen) {
+        setAuthModal({ isOpen: false, mode: 'login' });
+        return;
+      }
+      if (isLanguageModalOpen) {
+        closeLanguageModal();
+        return;
+      }
       goBack(true);
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [isTeleconsultOpen, authModal, isLanguageModalOpen]);
+
+  // Cross-Platform Global Keyboard Shortcuts (Cmd+K on Mac, Ctrl+K on Windows)
+  useEffect(() => {
+    const cleanup = platform.setupGlobalShortcuts({
+      onSearch: () => {
+        navigateTo('doctor-list');
+      },
+      onEscape: () => {
+        if (isTeleconsultOpen) setIsTeleconsultOpen(false);
+        else if (authModal.isOpen) setAuthModal({ isOpen: false, mode: 'login' });
+        else if (isLanguageModalOpen) closeLanguageModal();
+      }
+    });
+    return cleanup;
+  }, [isTeleconsultOpen, authModal, isLanguageModalOpen]);
 
   // Initialize session on load
   useEffect(() => {
@@ -683,6 +712,14 @@ const AppContent: React.FC = () => {
 
       {/* CareFlow AI 360° Stationed Doctor & Hover Assistant */}
       <CareFlowMascot user={currentUser} />
+
+      {/* Cross-Platform Native Mobile Bottom Navigation Dock (Android & iOS) */}
+      <MobileBottomDock 
+        currentUser={currentUser}
+        currentView={currentView}
+        onNavigate={(v) => navigateTo(v)}
+        onOpenAuth={(m) => setAuthModal({ isOpen: true, mode: m })}
+      />
     </div>
   );
 };

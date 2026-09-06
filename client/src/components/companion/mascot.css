@@ -406,3 +406,16 @@
 [data-theme="dark"] .cf-docked-label {
   color: #f1f5f9;
 }
+
+/* Mobile Clearance above Bottom Navigation Dock */
+@media (max-width: 768px) {
+  .cf-mascot-station {
+    bottom: calc(76px + var(--sab, 0px)) !important;
+    right: 14px !important;
+  }
+  .cf-mascot-bubble-p1 {
+    width: 280px !important;
+    max-width: calc(100vw - 28px) !important;
+  }
+}
+

@@ -2718,21 +2718,25 @@ body {
    Material 3 elevation, touch ripples, status bar & gesture navigation
    -------------------------------------------------------------------------- */
 [data-os="android"] {
-  font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Roboto, "Google Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   overscroll-behavior-y: contain;
+  -webkit-tap-highlight-color: transparent;
 }
 
 [data-os="android"] .btn,
 [data-os="android"] .action-card,
-[data-os="android"] .nav-link-btn {
-  min-height: 48px;
+[data-os="android"] .nav-link-btn,
+[data-os="android"] .cf-segmented-btn {
+  min-height: 48px; /* Material 3 Touch Target */
   position: relative;
   overflow: hidden;
+  touch-action: manipulation;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 [data-os="android"] .btn:active,
-[data-os="android"] .action-card:active {
+[data-os="android"] .action-card:active,
+[data-os="android"] .cf-segmented-btn:active {
   transform: scale(0.97);
   box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
 }
@@ -2743,8 +2747,9 @@ body {
 }
 
 [data-os="android"] .bottom-nav-container,
-[data-os="android"] .patient-portal-dock {
-  padding-bottom: max(18px, var(--sab));
+[data-os="android"] .patient-portal-dock,
+[data-os="android"] .cf-mobile-bottom-dock {
+  padding-bottom: max(16px, var(--sab, 0px));
 }
 
 /* --------------------------------------------------------------------------
@@ -2756,9 +2761,12 @@ body {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
 }
 
 [data-os="ios"] input,
+[data-os="ios"] select,
 [data-os="ios"] textarea {
   -webkit-user-select: auto;
   user-select: auto;
@@ -2766,27 +2774,28 @@ body {
 }
 
 [data-os="ios"] .app-header {
-  padding-top: max(20px, var(--sat));
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  padding-top: max(16px, var(--sat, 0px));
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
 }
 
 [data-os="ios"] .card {
-  border-radius: 24px;
+  border-radius: 22px;
   backdrop-filter: blur(24px) saturate(160%);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
 }
 
 [data-os="ios"] .modal-container,
 [data-os="ios"] .floating-hub-window {
-  border-radius: 28px;
-  padding-bottom: max(24px, var(--sab));
+  border-radius: 26px;
+  padding-bottom: max(24px, var(--sab, 0px));
 }
 
 /* iOS Spring Micro-animations */
 [data-os="ios"] .btn,
 [data-os="ios"] .service-hub-card {
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  touch-action: manipulation;
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
 }
 
 [data-os="ios"] .btn:active,
@@ -2799,18 +2808,18 @@ body {
    Fluent Design, Mica acrylic effects, custom modern scrollbars, shortcuts
    -------------------------------------------------------------------------- */
 [data-os="windows"] {
-  font-family: "Segoe UI Variable Text", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
 }
 
 /* Windows 11 Fluent Sleek Scrollbar */
 [data-os="windows"] * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(13, 148, 136, 0.4) transparent;
+  scrollbar-color: rgba(13, 148, 136, 0.45) transparent;
 }
 
 [data-os="windows"] *::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 
 [data-os="windows"] *::-webkit-scrollbar-track {
@@ -2819,12 +2828,12 @@ body {
 
 [data-os="windows"] *::-webkit-scrollbar-thumb {
   background: rgba(13, 148, 136, 0.35);
-  border-radius: 10px;
+  border-radius: 8px;
   transition: background 0.2s ease;
 }
 
 [data-os="windows"] *::-webkit-scrollbar-thumb:hover {
-  background: rgba(13, 148, 136, 0.7);
+  background: rgba(13, 148, 136, 0.75);
 }
 
 [data-os="windows"] .card {
@@ -2883,6 +2892,164 @@ body {
 
 [data-os="mac"] .btn:hover {
   transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Cross-Platform Native Mobile Bottom Navigation Dock (Android & iOS)
+   ========================================================================== */
+
+.cf-mobile-bottom-dock {
+  display: none; /* Hidden on desktop & wide tablets */
+}
+
+@media (max-width: 768px) {
+  .cf-mobile-bottom-dock {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 890;
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+    padding-top: 6px;
+    padding-left: 12px;
+    padding-right: 12px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.25s ease;
+  }
+
+  [data-theme="dark"] .cf-mobile-bottom-dock {
+    background: rgba(11, 15, 23, 0.90);
+    backdrop-filter: blur(28px) saturate(200%);
+    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
+  }
+
+  .cf-mobile-dock-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    max-width: 520px;
+    margin: 0 auto;
+    gap: 4px;
+  }
+
+  .cf-mobile-dock-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 2px 4px 2px;
+    background: transparent;
+    border: none;
+    border-radius: 14px;
+    color: var(--text-muted);
+    cursor: pointer;
+    position: relative;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    min-height: 50px;
+  }
+
+  .cf-mobile-dock-btn:active {
+    transform: scale(0.92);
+  }
+
+  .cf-mobile-dock-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 28px;
+    border-radius: 12px;
+    transition: all 0.22s ease;
+  }
+
+  .cf-mobile-dock-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    margin-top: 2px;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+  }
+
+  /* Active state */
+  .cf-mobile-dock-btn.active {
+    color: var(--primary);
+  }
+
+  .cf-mobile-dock-btn.active .cf-mobile-dock-icon-wrap {
+    background: var(--primary-light);
+    color: var(--primary);
+    transform: translateY(-2px);
+  }
+
+  [data-theme="dark"] .cf-mobile-dock-btn.active .cf-mobile-dock-icon-wrap {
+    background: rgba(20, 184, 166, 0.2);
+    color: #2dd4bf;
+    box-shadow: 0 0 12px rgba(20, 184, 166, 0.3);
+  }
+
+  .cf-mobile-dock-indicator {
+    width: 14px;
+    height: 3px;
+    border-radius: 9999px;
+    background: var(--primary);
+    margin-top: 3px;
+    box-shadow: 0 0 8px var(--primary);
+  }
+
+  /* Accent Highlight (Token pill) */
+  .cf-mobile-dock-btn.is-accent .cf-mobile-dock-icon-wrap {
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(6, 182, 212, 0.2));
+    border: 1px solid var(--brand-teal, #14b8a6);
+    color: var(--brand-teal, #14b8a6);
+  }
+
+  .cf-mobile-dock-btn.is-accent.active .cf-mobile-dock-icon-wrap {
+    background: linear-gradient(135deg, #0d9488, #14b8a6);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.45);
+  }
+
+  /* Main content bottom clearance for mobile dock */
+  main,
+  .app-main {
+    padding-bottom: calc(78px + env(safe-area-inset-bottom, 14px)) !important;
+  }
+
+  /* Header nav bar hides on mobile to give room to clean brand + user header */
+  .header-nav {
+    display: none !important;
+  }
+
+  /* Mobile Responsive Cards and Form Elements */
+  .card {
+    padding: 18px !important;
+    border-radius: 18px !important;
+  }
+  .form-row,
+  .form-group-row {
+    grid-template-columns: 1fr !important;
+  }
+  .queue-stats-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .badge-row {
+    flex-wrap: wrap !important;
+  }
+  .btn-lg {
+    padding: 12px 18px !important;
+    font-size: 0.92rem !important;
+  }
 }
 
 /* ==========================================================================
