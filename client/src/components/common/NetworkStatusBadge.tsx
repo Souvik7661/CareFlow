@@ -102,13 +102,14 @@ export const NetworkStatusBadge: React.FC = () => {
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '6px',
-            padding: '5px 12px',
+            gap: '5px',
+            padding: '4px 9px',
             borderRadius: '9999px',
-            fontSize: '0.78rem',
+            fontSize: '0.74rem',
             fontWeight: 700,
             cursor: status.isOnline ? 'pointer' : 'default',
             transition: 'all 0.25s ease',
+            flexShrink: 0,
             background: status.isOnline 
               ? 'rgba(16, 185, 129, 0.1)' 
               : 'rgba(245, 158, 11, 0.16)',
@@ -123,7 +124,7 @@ export const NetworkStatusBadge: React.FC = () => {
         >
           {status.isSyncing ? (
             <>
-              <RefreshCw size={13} className="spin" style={{ color: '#2dd4bf' }} />
+              <RefreshCw size={12} className="spin" style={{ color: '#2dd4bf' }} />
               <span style={{ color: '#2dd4bf' }}>Syncing...</span>
             </>
           ) : status.isOnline ? (
@@ -137,7 +138,7 @@ export const NetworkStatusBadge: React.FC = () => {
                   boxShadow: '0 0 6px #10b981' 
                 }} 
               />
-              <span className="hide-mobile">Live Network</span>
+              <span className="cf-network-label">Live Network</span>
             </>
           ) : (
             <>

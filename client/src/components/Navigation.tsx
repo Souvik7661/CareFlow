@@ -241,26 +241,27 @@ export const Navigation: React.FC<NavigationProps> = ({
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
+                gap: '4px',
+                padding: '4px 9px',
                 borderRadius: '9999px',
-                fontSize: '0.82rem',
-                fontWeight: 700
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                flexShrink: 0
               }}
             >
-              <Globe2 size={15} color="var(--primary)" />
+              <Globe2 size={14} color="var(--primary)" />
               <span>{currentLanguageObj.flag} {currentLanguageObj.code.toUpperCase()}</span>
             </button>
 
             {/* Rural Offline & Live Connectivity Badge */}
             <NetworkStatusBadge />
 
-            {/* Photorealistic Framer Motion Dark/Light Switcher */}
+            {/* Photorealistic Framer Motion Dark/Light Switcher (Compact SM for optimal header fit) */}
             {onToggleTheme && (
               <ThemeSwitch
                 theme={theme as 'light' | 'dark'}
                 onToggle={onToggleTheme}
-                size="md"
+                size="sm"
               />
             )}
 
@@ -270,12 +271,12 @@ export const Navigation: React.FC<NavigationProps> = ({
                 {currentUser.role === 'PATIENT' && (
                   <div style={{ position: 'relative', flexShrink: 0 }}>
                     <button 
-                      className="btn btn-outline btn-sm"
-                      style={{ position: 'relative', padding: '8px 10px', overflow: 'visible', flexShrink: 0 }}
+                      className="btn btn-outline btn-sm header-bell-btn"
+                      style={{ position: 'relative', padding: '6px 8px', overflow: 'visible', flexShrink: 0 }}
                       onClick={() => setShowNotifications(!showNotifications)}
                       title="Notifications"
                     >
-                      <Bell size={16} />
+                      <Bell size={15} />
                       {unreadCount > 0 && (
                         <span style={{
                           position: 'absolute',
@@ -351,54 +352,44 @@ export const Navigation: React.FC<NavigationProps> = ({
                   </div>
                 )}
 
-                {/* User Info Badge */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, whiteSpace: 'nowrap' }}>
-                  <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: 'var(--radius-full)',
-                    background: 'linear-gradient(135deg, rgba(13, 148, 136, 0.25), rgba(6, 182, 212, 0.25))',
-                    border: '1.5px solid var(--brand-teal, #14b8a6)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.85rem',
-                    fontWeight: 800,
-                    color: 'var(--brand-teal, #14b8a6)',
-                    flexShrink: 0
-                  }}>
+                {/* Integrated User Profile Capsule with Guaranteed-Visible Exit Button */}
+                <div className="header-user-card">
+                  <div className="header-user-avatar">
                     {currentUser.fullName.charAt(0).toUpperCase()}
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, lineHeight: 1.2 }}>
-                    <span style={{ fontSize: '0.84rem', fontWeight: 700, whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>
+                  <div className="header-user-meta">
+                    <span className="header-user-name">
                       {currentUser.fullName}
                     </span>
-                    <span style={{ fontSize: '0.70rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                    <span className="header-user-id">
                       {currentUser.patientId || currentUser.role}
                     </span>
                   </div>
+                  <button 
+                    type="button"
+                    className="header-exit-btn"
+                    onClick={onLogout}
+                    title={t('nav.logout', 'Sign Out / Exit')}
+                    aria-label="Exit"
+                  >
+                    <LogOut size={13} />
+                    <span>Exit</span>
+                  </button>
                 </div>
-
-                <button 
-                  className="btn btn-outline btn-sm"
-                  onClick={onLogout}
-                  title={t('nav.logout', 'Sign Out')}
-                  style={{ color: 'var(--text-muted)', flexShrink: 0, padding: '6px 10px' }}
-                >
-                  <LogOut size={15} />
-                </button>
               </>
             ) : (
               <>
                 <button 
                   className="btn btn-outline btn-sm"
                   onClick={() => onOpenAuth('login')}
+                  style={{ padding: '5px 12px', fontSize: '0.82rem' }}
                 >
                   {t('nav.signIn', 'Sign In')}
                 </button>
                 <button 
                   className="btn btn-primary btn-sm"
                   onClick={() => onOpenAuth('register')}
+                  style={{ padding: '5px 12px', fontSize: '0.82rem' }}
                 >
                   {t('nav.register', 'Register')}
                 </button>
