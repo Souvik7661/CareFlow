@@ -268,10 +268,10 @@ export const Navigation: React.FC<NavigationProps> = ({
               <>
                 {/* Notifications Dropdown for Patients */}
                 {currentUser.role === 'PATIENT' && (
-                  <div style={{ position: 'relative' }}>
+                  <div style={{ position: 'relative', flexShrink: 0 }}>
                     <button 
                       className="btn btn-outline btn-sm"
-                      style={{ position: 'relative', padding: '8px 10px' }}
+                      style={{ position: 'relative', padding: '8px 10px', overflow: 'visible', flexShrink: 0 }}
                       onClick={() => setShowNotifications(!showNotifications)}
                       title="Notifications"
                     >
@@ -279,14 +279,23 @@ export const Navigation: React.FC<NavigationProps> = ({
                       {unreadCount > 0 && (
                         <span style={{
                           position: 'absolute',
-                          top: -4,
-                          right: -4,
-                          background: 'var(--danger)',
-                          color: '#fff',
+                          top: -6,
+                          right: -6,
+                          background: '#ef4444',
+                          color: '#ffffff',
                           borderRadius: '9999px',
                           fontSize: '0.68rem',
-                          fontWeight: 700,
-                          padding: '1px 5px'
+                          fontWeight: 800,
+                          minWidth: '18px',
+                          height: '18px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '0 4px',
+                          boxShadow: '0 2px 8px rgba(239, 68, 68, 0.7)',
+                          border: '2px solid var(--bg-card, #18191e)',
+                          zIndex: 10,
+                          pointerEvents: 'none'
                         }}>
                           {unreadCount}
                         </span>
@@ -343,27 +352,28 @@ export const Navigation: React.FC<NavigationProps> = ({
                 )}
 
                 {/* User Info Badge */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, whiteSpace: 'nowrap' }}>
                   <div style={{
                     width: '32px',
                     height: '32px',
                     borderRadius: 'var(--radius-full)',
-                    background: 'var(--bg-muted)',
-                    border: '1.5px solid var(--border-color)',
+                    background: 'linear-gradient(135deg, rgba(13, 148, 136, 0.25), rgba(6, 182, 212, 0.25))',
+                    border: '1.5px solid var(--brand-teal, #14b8a6)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '0.85rem',
-                    fontWeight: 700,
-                    color: 'var(--primary)'
+                    fontWeight: 800,
+                    color: 'var(--brand-teal, #14b8a6)',
+                    flexShrink: 0
                   }}>
-                    {currentUser.fullName.charAt(0)}
+                    {currentUser.fullName.charAt(0).toUpperCase()}
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontSize: '0.84rem', fontWeight: 600, lineHeight: 1.1 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, lineHeight: 1.2 }}>
+                    <span style={{ fontSize: '0.84rem', fontWeight: 700, whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>
                       {currentUser.fullName}
                     </span>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                    <span style={{ fontSize: '0.70rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                       {currentUser.patientId || currentUser.role}
                     </span>
                   </div>
@@ -373,7 +383,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                   className="btn btn-outline btn-sm"
                   onClick={onLogout}
                   title={t('nav.logout', 'Sign Out')}
-                  style={{ color: 'var(--text-muted)' }}
+                  style={{ color: 'var(--text-muted)', flexShrink: 0, padding: '6px 10px' }}
                 >
                   <LogOut size={15} />
                 </button>

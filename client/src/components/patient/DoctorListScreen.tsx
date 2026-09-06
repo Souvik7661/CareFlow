@@ -175,14 +175,14 @@ export const DoctorListScreen: React.FC<DoctorListScreenProps> = ({
                   width: '52px',
                   height: '52px',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--primary), #0f766e)',
+                  background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
                   color: '#ffffff',
                   fontSize: '1.25rem',
                   fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 6px 14px rgba(20, 184, 166, 0.25)',
+                  boxShadow: '0 6px 14px rgba(20, 184, 166, 0.3)',
                   flexShrink: 0
                 }}>
                   {doc.name.replace('Dr. ', '').charAt(0)}

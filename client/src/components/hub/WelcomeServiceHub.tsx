@@ -181,23 +181,24 @@ export const WelcomeServiceHub: React.FC<WelcomeServiceHubProps> = ({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
           <div style={{
-            width: '36px',
-            height: '36px',
-            minWidth: '36px',
+            width: '38px',
+            height: '38px',
+            minWidth: '38px',
             borderRadius: '50%',
-            background: 'var(--primary)',
-            color: '#fff',
+            background: 'linear-gradient(135deg, #0d9488 0%, #06b6d4 100%)',
+            color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontWeight: 800,
-            fontSize: '0.86rem',
+            fontWeight: 900,
+            fontSize: '0.92rem',
+            boxShadow: '0 4px 12px rgba(13, 148, 136, 0.4)',
             flexShrink: 0
           }}>
             #
           </div>
           <div style={{ minWidth: 0 }}>
-            <span style={{ fontSize: '0.72rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: '0.72rem', color: 'var(--brand-teal, #2dd4bf)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               {t('hub.activeTokenBanner', 'Active Token & Assigned Doctor')}
             </span>
             <span style={{ fontSize: '0.86rem', color: 'var(--text-primary)', fontWeight: 700, display: 'block', wordBreak: 'break-word' }}>

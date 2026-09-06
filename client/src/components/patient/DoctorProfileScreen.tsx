@@ -90,14 +90,14 @@ export const DoctorProfileScreen: React.FC<DoctorProfileScreenProps> = ({
             width: '54px',
             height: '54px',
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, var(--primary), #0f766e)',
+            background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
             color: '#ffffff',
             fontSize: '1.3rem',
             fontWeight: 800,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 6px 14px rgba(20, 184, 166, 0.25)',
+            boxShadow: '0 6px 14px rgba(20, 184, 166, 0.3)',
             flexShrink: 0
           }}>
             {docName.replace('Dr. ', '').charAt(0)}

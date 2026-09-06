@@ -136,7 +136,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{
-                background: 'linear-gradient(135deg, var(--primary), #0f766e)',
+                background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
                 color: '#ffffff',
                 borderRadius: '12px',
                 padding: '6px 14px',
@@ -145,7 +145,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
                 gap: '6px',
                 fontSize: '0.88rem',
                 fontWeight: 800,
-                boxShadow: '0 4px 12px rgba(13, 148, 136, 0.3)'
+                boxShadow: '0 4px 12px rgba(13, 148, 136, 0.35)'
               }}>
                 <Ticket size={16} />
                 <span>TOKEN {displayToken}</span>

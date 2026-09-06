@@ -330,9 +330,22 @@
 .cf-doctor-status-badge-p2 span:last-child {
   font-size: 0.64rem;
   font-weight: 800;
-  color: var(--primary, #0d9488);
+  color: #0d9488;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+[data-theme="dark"] .cf-doctor-status-badge-p2 {
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(45, 212, 191, 0.45);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(45, 212, 191, 0.25);
+}
+
+[data-theme="dark"] .cf-doctor-status-badge-p2 span:last-child {
+  color: #2dd4bf;
+  text-shadow: 0 0 8px rgba(45, 212, 191, 0.5);
 }
 
 /* Docked sleep mode pill */
@@ -382,4 +395,14 @@
   font-size: 0.76rem;
   font-weight: 700;
   color: #0f172a;
+}
+
+[data-theme="dark"] .cf-mascot-docked-pill {
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(45, 212, 191, 0.45);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .cf-docked-label {
+  color: #f1f5f9;
 }
