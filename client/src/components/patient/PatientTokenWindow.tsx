@@ -21,6 +21,7 @@ import {
 
 interface PatientTokenWindowProps {
   user: User;
+  appointment?: any | null;
   onBack: () => void;
   onGoToLiveQueue?: () => void;
   onBookNew?: () => void;
@@ -28,15 +29,74 @@ interface PatientTokenWindowProps {
 
 export const PatientTokenWindow: React.FC<PatientTokenWindowProps> = ({
   user,
+  appointment,
   onBack,
   onGoToLiveQueue,
   onBookNew
 }) => {
-  const [activeApt, setActiveApt] = useState<Appointment | null>(null);
+  const [activeApt, setActiveApt] = useState<Appointment | any | null>(null);
   const [historyApts, setHistoryApts] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 1. Direct appointment passed via props
+    if (appointment) {
+      const normalized: any = {
+        appointment_id: appointment.appointment_id || appointment.appointmentId || 'APT-2026-88129',
+        patient_id: appointment.patient_id || appointment.patientId || user.patientId || 'PAT-2026-38372',
+        doctor_id: appointment.doctor_id || appointment.doctorId || '',
+        department_id: appointment.department_id || appointment.departmentId || '',
+        appointment_date: appointment.appointment_date || appointment.appointmentDate || new Date().toISOString().split('T')[0],
+        appointment_time: appointment.appointment_time || appointment.appointmentTime || '10:00 AM',
+        status: appointment.status || 'BOOKED',
+        token_number: appointment.token_number || appointment.tokenNumber || '#CF-201',
+        queue_position: appointment.queue_position || appointment.queuePosition || 1,
+        estimated_wait_time: appointment.estimated_wait_time || appointment.estimatedWaitTime || 8,
+        room_no: appointment.room_no || appointment.roomNo || 'Room 204',
+        reason: appointment.reason || appointment.reasonForVisit || 'Routine health consultation & checkup',
+        doctor_name: appointment.doctor_name || appointment.doctorName || 'Assigned Specialist',
+        department_name: appointment.department_name || appointment.departmentName || 'Specialty Care',
+        specialization: appointment.specialization || (appointment.department_name || appointment.departmentName ? `${appointment.department_name || appointment.departmentName} Specialist` : 'Specialist Doctor'),
+        patient_name: appointment.patient_name || appointment.patientName || user.fullName || 'Valued Patient'
+      };
+      setActiveApt(normalized);
+      setLoading(false);
+      return;
+    }
+
+    // 2. Check URL hash for direct deep-link from smartphone QR scan
+    const hash = window.location.hash || '';
+    if (hash.includes('id=') && (hash.includes('#digital-pass') || hash.includes('#pass'))) {
+      try {
+        const queryPart = hash.split('?')[1] || '';
+        const params = new URLSearchParams(queryPart);
+        const scannedAppt: any = {
+          appointment_id: params.get('id') || 'APT-2026-88129',
+          patient_id: params.get('patId') || user.patientId || 'PAT-2026-38372',
+          doctor_id: '',
+          department_id: '',
+          appointment_date: params.get('date') || new Date().toISOString().split('T')[0],
+          appointment_time: params.get('time') || '10:00 AM',
+          status: 'BOOKED',
+          token_number: params.get('token') || '#CF-201',
+          queue_position: 1,
+          estimated_wait_time: 8,
+          room_no: params.get('room') || 'Room 204',
+          reason: params.get('reason') || 'Routine health consultation & checkup',
+          doctor_name: params.get('doc') || 'Assigned Specialist',
+          department_name: params.get('dept') || 'Specialty Care',
+          specialization: `${params.get('dept') || 'Medical'} Specialist`,
+          patient_name: params.get('pat') || user.fullName || 'Valued Patient'
+        };
+        setActiveApt(scannedAppt);
+        setLoading(false);
+        return;
+      } catch (e) {
+        console.warn('Error parsing deep-link hash:', e);
+      }
+    }
+
+    // 3. Fallback: Fetch user appointments from API
     if (user.patientId) {
       api.getMyAppointments(user.patientId)
         .then(res => {
@@ -51,11 +111,9 @@ export const PatientTokenWindow: React.FC<PatientTokenWindowProps> = ({
 
           if (active) {
             setActiveApt(active);
-            // All other appointments form consultation history
             const history = apts.filter(a => a.appointment_id !== active.appointment_id);
             setHistoryApts(history);
           } else if (apts.length > 0) {
-            // Most recent is active
             setActiveApt(apts[0]);
             setHistoryApts(apts.slice(1));
           } else {
@@ -68,7 +126,7 @@ export const PatientTokenWindow: React.FC<PatientTokenWindowProps> = ({
     } else {
       setLoading(false);
     }
-  }, [user.patientId]);
+  }, [user.patientId, appointment]);
 
   return (
     <div style={{
@@ -224,10 +282,10 @@ export const PatientTokenWindow: React.FC<PatientTokenWindowProps> = ({
                     {activeApt.doctor_name || 'Assigned Specialist'}
                   </h4>
                   <span style={{ fontSize: '0.84rem', color: 'var(--primary)', fontWeight: 700 }}>
-                    {activeApt.department_name || 'Clinical Care'} Specialist
+                    {activeApt.specialization || (activeApt.department_name ? `${activeApt.department_name} Specialist` : 'Medical Specialist')}
                   </span>
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '3px' }}>
-                    Hospital Main Wing &bull; {activeApt.room_no || 'OPD Desk'} (Verified Slot)
+                    Hospital Main Wing &bull; {activeApt.room_no || 'Room 204'} (Verified Slot)
                   </div>
                 </div>
               </div>
@@ -257,12 +315,16 @@ export const PatientTokenWindow: React.FC<PatientTokenWindowProps> = ({
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 18px', fontSize: '0.86rem' }}>
               <div>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.74rem', fontWeight: 600, display: 'block' }}>Patient Name</span>
-                <strong style={{ color: 'var(--text-primary)', fontSize: '0.96rem' }}>{user.fullName}</strong>
+                <strong style={{ color: 'var(--text-primary)', fontSize: '0.96rem' }}>
+                  {(activeApt as any).patient_name || (activeApt as any).patientName || user.fullName || 'Valued Patient'}
+                </strong>
               </div>
 
               <div>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.74rem', fontWeight: 600, display: 'block' }}>Patient ID</span>
-                <strong style={{ color: 'var(--text-primary)', fontSize: '0.96rem' }}>{user.patientId}</strong>
+                <strong style={{ color: 'var(--text-primary)', fontSize: '0.96rem' }}>
+                  {(activeApt as any).patient_id || (activeApt as any).patientId || user.patientId || 'PAT-2026-38372'}
+                </strong>
               </div>
 
               <div>

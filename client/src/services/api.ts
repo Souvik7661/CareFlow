@@ -1768,11 +1768,11 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}): T 
       estimatedWaitTimeMinutes: 8,
       estimatedConsultationTime: '10:45 AM',
       doctorStatus: 'IN_SESSION',
-      doctorName: savedAppt?.doctorName || savedAppt?.doctor_name || 'Dr. Ananya Sharma',
-      currentDoctorName: savedAppt?.doctorName || savedAppt?.doctor_name || 'Dr. Ananya Sharma',
-      specialization: savedAppt?.specialization || 'Cardiologist',
+      doctorName: savedAppt?.doctorName || savedAppt?.doctor_name || 'Assigned Specialist',
+      currentDoctorName: savedAppt?.doctorName || savedAppt?.doctor_name || 'Assigned Specialist',
+      specialization: savedAppt?.specialization || (savedAppt?.departmentName ? `${savedAppt.departmentName} Specialist` : 'Medical Specialist'),
       roomNo: savedAppt?.roomNo || savedAppt?.room_no || 'Room 204',
-      departmentName: savedAppt?.departmentName || savedAppt?.department_name || 'Cardiology',
+      departmentName: savedAppt?.departmentName || savedAppt?.department_name || 'OPD Clinic',
       patientsAhead: 0
     } as any;
   }
@@ -2118,6 +2118,26 @@ export const api = {
     }
 
     return { appointments: merged };
+  },
+
+  getAppointmentById: async (id: string) => {
+    try {
+      const res = await request<{ appointment: Appointment }>(`/appointments/${id}`);
+      if (res?.appointment) return res.appointment;
+    } catch (e) {
+      console.warn('[API] getAppointmentById network error, trying local cache:', e);
+    }
+
+    // Try localStorage
+    try {
+      const cached = localStorage.getItem('careflow_latest_appointment');
+      if (cached) {
+        const obj = JSON.parse(cached);
+        if (obj.appointment_id === id || obj.appointmentId === id) return obj;
+      }
+    } catch (e) {}
+
+    return null;
   },
 
   cancelAppointment: (id: string) => 

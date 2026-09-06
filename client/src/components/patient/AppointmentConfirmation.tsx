@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { sessionManager } from '../../services/session';
+import { PatientQRCodeModal } from './PatientQRCodeModal';
 import { 
   CheckCircle, 
   Calendar, 
@@ -21,6 +22,7 @@ interface AppointmentConfirmationProps {
   onGoToMyAppointments: () => void;
   onGoToDashboard: () => void;
   onGoToLiveQueue?: () => void;
+  onViewPass?: (appointment: any) => void;
 }
 
 export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = ({
@@ -28,9 +30,11 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   onGoToCheckIn,
   onGoToMyAppointments,
   onGoToDashboard,
-  onGoToLiveQueue
+  onGoToLiveQueue,
+  onViewPass
 }) => {
   const [calendarDownloaded, setCalendarDownloaded] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
 
   // Resilient Field Fallback Accessors
   let defaultPatName = 'Valued Patient';
@@ -43,13 +47,13 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
 
   const apptId = appointment?.appointmentId || appointment?.appointment_id || 'APT-2026-88129';
   const patName = appointment?.patientName || appointment?.patient_name || defaultPatName;
-  const docName = appointment?.doctorName || appointment?.doctor_name || 'Dr. Ananya Sharma';
-  const deptName = appointment?.departmentName || appointment?.department_name || 'Cardiology';
+  const docName = appointment?.doctorName || appointment?.doctor_name || 'Assigned Specialist Doctor';
+  const deptName = appointment?.departmentName || appointment?.department_name || 'Specialty Care';
   const roomNumber = appointment?.roomNo || appointment?.room_no || 'Room 204';
   const roomWing = appointment?.wing || appointment?.room_wing || appointment?.roomWing || 'Block A • OPD Wing';
   const apptDate = appointment?.appointmentDate || appointment?.appointment_date || new Date().toISOString().split('T')[0];
   const apptTime = appointment?.appointmentTime || appointment?.appointment_time || '10:00 AM';
-  const rawToken = appointment?.tokenNumber || appointment?.token_number || '#1';
+  const rawToken = appointment?.tokenNumber || appointment?.token_number || '#CF-201';
   const displayToken = (rawToken || '').startsWith('#') ? rawToken : `#${rawToken}`;
   const isOfflinePass = !!appointment?.isOffline;
 
@@ -168,21 +172,39 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
                 </div>
               )}
 
-              <div style={{
-                background: 'var(--bg-card)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '10px',
-                padding: '6px 10px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                fontSize: '0.76rem',
-                fontWeight: 700,
-                color: 'var(--text-secondary)'
-              }}>
+              <button 
+                type="button"
+                onClick={() => setShowQrModal(true)}
+                style={{
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '10px',
+                  padding: '6px 12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--primary)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(20, 184, 166, 0.25)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border-color)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.06)';
+                }}
+                title="Tap to view QR Code & Digital Pass"
+              >
                 <QrCode size={16} color="var(--primary)" />
                 <span>Pass</span>
-              </div>
+              </button>
             </div>
           </div>
 
@@ -262,9 +284,20 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
 
         {/* Action Buttons */}
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          {onGoToLiveQueue && (
+          {onViewPass && (
             <button 
               className="btn btn-primary"
+              style={{ fontSize: '0.84rem', borderRadius: '9999px', padding: '8px 18px', background: 'linear-gradient(135deg, #0d9488, #0f766e)' }}
+              onClick={() => onViewPass(appointment)}
+            >
+              <Ticket size={15} />
+              <span>Official Digital Pass ({displayToken})</span>
+            </button>
+          )}
+
+          {onGoToLiveQueue && (
+            <button 
+              className="btn btn-outline"
               style={{ fontSize: '0.84rem', borderRadius: '9999px', padding: '8px 18px' }}
               onClick={onGoToLiveQueue}
             >
@@ -301,6 +334,21 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
           </button>
         </div>
       </div>
+
+      {/* QR Code Pass Modal */}
+      {showQrModal && (
+        <PatientQRCodeModal 
+          isOpen={showQrModal}
+          onClose={() => setShowQrModal(false)}
+          appointment={appointment}
+          onViewDigitalPass={() => {
+            setShowQrModal(false);
+            if (onViewPass) {
+              onViewPass(appointment);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

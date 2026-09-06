@@ -66,6 +66,7 @@ interface NavEntry {
   selectedHospitalForAmbulance?: string;
   prefilledCheckInId?: string | null;
   currentRecommendation?: DoctorRecommendation | null;
+  selectedAppointmentForPass?: any | null;
 }
 
 const AppContent: React.FC = () => {
@@ -85,6 +86,7 @@ const AppContent: React.FC = () => {
   const [currentRecommendation, setCurrentRecommendation] = useState<DoctorRecommendation | null>(null);
   const [latestAppointment, setLatestAppointment] = useState<any | null>(null);
   const [prefilledCheckInId, setPrefilledCheckInId] = useState<string | null>(null);
+  const [selectedAppointmentForPass, setSelectedAppointmentForPass] = useState<any | null>(null);
 
   // Blueprint state
   const [selectedDoctorForProfile, setSelectedDoctorForProfile] = useState<any | null>(null);
@@ -127,7 +129,8 @@ const AppContent: React.FC = () => {
         bookingDoctorId,
         selectedHospitalForAmbulance,
         prefilledCheckInId,
-        currentRecommendation
+        currentRecommendation,
+        selectedAppointmentForPass
       };
       setHistoryStack(prev => [...prev, currentEntry]);
     }
@@ -141,6 +144,7 @@ const AppContent: React.FC = () => {
     if (extra.selectedHospitalForAmbulance !== undefined) setSelectedHospitalForAmbulance(extra.selectedHospitalForAmbulance);
     if (extra.prefilledCheckInId !== undefined) setPrefilledCheckInId(extra.prefilledCheckInId);
     if (extra.currentRecommendation !== undefined) setCurrentRecommendation(extra.currentRecommendation);
+    if (extra.selectedAppointmentForPass !== undefined) setSelectedAppointmentForPass(extra.selectedAppointmentForPass);
 
     setCurrentView(nextView);
   };
@@ -156,6 +160,7 @@ const AppContent: React.FC = () => {
       if (prevEntry.selectedHospitalForAmbulance !== undefined) setSelectedHospitalForAmbulance(prevEntry.selectedHospitalForAmbulance);
       if (prevEntry.prefilledCheckInId !== undefined) setPrefilledCheckInId(prevEntry.prefilledCheckInId);
       if (prevEntry.currentRecommendation !== undefined) setCurrentRecommendation(prevEntry.currentRecommendation);
+      if (prevEntry.selectedAppointmentForPass !== undefined) setSelectedAppointmentForPass(prevEntry.selectedAppointmentForPass);
 
       setCurrentView(prevEntry.view);
 
@@ -199,6 +204,63 @@ const AppContent: React.FC = () => {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [isTeleconsultOpen, authModal, isLanguageModalOpen]);
+
+  // Handle direct deep-links from smartphone QR code scans (#digital-pass?id=...)
+  useEffect(() => {
+    const checkHashForPass = () => {
+      const hash = window.location.hash || '';
+      if (hash.startsWith('#digital-pass') || hash.startsWith('#pass')) {
+        try {
+          const queryPart = hash.split('?')[1] || '';
+          const params = new URLSearchParams(queryPart);
+          const aptId = params.get('id');
+          if (aptId) {
+            const scannedAppt: any = {
+              appointment_id: aptId,
+              appointmentId: aptId,
+              token_number: params.get('token') || '#CF-201',
+              tokenNumber: params.get('token') || '#CF-201',
+              doctor_name: params.get('doc') || 'Assigned Specialist Doctor',
+              doctorName: params.get('doc') || 'Assigned Specialist Doctor',
+              department_name: params.get('dept') || 'Specialty Care',
+              departmentName: params.get('dept') || 'Specialty Care',
+              room_no: params.get('room') || 'Room 204',
+              roomNo: params.get('room') || 'Room 204',
+              wing: params.get('wing') || 'Block A • OPD Wing',
+              room_wing: params.get('wing') || 'Block A • OPD Wing',
+              patient_name: params.get('pat') || 'Valued Patient',
+              patientName: params.get('pat') || 'Valued Patient',
+              patient_id: params.get('patId') || 'PAT-2026-38372',
+              patientId: params.get('patId') || 'PAT-2026-38372',
+              appointment_date: params.get('date') || new Date().toISOString().split('T')[0],
+              appointmentDate: params.get('date') || new Date().toISOString().split('T')[0],
+              appointment_time: params.get('time') || '10:00 AM',
+              appointmentTime: params.get('time') || '10:00 AM',
+              reason: params.get('reason') || 'Routine health consultation & checkup',
+              status: 'BOOKED',
+              queue_position: 1,
+              estimated_wait_time: 8
+            };
+            setSelectedAppointmentForPass(scannedAppt);
+            setCurrentView('token-window');
+
+            // If backend is reachable, fetch latest queue status
+            api.getAppointmentById(aptId).then(fresh => {
+              if (fresh) {
+                setSelectedAppointmentForPass((prev: any) => ({ ...prev, ...fresh }));
+              }
+            }).catch(() => {});
+          }
+        } catch (e) {
+          console.warn('[App] Error parsing pass hash:', e);
+        }
+      }
+    };
+
+    checkHashForPass();
+    window.addEventListener('hashchange', checkHashForPass);
+    return () => window.removeEventListener('hashchange', checkHashForPass);
+  }, []);
 
   // Cross-Platform Global Keyboard Shortcuts (Cmd+K on Mac, Ctrl+K on Windows)
   useEffect(() => {
@@ -371,11 +433,18 @@ const AppContent: React.FC = () => {
           />
         )}
 
-        {/* Patient Token & Assigned Doctor Window (Opened on Logo Click) */}
+        {/* Patient Token & Assigned Doctor Window (Opened on Logo Click or Pass QR Scan) */}
         {currentView === 'token-window' && (
-          currentUser ? (
+          (currentUser || selectedAppointmentForPass || latestAppointment) ? (
             <PatientTokenWindow 
-              user={currentUser}
+              user={currentUser || {
+                userId: 'GUEST',
+                fullName: selectedAppointmentForPass?.patient_name || selectedAppointmentForPass?.patientName || 'Valued Patient',
+                patientId: selectedAppointmentForPass?.patient_id || selectedAppointmentForPass?.patientId || 'PAT-2026-38372',
+                email: '',
+                role: 'PATIENT'
+              }}
+              appointment={selectedAppointmentForPass || latestAppointment}
               onBack={handleGoBack}
               onGoToLiveQueue={() => navigateTo('live-queue')}
               onBookNew={() => navigateTo('direct-booking')}
@@ -440,8 +509,8 @@ const AppContent: React.FC = () => {
                 const todayStr = new Date().toISOString().split('T')[0];
                 const patientId = currentUser.patientId || `PAT-2026-${Math.floor(10000 + Math.random() * 90000)}`;
                 const patientName = currentUser.fullName || 'Patient';
-                const doctorName = selectedDoctorForProfile.name || 'Dr. Ananya Sharma';
-                const departmentName = selectedDoctorForProfile.departmentName || selectedDoctorForProfile.department_name || 'Cardiology';
+                const doctorName = selectedDoctorForProfile.name || 'Assigned Specialist Doctor';
+                const departmentName = selectedDoctorForProfile.departmentName || selectedDoctorForProfile.department_name || 'Specialty Care';
                 const roomNo = selectedDoctorForProfile.roomNo || selectedDoctorForProfile.room_no || 'Room 204';
                 const roomWing = selectedDoctorForProfile.roomWing || selectedDoctorForProfile.room_wing || selectedDoctorForProfile.wing || 'Block A • OPD Wing';
 
@@ -558,6 +627,10 @@ const AppContent: React.FC = () => {
             onGoToMyAppointments={() => navigateTo('my-appointments')}
             onGoToLiveQueue={() => navigateTo('live-queue')}
             onGoToDashboard={() => navigateTo(getDefaultHome())}
+            onViewPass={(apt) => {
+              setSelectedAppointmentForPass(apt);
+              navigateTo('token-window', { selectedAppointmentForPass: apt });
+            }}
           />
         )}
 

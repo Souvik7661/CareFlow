@@ -152,7 +152,7 @@ router.post('/book', (req, res) => {
       `, [doctorId, appointmentDate]);
 
       tokenSequence = (countRow?.count || 0) + 1;
-      tokenNum = `#${tokenSequence}`;
+      tokenNum = `#CF-${200 + tokenSequence}`;
 
       // 1. Insert new active appointment into database
       execute(`
@@ -276,6 +276,44 @@ router.get('/my', (req, res) => {
   } catch (err: any) {
     console.error('[APPOINTMENTS] Fetch error:', err);
     return res.status(500).json({ error: 'Failed to fetch appointments.' });
+  }
+});
+
+// 3.5 Get Single Appointment by ID (For Digital Pass & QR Scanning)
+router.get('/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const appointment = queryOne(`
+      SELECT a.*, 
+             d.name as doctor_name, 
+             d.specialization, 
+             d.room_no,
+             d.rating as doctor_rating,
+             dep.name as department_name,
+             dep.room_wing,
+             p.full_name as patient_name,
+             p.phone as patient_phone,
+             c.token_number,
+             q.queue_position,
+             q.estimated_wait_time,
+             q.status as queue_status
+      FROM appointments a
+      LEFT JOIN doctors d ON a.doctor_id = d.doctor_id
+      LEFT JOIN departments dep ON a.department_id = dep.department_id
+      LEFT JOIN patients p ON a.patient_id = p.patient_id
+      LEFT JOIN check_ins c ON a.appointment_id = c.appointment_id
+      LEFT JOIN queue q ON a.appointment_id = q.appointment_id
+      WHERE a.appointment_id = ?
+    `, [id]);
+
+    if (!appointment) {
+      return res.status(404).json({ error: 'Appointment not found.' });
+    }
+
+    return res.json({ appointment });
+  } catch (err: any) {
+    console.error('[APPOINTMENTS] Lookup by ID error:', err);
+    return res.status(500).json({ error: 'Failed to lookup appointment.' });
   }
 });
 
